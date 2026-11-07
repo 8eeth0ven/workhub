@@ -47,9 +47,11 @@ def prepare_site(mode, destination):
     page = (source / "index.html").read_text(encoding="utf-8")
     page = page.replace('href="/design-system.css"', 'href="design-system.css"')
     page = page.replace('src="/templates/runtime.js"', 'src="runtime.js"')
+    page = page.replace('href="/templates/template-shell.css"', 'href="template-shell.css"')
     (destination / "index.html").write_text(page, encoding="utf-8")
     shutil.copyfile(ROOT / "static" / "design-system.css", destination / "design-system.css")
     shutil.copyfile(ROOT / "templates" / "runtime.js", destination / "runtime.js")
+    shutil.copyfile(ROOT / "templates" / "template-shell.css", destination / "template-shell.css")
     shutil.copyfile(ROOT / "examples" / "demo-content" / mode / "data.json", destination / "data.json")
 
 

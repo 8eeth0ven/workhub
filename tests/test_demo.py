@@ -63,6 +63,12 @@ class DemoIsolationTests(unittest.TestCase):
                     status, page = request(url.port, "/")
                     self.assertEqual(status, 200)
                     self.assertNotIn(str(Path.home()).encode(), page)
+                    self.assertIn(b'href="template-shell.css"', page)
+                    self.assertNotIn(b'/templates/template-shell.css', page)
+                    for asset in ("design-system.css", "runtime.js", "template-shell.css"):
+                        status, body = request(url.port, "/" + asset)
+                        self.assertEqual(status, 200, asset)
+                        self.assertGreater(len(body), 0)
                     status, body = request(url.port, "/data.json")
                     self.assertEqual(status, 200)
                     self.assertTrue(json.loads(body)["is_demo"])

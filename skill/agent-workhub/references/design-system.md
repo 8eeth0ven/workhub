@@ -44,3 +44,13 @@
 已有静态网站可以由门户目录服务在响应层加载统一阅读主题，源文件仍保留；模板新站直接使用原生设计系统。需要细化旧站适配时，先检查对现有布局和交互的影响，按项目渐进调整，不直接批量改写所有项目。动态应用由自身加载同一主题或采用这些 token；不尝试从跨源 iframe 操作其 DOM，也不通过修改浏览器保护来强迫注入。
 
 后续维护主题时修改 canonical 源文件；新生成网站会获得新版本。已有正式站持有独立快照，需要在该项目中明确更新主题文件，不能把“生成成功”误报为所有历史站点已迁移。
+
+## 双语一致性 / Bilingual consistency
+
+- 简体中文与 English 使用同一视觉 token、导航结构与控件尺寸；翻译不是重新设计各站的理由。
+- 语言选择位于紧凑顶部工具栏，在当前来源的浏览器本地持久化；刷新后恢复，切换不重置当前页面、站点、筛选或表单草稿。
+- 支持协议的模板接收门户语言选择并更新界面；不改变第三方网站 URL 或试图跨源修改其 DOM。
+- 翻译固定界面文字、状态和维度名称、空状态、加载和错误提示；保留项目名称、来源内容、记录与已有评议的原文，不触发机器翻译或新模型请求。
+- 检查英文长标签、窄屏、键盘焦点和表单标签。左侧已显示页面标题时，两种语言均不增加重复大页头或顶部占位。
+
+Both languages share the same visual system. Save the language preference without losing navigation or input state. Translate UI chrome, not stored project content, and keep the sidebar-first title rule in both languages. Documentation must provide reciprocal language links and describe the same technical and privacy boundaries.

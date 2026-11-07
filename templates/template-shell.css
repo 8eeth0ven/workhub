@@ -1,0 +1,34 @@
+/* Compact layout shell. All visual values come from the shared design system. */
+body[data-template] .template-header {
+  padding-top: var(--wh-space-4);
+  padding-bottom: var(--wh-space-4);
+  gap: var(--wh-space-4);
+}
+body[data-template] .template-header h1 {
+  font-size: 20px;
+  letter-spacing: -.3px;
+}
+body[data-template] .template-header p {
+  margin-top: var(--wh-space-2);
+  font-size: var(--wh-text-xs);
+}
+body[data-template] .template-titleblock {flex: 1 1 240px;}
+body[data-template] .template-language {
+  display: flex;
+  gap: var(--wh-space-2);
+  align-items: center;
+  color: var(--wh-muted);
+  font-size: var(--wh-text-xs);
+}
+body[data-template] .template-language label {white-space: nowrap;}
+body[data-template] .template-language select {
+  min-height: 32px;
+  padding: 4px 9px;
+  font-size: var(--wh-text-xs);
+}
+body[data-template] .template-language select:focus-visible {outline-offset: 2px;}
+@media(max-width:560px) {
+  body[data-template] .template-header {gap: var(--wh-space-3);}
+  body[data-template] .template-titleblock {flex-basis:100%;}
+  body[data-template] .template-language {margin-left:auto;}
+}

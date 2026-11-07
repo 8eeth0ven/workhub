@@ -66,6 +66,14 @@ python3 "$WORKHUB_REPO/scripts/install.py" --project /项目/绝对路径 --site
 
 用户启用模型评议后，在重要里程碑记录后按 [项目评议协议](references/socratic-review.md) 调用其配置的模型；查看目标、假设、证据、反例、后果和问题边界，区分有证据的发现与待核实问题。支持云端 API、本机模型或显式配置的 CLI，以实际后端配置为准；未配置时不冒充模型输出。对“资料不足”的项目补充真实背景，不编造分数或成果；后续记录会让旧评价过期。
 
+## 中英文界面约定 / Bilingual interface rules
+
+门户和可复用模板统一支持简体中文与 English，沿用同一套设计体系，不能为不同语言或不同站点另换皮肤。语言入口放在紧凑顶部工具栏，选择保存在浏览器本地并在刷新后恢复；切换时保留当前页面、选中网站、筛选与未提交输入。模板按门户的语言同步协议更新界面，已有第三方站点保留自己的语言行为。
+
+只翻译导航、控件、固定状态/维度标签、空状态和界面提示；项目名称、工作记录、网站正文和已有模型评议保留原文。不要为了界面切换而重写数据、重新请求模型、改变 CLI/API 协议或增加重复的大页头。维护文档时保留中英文互跳入口，技术边界和隐私说明在两种语言中一致。
+
+Use one design system for Simplified Chinese and English. Persist the interface-language choice and preserve the current page, site, filters and unfinished input. Translate interface labels and messages; keep project material and existing reviews in their original language. A language switch must not rewrite records, trigger model calls or change CLI/API contracts.
+
 ## 记录边界和失败
 
 只写用户项目工作的必要摘要、产物路径、验证及阻塞原因，不读取或记录凭据、令牌、完整聊天、私有环境变量。现有规则与用户授权范围保持不变。

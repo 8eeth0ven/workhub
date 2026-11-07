@@ -1,3 +1,5 @@
+[简体中文](installation.md) | [English](installation.en.md)
+
 # 安装与配置
 
 Workhub 使用 Python 3.10+ 标准库。前台门户和模板生成不需要安装第三方 Python 包或前端依赖。命令均从克隆后的仓库根目录执行；代码根据自身位置和 `Path.home()` 推导路径，无需替换仓库中的个人目录。
@@ -5,12 +7,14 @@ Workhub 使用 Python 3.10+ 标准库。前台门户和模板生成不需要安�
 ## 先运行门户
 
 ```sh
-python3 workhub.py serve --host 127.0.0.1 --port 8765
+python3 workhub.py serve --host 127.0.0.1 --port 8787
 ```
 
-打开 `http://127.0.0.1:8765`。如果端口已被其他程序使用，选择其他端口。克隆仓库或启动门户不会修改 Agent 全局规则、扫描其他项目、安装后台服务或调用外部模型。
+打开 `http://127.0.0.1:8787`。如果端口已被其他程序使用，选择其他端口。克隆仓库或启动门户不会修改 Agent 全局规则、扫描其他项目、安装后台服务或调用外部模型。
 
 默认状态目录为 `~/.local/share/agent-workhub`；环境变量 `AGENT_WORKHUB_HOME` 可指定独立的数据目录。测试和演示应使用临时目录，避免混入实际项目记录。
+
+门户顶部提供简体中文和 English 切换，偏好在当前门户来源的浏览器本地存储中保存。切换保留当前页面、选中网站、筛选和未提交输入，只翻译界面；项目内容与已有评议保持原文。它不更改 CLI、API 或模型配置。
 
 ## 选择是否安装 Agent 入口
 
@@ -58,7 +62,7 @@ python3 scripts/site_templates.py create --template radar \
 macOS 和 Linux 可使用独立会话后台进程；它不要求聊天或浏览器持续打开。以下命令仅在用户明确希望安装后台服务时执行：
 
 ```sh
-python3 scripts/service.py install --mode session --port 8765
+python3 scripts/service.py install --mode session --port 8787
 python3 scripts/service.py status
 python3 scripts/service.py stop
 python3 scripts/service.py start

@@ -6,19 +6,21 @@
   <meta name="color-scheme" content="light">
   <title>分析简报</title>
   <link rel="stylesheet" href="/design-system.css" data-workhub-design>
+  <link rel="stylesheet" href="/templates/template-shell.css">
   <script src="/templates/runtime.js" defer></script>
 </head>
 <body data-template="brief">
 <header class="template-header">
-  <div class="template-titleblock"><span class="template-eyebrow">WORKHUB / PROJECT BRIEF</span><h1>分析简报</h1><p id="issue">从关键发现出发，保留证据，明确下一步。</p></div>
+  <div class="template-titleblock"><h1>分析简报</h1><p id="issue">从关键发现出发，保留证据，明确下一步。</p></div>
+  <div class="template-language"><label for="language-select" data-i18n="language">界面语言</label><select id="language-select" aria-label="界面语言" data-i18n-aria="language"><option value="zh-CN">中文</option><option value="en">English</option></select></div>
 </header>
-<div id="loading">正在读取内容…</div><div id="error" hidden>内容读取失败，请检查数据文件。</div>
+<div id="loading" data-i18n="loading">正在读取内容…</div><div id="error" data-i18n="loadError" hidden>内容读取失败，请检查数据文件。</div>
 <main id="app" hidden>
-  <section id="stats" aria-label="简报统计"></section>
-  <div id="toolbar"><input id="q" type="search" placeholder="搜索标题、摘要、标签…" aria-label="搜索内容"><select id="cat" aria-label="按栏目筛选"></select><button id="reset" type="button">重置</button></div>
-  <div class="wrap"><nav class="outline" aria-label="简报目录"><p class="outline-title">本期目录</p><ol id="toc"></ol></nav><section><article class="lead" id="lead"></article><div class="grid" id="grid" aria-live="polite"></div><p id="empty" hidden>暂无匹配内容。</p></section></div>
+  <section id="stats" aria-label="简报统计" data-i18n-aria="briefStats"></section>
+  <div id="toolbar"><input id="q" type="search" data-i18n-placeholder="placeholder" data-i18n-aria="searchContent" placeholder="搜索标题、摘要、标签…" aria-label="搜索内容"><select id="cat" aria-label="按栏目筛选" data-i18n-aria="filterColumn"></select><button id="reset" type="button" data-i18n="reset">重置</button></div>
+  <div class="wrap"><nav class="outline" aria-label="简报目录" data-i18n-aria="outline"><p class="outline-title" data-i18n="outline">本期目录</p><ol id="toc"></ol></nav><section><article class="lead" id="lead"></article><div class="grid" id="grid" aria-live="polite"></div><p id="empty" data-i18n="emptyMatch" hidden>暂无匹配内容。</p></section></div>
   <footer></footer>
 </main>
-<dialog id="dlg" aria-labelledby="d-title"><p class="meta" id="d-meta"></p><h2 id="d-title"></h2><p id="d-sum"></p><p id="d-tags"></p><p><a id="d-link" target="_blank" rel="noopener">查看来源 ↗</a></p><button id="close" type="button">关闭</button></dialog>
+<dialog id="dlg" aria-labelledby="d-title"><p class="meta" id="d-meta"></p><h2 id="d-title"></h2><p id="d-sum"></p><p id="d-tags"></p><p><a id="d-link" data-i18n="sourceLink" target="_blank" rel="noopener">查看来源 ↗</a></p><button id="close" type="button" data-i18n="close">关闭</button></dialog>
 </body>
 </html>

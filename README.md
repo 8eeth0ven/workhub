@@ -1,3 +1,5 @@
+[简体中文](README.md) | [English](README.en.md)
+
 # Workhub
 
 **One workspace for projects, agents, and better questions.**
@@ -38,6 +40,12 @@ python3 examples/demo.py --port 8899
 打开 [http://127.0.0.1:8899](http://127.0.0.1:8899)。演示使用临时 SQLite、四个虚构项目与三个示例网站，不读取用户数据库、全局 Agent 配置或模型密钥；评议为明确标注的预置结果，禁止发起真实模型调用。退出时删除临时数据。
 
 完整安装、后台运行与迁移说明见 [安装文档](docs/installation.md)。
+
+## 中英文切换
+
+顶部工具栏可选择「简体中文 / English」，语言偏好保存在当前门户来源的浏览器本地存储中，刷新后沿用。切换只改变导航、控件、状态标签与界面提示，不翻译或改写项目名称、工作记录、网站正文和已有模型评议；当前页面、站点、筛选与未提交输入保持不变。门户会把语言选择同步给支持该协议的模板 iframe，已有第三方网站保留自己的语言行为。
+
+文档也可通过每页顶部入口在中英文之间切换。英文版见 [README.en.md](README.en.md)；CLI 命令、API 路径与持久化数据结构不因界面语言改变。
 
 ## 把 Agent 的工作接进来
 
@@ -80,7 +88,7 @@ python3 scripts/install.py --project /path/to/your-project \
   --site-dir /path/to/your-project/site --site-name "项目雷达" --template radar
 ```
 
-`radar` 适合线索与动态，`library` 适合参考资料，`brief` 适合阶段发现与简报。正式生成的站点默认不包含演示内容；生成页面和登记网站是两个步骤。
+`radar` 适合线索与动态，`library` 适合参考资料，`brief` 适合阶段发现与简报。正式生成的站点默认不包含演示内容；生成页面和登记网站是两个步骤。 模板支持 `--language zh-CN` 或 `--language en` 指定初始界面语言；已有的浏览器语言偏好优先，独立站也可以在工具栏切换。
 
 ![版式工坊：同一设计体系下的三种布局](docs/images/layouts.jpg)
 
@@ -116,3 +124,5 @@ python3 -m unittest discover -s tests -v
 ```
 
 测试使用临时数据和模拟评议器；演示隔离检查还会确认 API 不泄露本机路径、不读取全局配置且不能触发模型调用。真实模型、外部 CLI 和浏览器兼容性仍应在你的环境中验证。
+
+界面语言的独立行为检查可运行 `node tests/test_i18n.cjs`。这项开发检查需要 Node.js，运行 Workhub 本身不需要。

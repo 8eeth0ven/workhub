@@ -6,18 +6,20 @@
   <meta name="color-scheme" content="light">
   <title>信息雷达</title>
   <link rel="stylesheet" href="/design-system.css" data-workhub-design>
+  <link rel="stylesheet" href="/templates/template-shell.css">
   <script src="/templates/runtime.js" defer></script>
 </head>
 <body data-template="radar">
 <header class="template-header">
-  <div class="template-titleblock"><span class="template-eyebrow">WORKHUB / INFORMATION RADAR</span><h1>信息雷达</h1><p>收集信息，辨别来源，把值得关注的线索放在一起。</p></div>
-  <div class="search"><input id="q" type="search" placeholder="搜索标题、摘要、标签…" aria-label="搜索内容"><button id="go" type="button">搜索</button></div>
+  <div class="template-titleblock"><h1>信息雷达</h1><p>收集信息，辨别来源，把值得关注的线索放在一起。</p></div>
+  <div class="search"><input id="q" type="search" data-i18n-placeholder="placeholder" data-i18n-aria="searchContent" placeholder="搜索标题、摘要、标签…" aria-label="搜索内容"><button id="go" type="button" data-i18n="search">搜索</button></div>
+  <div class="template-language"><label for="language-select" data-i18n="language">界面语言</label><select id="language-select" aria-label="界面语言" data-i18n-aria="language"><option value="zh-CN">中文</option><option value="en">English</option></select></div>
 </header>
 <div class="wrap">
-  <main><section class="stats" id="stats" aria-label="信息统计"></section><nav class="tabs" id="tabs" aria-label="信息分类"></nav><section id="list" aria-live="polite" aria-label="信息条目"></section></main>
-  <aside class="panel"><h3>来源分布</h3><ul id="src"></ul></aside>
+  <main><section class="stats" id="stats" aria-label="信息统计" data-i18n-aria="informationStats"></section><nav class="tabs" id="tabs" aria-label="信息分类" data-i18n-aria="informationCategories"></nav><section id="list" aria-live="polite" aria-label="信息条目" data-i18n-aria="informationItems"></section></main>
+  <aside class="panel"><h3 data-i18n="sources">来源分布</h3><ul id="src"></ul></aside>
 </div>
-<dialog id="dlg" aria-labelledby="dt"><h2 id="dt"></h2><p class="meta" id="dm"></p><p id="ds"></p><p id="dg"></p><button id="close" type="button">关闭</button></dialog>
+<dialog id="dlg" aria-labelledby="dt"><h2 id="dt"></h2><p class="meta" id="dm"></p><p id="ds"></p><p id="dg"></p><button id="close" type="button" data-i18n="close">关闭</button></dialog>
 <footer id="foot"></footer>
 </body>
 </html>

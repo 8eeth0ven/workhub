@@ -55,7 +55,7 @@ class DesignSystemTests(unittest.TestCase):
                     parser = Assets()
                     parser.feed(html)
                     self.assertEqual(len(parser.ids), len(set(parser.ids)), "DOM identity must be unambiguous")
-                    self.assertEqual(set(parser.urls), {"design-system.css", "runtime.js"})
+                    self.assertEqual(set(parser.urls), {"design-system.css", "runtime.js", "template-shell.css"})
                     for url in parser.urls:
                         self.assertFalse(url.startswith(("/", "http:", "https:", "..")))
                         self.assertTrue((output / url).is_file())

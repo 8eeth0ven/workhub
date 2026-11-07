@@ -1,0 +1,10 @@
+{
+  "provider": "glm",
+  "api_keys": ["YOUR_API_KEY"],
+  "base_url": "https://open.bigmodel.cn/api/paas/v4",
+  "model": "MODEL",
+  "reasoning_effort": "low",
+  "max_tokens": 8192,
+  "timeout_seconds": 55,
+  "max_retries": 2
+}

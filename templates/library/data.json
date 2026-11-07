@@ -1,0 +1,87 @@
+{
+  "name": "知识资料库",
+  "description": "靛蓝纸白风格文档库模板演示数据，全部为演示占位内容，不构成任何事实主张。",
+  "is_demo": true,
+  "items": [
+    {
+      "id": "kb-001",
+      "title": "入门指南：资料归档方法示例",
+      "summary": "演示摘要：介绍常见归档思路与命名规范，仅作排版示例。",
+      "category": "入门指南",
+      "source": "演示来源",
+      "url": "https://example.com/archiving",
+      "date": "2024-05-12",
+      "tags": [
+        "归档",
+        "入门",
+        "示例"
+      ]
+    },
+    {
+      "id": "kb-002",
+      "title": "搜索技巧速查（演示）",
+      "summary": "演示摘要：展示关键词组合与过滤的占位说明文字。",
+      "category": "入门指南",
+      "source": "演示来源",
+      "url": "https://example.com/search",
+      "date": "2024-06-03",
+      "tags": [
+        "搜索",
+        "技巧"
+      ]
+    },
+    {
+      "id": "kb-003",
+      "title": "行业观察：占位分析文章",
+      "summary": "演示摘要：虚构的行业趋势描述，用于填充卡片版面。",
+      "category": "行业观察",
+      "source": "演示来源",
+      "url": "https://example.com/industry",
+      "date": "2024-07-21",
+      "tags": [
+        "行业",
+        "分析"
+      ]
+    },
+    {
+      "id": "kb-004",
+      "title": "工具清单：常用软件示例列表",
+      "summary": "演示摘要：罗列若干占位工具名称与用途说明。",
+      "category": "工具资源",
+      "source": "演示来源",
+      "url": "https://example.com/tools",
+      "date": "2024-08-15",
+      "tags": [
+        "工具",
+        "清单"
+      ]
+    },
+    {
+      "id": "kb-005",
+      "title": "研究报告：模板示例文献",
+      "summary": "演示摘要：模拟研究报告结构，内容无任何真实结论。",
+      "category": "研究报告",
+      "source": "演示来源",
+      "url": "https://example.com/report",
+      "date": "2024-09-30",
+      "tags": [
+        "研究",
+        "报告"
+      ]
+    },
+    {
+      "id": "kb-006",
+      "title": "常见问题 FAQ 占位合集",
+      "summary": "演示摘要：收录示例问答条目，供测试空态与搜索交互。",
+      "category": "常见问题",
+      "source": "演示来源",
+      "url": "https://example.com/faq",
+      "date": "2024-11-08",
+      "tags": [
+        "FAQ",
+        "问答",
+        "示例"
+      ]
+    }
+  ]
+}

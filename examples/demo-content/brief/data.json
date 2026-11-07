@@ -1,0 +1,72 @@
+{
+  "name": "示例 · 周度研究简报",
+  "description": "虚构简报：呈现发现、证据边界与下一步。",
+  "is_demo": true,
+  "items": [
+    {
+      "id": "brief-1",
+      "title": "从事实走向可核验的问题",
+      "summary": "演示条目，内容为虚构。先写清观察，再区分证据、解释和未证实假设。",
+      "category": "本期发现",
+      "source": "示例来源 A",
+      "date": "2026-10-24",
+      "url": "https://example.com/brief/1",
+      "tags": [
+        "演示",
+        "本期发现"
+      ]
+    },
+    {
+      "id": "brief-2",
+      "title": "本轮覆盖与尚未覆盖内容",
+      "summary": "演示条目，内容为虚构。这里只演示结构，不能据此推断真实世界结论。",
+      "category": "方法与边界",
+      "source": "示例来源 B",
+      "date": "2026-10-23",
+      "url": "https://example.com/brief/2",
+      "tags": [
+        "演示",
+        "方法与边界"
+      ]
+    },
+    {
+      "id": "brief-3",
+      "title": "优先补充反例与验证步骤",
+      "summary": "演示条目，内容为虚构。补充能够推翻当前判断的观察，再决定是否扩大收集。",
+      "category": "下一步",
+      "source": "示例来源 C",
+      "date": "2026-10-22",
+      "url": "https://example.com/brief/3",
+      "tags": [
+        "演示",
+        "下一步"
+      ]
+    },
+    {
+      "id": "brief-4",
+      "title": "用时间线记录工作的变化",
+      "summary": "演示条目，内容为虚构。保留阶段进展与原始验证记录，避免只留最终结果。",
+      "category": "本期发现",
+      "source": "示例来源 A",
+      "date": "2026-10-21",
+      "url": "https://example.com/brief/4",
+      "tags": [
+        "演示",
+        "本期发现"
+      ]
+    },
+    {
+      "id": "brief-5",
+      "title": "先提出问题，再评价完整性",
+      "summary": "演示条目，内容为虚构。让苏格拉底式追问连接到下一轮资料补全。",
+      "category": "方法与边界",
+      "source": "示例来源 B",
+      "date": "2026-10-20",
+      "url": "https://example.com/brief/5",
+      "tags": [
+        "演示",
+        "方法与边界"
+      ]
+    }
+  ]
+}

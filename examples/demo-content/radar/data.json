@@ -1,0 +1,85 @@
+{
+  "name": "示例 · 开放信息雷达",
+  "description": "虚构数据：按来源整理线索，保留证据与待验证假设。",
+  "is_demo": true,
+  "items": [
+    {
+      "id": "radar-1",
+      "title": "检索入口与来源说明",
+      "summary": "演示条目，内容为虚构。记录信息采集入口、来源名称和复核方式。",
+      "category": "工具动态",
+      "source": "示例来源 A",
+      "date": "2026-10-24",
+      "url": "https://example.com/radar/1",
+      "tags": [
+        "演示",
+        "工具动态"
+      ]
+    },
+    {
+      "id": "radar-2",
+      "title": "按主题整理每周观察",
+      "summary": "演示条目，内容为虚构。用稳定的主题和标签归档虚构信息。",
+      "category": "行业观察",
+      "source": "示例来源 B",
+      "date": "2026-10-23",
+      "url": "https://example.com/radar/2",
+      "tags": [
+        "演示",
+        "行业观察"
+      ]
+    },
+    {
+      "id": "radar-3",
+      "title": "区分证据与推断",
+      "summary": "演示条目，内容为虚构。把摘录、人工解释与未确认假设分开记录。",
+      "category": "方法笔记",
+      "source": "示例来源 C",
+      "date": "2026-10-22",
+      "url": "https://example.com/radar/3",
+      "tags": [
+        "演示",
+        "方法笔记"
+      ]
+    },
+    {
+      "id": "radar-4",
+      "title": "去重与来源交叉检查",
+      "summary": "演示条目，内容为虚构。保留最初来源，标注转载关系，避免重复计数。",
+      "category": "工具动态",
+      "source": "示例来源 A",
+      "date": "2026-10-21",
+      "url": "https://example.com/radar/4",
+      "tags": [
+        "演示",
+        "工具动态"
+      ]
+    },
+    {
+      "id": "radar-5",
+      "title": "留下尚未覆盖的位置",
+      "summary": "演示条目，内容为虚构。列出待补充来源，说明下一步核验办法。",
+      "category": "方法笔记",
+      "source": "示例来源 B",
+      "date": "2026-10-20",
+      "url": "https://example.com/radar/5",
+      "tags": [
+        "演示",
+        "方法笔记"
+      ]
+    },
+    {
+      "id": "radar-6",
+      "title": "相同版式，不同主题",
+      "summary": "演示条目，内容为虚构。字体、色彩与控件保持一致，减少切换负担。",
+      "category": "行业观察",
+      "source": "示例来源 C",
+      "date": "2026-10-19",
+      "url": "https://example.com/radar/6",
+      "tags": [
+        "演示",
+        "行业观察"
+      ]
+    }
+  ]
+}

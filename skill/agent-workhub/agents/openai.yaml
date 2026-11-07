@@ -1,0 +1,6 @@
+interface:
+  display_name: "统一项目工作台"
+  short_description: "统一项目进展、本地网站与固定设计体系，按配置进行苏格拉底项目评议。"
+  default_prompt: "使用 $agent-workhub 记录当前项目的实际进展；网站沿用固定设计体系并接入门户，用户启用后进行苏格拉底模型评议。"
+policy:
+  allow_implicit_invocation: true

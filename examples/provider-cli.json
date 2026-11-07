@@ -1,0 +1,9 @@
+{
+  "provider": "cli",
+  "model": "CLI",
+  "command": ["python3", "/absolute/path/to/workhub-review-wrapper.py"],
+  "output_format": "json",
+  "concurrency": 1,
+  "timeout_seconds": 55,
+  "max_output_bytes": 2097152
+}

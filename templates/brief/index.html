@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>分析简报</title>
+  <link rel="stylesheet" href="/design-system.css" data-workhub-design>
+  <script src="/templates/runtime.js" defer></script>
+</head>
+<body data-template="brief">
+<header class="template-header">
+  <div class="template-titleblock"><span class="template-eyebrow">WORKHUB / PROJECT BRIEF</span><h1>分析简报</h1><p id="issue">从关键发现出发，保留证据，明确下一步。</p></div>
+</header>
+<div id="loading">正在读取内容…</div><div id="error" hidden>内容读取失败，请检查数据文件。</div>
+<main id="app" hidden>
+  <section id="stats" aria-label="简报统计"></section>
+  <div id="toolbar"><input id="q" type="search" placeholder="搜索标题、摘要、标签…" aria-label="搜索内容"><select id="cat" aria-label="按栏目筛选"></select><button id="reset" type="button">重置</button></div>
+  <div class="wrap"><nav class="outline" aria-label="简报目录"><p class="outline-title">本期目录</p><ol id="toc"></ol></nav><section><article class="lead" id="lead"></article><div class="grid" id="grid" aria-live="polite"></div><p id="empty" hidden>暂无匹配内容。</p></section></div>
+  <footer></footer>
+</main>
+<dialog id="dlg" aria-labelledby="d-title"><p class="meta" id="d-meta"></p><h2 id="d-title"></h2><p id="d-sum"></p><p id="d-tags"></p><p><a id="d-link" target="_blank" rel="noopener">查看来源 ↗</a></p><button id="close" type="button">关闭</button></dialog>
+</body>
+</html>

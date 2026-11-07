@@ -1,0 +1,11 @@
+{
+  "provider": "openai",
+  "api_keys": ["YOUR_API_KEY"],
+  "base_url": "https://api.openai.com/v1",
+  "model": "MODEL",
+  "max_tokens": 4096,
+  "token_parameter": "max_completion_tokens",
+  "json_mode": true,
+  "timeout_seconds": 55,
+  "max_retries": 1
+}

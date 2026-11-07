@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>知识资料库</title>
+  <link rel="stylesheet" href="/design-system.css" data-workhub-design>
+  <script src="/templates/runtime.js" defer></script>
+</head>
+<body data-template="library">
+<header class="template-header">
+  <div class="template-titleblock"><span class="template-eyebrow">WORKHUB / KNOWLEDGE LIBRARY</span><h1>知识资料库</h1><p>把资料整理成可检索、可追溯的知识集合。</p></div>
+  <div class="stats" aria-label="资料统计"><span><b id="stItems">0</b>篇资料</span><span><b id="stCats">0</b>个分类</span><span><b id="stTags">0</b>个标签</span></div>
+</header>
+<main>
+  <aside><h3>分类目录</h3><div id="cats"></div></aside>
+  <section><div class="bar"><input id="q" type="search" placeholder="搜索标题、摘要、标签…" aria-label="搜索内容"><select id="sort" aria-label="排序方式"><option value="date-desc">日期：从新到旧</option><option value="date-asc">日期：从旧到新</option><option value="title">标题：A–Z</option></select></div><div id="grid" aria-live="polite" aria-label="资料列表"></div></section>
+</main>
+<dialog id="dlg" aria-labelledby="dTitle"><div class="cat" id="dCat"></div><h2 id="dTitle"></h2><p id="dSum"></p><p class="meta"><span id="dSrc"></span> · <span id="dDate"></span></p><p id="dUrlWrap"><a id="dUrl" target="_blank" rel="noopener"></a></p><p class="tags" id="dTags"></p><button id="dClose" type="button">关闭</button></dialog>
+<footer></footer>
+</body>
+</html>

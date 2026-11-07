@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>信息雷达</title>
+  <link rel="stylesheet" href="/design-system.css" data-workhub-design>
+  <script src="/templates/runtime.js" defer></script>
+</head>
+<body data-template="radar">
+<header class="template-header">
+  <div class="template-titleblock"><span class="template-eyebrow">WORKHUB / INFORMATION RADAR</span><h1>信息雷达</h1><p>收集信息，辨别来源，把值得关注的线索放在一起。</p></div>
+  <div class="search"><input id="q" type="search" placeholder="搜索标题、摘要、标签…" aria-label="搜索内容"><button id="go" type="button">搜索</button></div>
+</header>
+<div class="wrap">
+  <main><section class="stats" id="stats" aria-label="信息统计"></section><nav class="tabs" id="tabs" aria-label="信息分类"></nav><section id="list" aria-live="polite" aria-label="信息条目"></section></main>
+  <aside class="panel"><h3>来源分布</h3><ul id="src"></ul></aside>
+</div>
+<dialog id="dlg" aria-labelledby="dt"><h2 id="dt"></h2><p class="meta" id="dm"></p><p id="ds"></p><p id="dg"></p><button id="close" type="button">关闭</button></dialog>
+<footer id="foot"></footer>
+</body>
+</html>

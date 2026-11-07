@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400" role="img" aria-labelledby="title description">
+  <title id="title">Workhub：本地记录，统一门户，按需模型评议</title>
+  <desc id="description">Agent和CLI向本机SQLite写入必要工作摘要。Workhub统一显示项目网站、工作记录和模板。只有主动发起评议时，摘要才交给选定API、本地模型或CLI适配器，密钥留在本机后端。</desc>
+  <defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 7 3.5 0 7" fill="#7e8e73"/></marker></defs>
+  <rect width="1200" height="400" rx="18" fill="#f7f8f4"/>
+  <g font-family="-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft Yahei',sans-serif">
+    <text x="38" y="44" font-size="12" letter-spacing="2" fill="#687267">LOCAL FIRST · REQUEST WHEN NEEDED</text>
+    <text x="38" y="79" font-size="24" font-weight="600" fill="#252b26">工作保存在本机，评议交给你选择的模型。</text>
+    <rect x="38" y="123" width="188" height="159" rx="10" fill="#fff" stroke="#e1e5dc"/>
+    <text x="59" y="159" font-size="16" font-weight="600" fill="#252b26">Agent / CLI</text>
+    <text x="59" y="188" font-size="12" fill="#687267">Codex · Z Code · Claude</text>
+    <text x="59" y="214" font-size="12" fill="#687267">AGENTS / CLAUDE / skill</text>
+    <text x="59" y="253" font-size="12" fill="#53634d">必要工作摘要 + run-id</text>
+    <path d="M228 201H268" stroke="#7e8e73" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <rect x="280" y="123" width="204" height="159" rx="10" fill="#fff" stroke="#e1e5dc"/>
+    <text x="301" y="159" font-size="16" font-weight="600" fill="#252b26">本机工作记录</text>
+    <text x="301" y="188" font-size="12" fill="#687267">SQLite 持久化</text>
+    <text x="301" y="214" font-size="12" fill="#687267">项目 · 事件 · 站点 · 评议</text>
+    <text x="301" y="253" font-size="12" fill="#53634d">完整仓库与聊天不自动上传</text>
+    <path d="M487 201H527" stroke="#7e8e73" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <rect x="539" y="123" width="270" height="159" rx="10" fill="#252b26"/>
+    <text x="560" y="159" font-size="16" font-weight="600" fill="#fff">Workhub 统一门户</text>
+    <text x="560" y="188" font-size="12" fill="#c6d0be">项目网站同页切换 · Agent 记录</text>
+    <text x="560" y="214" font-size="12" fill="#c6d0be">固定视觉 / 三种布局</text>
+    <text x="560" y="253" font-size="12" fill="#d6e5c8">苏格拉底追问 · 依据与下一步</text>
+    <path d="M812 201H866" stroke="#7e8e73" stroke-width="1.5" stroke-dasharray="5 5" marker-end="url(#arrow)"/>
+    <text x="819" y="182" font-size="10" fill="#687267">按需评议</text>
+    <rect x="879" y="123" width="283" height="159" rx="10" fill="#fff" stroke="#e1e5dc"/>
+    <text x="900" y="159" font-size="16" font-weight="600" fill="#252b26">所选评议器</text>
+    <text x="900" y="188" font-size="12" fill="#687267">GLM / OpenAI-compatible / Anthropic</text>
+    <text x="900" y="214" font-size="12" fill="#687267">Ollama / 显式 CLI 适配器</text>
+    <text x="900" y="253" font-size="12" fill="#53634d">是否联网取决于你的配置</text>
+    <rect x="38" y="310" width="1124" height="53" rx="9" fill="#edf1e9" stroke="#e1e5dc"/>
+    <circle cx="61" cy="336" r="4" fill="#53634d"/>
+    <text x="77" y="341" font-size="12" fill="#53634d">密钥与命令配置留在本机后端；浏览器只读取配置状态。演示模式完全隔离，使用虚构资料，不调用模型。</text>
+  </g>
+</svg>

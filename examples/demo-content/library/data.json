@@ -1,0 +1,85 @@
+{
+  "name": "示例 · 知识资料库",
+  "description": "虚构资料：演示分类检索与来源归档。",
+  "is_demo": true,
+  "items": [
+    {
+      "id": "library-1",
+      "title": "项目资料的目录结构",
+      "summary": "演示条目，内容为虚构。把说明、证据、产物和复核记录归入稳定目录。",
+      "category": "使用指南",
+      "source": "示例来源 A",
+      "date": "2026-10-24",
+      "url": "https://example.com/library/1",
+      "tags": [
+        "演示",
+        "使用指南"
+      ]
+    },
+    {
+      "id": "library-2",
+      "title": "可复核笔记的最小信息",
+      "summary": "演示条目，内容为虚构。保留目标、来源、时间、摘录与尚未确认的边界。",
+      "category": "方法笔记",
+      "source": "示例来源 B",
+      "date": "2026-10-23",
+      "url": "https://example.com/library/2",
+      "tags": [
+        "演示",
+        "方法笔记"
+      ]
+    },
+    {
+      "id": "library-3",
+      "title": "来源可信度检查清单",
+      "summary": "演示条目，内容为虚构。展示资料卡片的搜索与详情弹窗。",
+      "category": "参考资源",
+      "source": "示例来源 C",
+      "date": "2026-10-22",
+      "url": "https://example.com/library/3",
+      "tags": [
+        "演示",
+        "参考资源"
+      ]
+    },
+    {
+      "id": "library-4",
+      "title": "给条目添加标签",
+      "summary": "演示条目，内容为虚构。栏目表达稳定分类，标签支持跨栏目检索。",
+      "category": "使用指南",
+      "source": "示例来源 A",
+      "date": "2026-10-21",
+      "url": "https://example.com/library/4",
+      "tags": [
+        "演示",
+        "使用指南"
+      ]
+    },
+    {
+      "id": "library-5",
+      "title": "资料整理的阶段总结",
+      "summary": "演示条目，内容为虚构。完成目录校对，仍需补充来源失效时的恢复办法。",
+      "category": "研究记录",
+      "source": "示例来源 B",
+      "date": "2026-10-20",
+      "url": "https://example.com/library/5",
+      "tags": [
+        "演示",
+        "研究记录"
+      ]
+    },
+    {
+      "id": "library-6",
+      "title": "后续维护与更新约定",
+      "summary": "演示条目，内容为虚构。记录更新频率、责任角色与过期检查。",
+      "category": "参考资源",
+      "source": "示例来源 C",
+      "date": "2026-10-19",
+      "url": "https://example.com/library/6",
+      "tags": [
+        "演示",
+        "参考资源"
+      ]
+    }
+  ]
+}

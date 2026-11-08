@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Agent Workhub: a local, persistent project journal and read-only dashboard.
+"""Agent Workhub: a local, persistent project journal and archive dashboard.
 
-Work events are written by the CLI; guarded HTTP requests can start reviews.
+Work events are written by the CLI; guarded HTTP requests save archives or start reviews.
 The server binds to loopback and rejects foreign Host headers so a website
 cannot use DNS rebinding to read the journal.
 Python 3.9+ and its standard library are sufficient.
@@ -23,9 +23,10 @@ import re
 import sqlite3
 import sys
 import threading
-from urllib.parse import parse_qs, unquote, urlsplit
+from urllib.parse import parse_qs, quote, unquote, urlsplit
 
 from assessments import AssessmentManager, ReviewError
+from archives import ArchiveStore
 
 
 ROOT = Path(__file__).resolve().parent
@@ -342,16 +343,22 @@ class WorkhubServer(ThreadingHTTPServer):
         reviews = getattr(self.RequestHandlerClass, "assessment_manager", None)
         if reviews is not None:
             reviews.close(wait=False)
+        previews = getattr(self.RequestHandlerClass, "archive_previews", None)
+        if previews is not None:
+            previews.close()
 
 
-def handler_for(store, manager=None, reviews=None):
+def handler_for(store, manager=None, reviews=None, archives=None):
     manager = manager or (SiteManager(store) if store is not None else None)
     reviews = reviews or (AssessmentManager(store) if store is not None else None)
+    archives = archives or (ArchiveStore(store) if store is not None else None)
+    previews = ArchivePreviews(archives) if archives is not None else None
     class Handler(BaseHTTPRequestHandler):
         server_version = "AgentWorkhub/1"
         sys_version = ""
         site_manager = manager
         assessment_manager = reviews
+        archive_previews = previews
 
         def log_message(self, fmt, *args):
             # Avoid logging raw request URLs (or terminal escape sequences).
@@ -394,7 +401,8 @@ def handler_for(store, manager=None, reviews=None):
             if store is None:
                 self.json_response(405, {"error": "项目静态网站只允许读取"})
                 return
-            if self.path != "/api/reviews":
+            archive_kind = self.path.removeprefix("/api/archives/") if self.path.startswith("/api/archives/") else None
+            if self.path != "/api/reviews" and archive_kind not in ("session", "prompt", "artifact"):
                 self.json_response(404, {"error": "接口不存在"})
                 return
             if self.headers.get("X-Workhub-Request") != "1":
@@ -407,13 +415,22 @@ def handler_for(store, manager=None, reviews=None):
                 if self.headers.get("Transfer-Encoding"):
                     raise ReviewError("不支持分块请求体")
                 length = int(self.headers.get("Content-Length", "0"))
-                if not 0 < length <= 16384:
-                    raise ReviewError("JSON 请求体须为 1 至 16384 字节", 413)
+                limit = 131072 if archive_kind else 16384
+                if not 0 < length <= limit:
+                    raise ReviewError("JSON 请求体超出允许范围", 413)
                 self.connection.settimeout(5)
                 raw = self.rfile.read(length)
                 if len(raw) != length:
                     raise ReviewError("请求体不完整")
                 payload = json.loads(raw)
+                if archive_kind:
+                    if not isinstance(payload, dict):
+                        raise ReviewError("归档请求须为 JSON 对象")
+                    result = getattr(archives, "add_" + archive_kind)(payload)
+                    if archive_kind == "artifact":
+                        result = previews.decorate(result)
+                    self.json_response(201, {archive_kind: result})
+                    return
                 if not isinstance(payload, dict) or any(key not in ("project_id", "all", "answer", "force") for key in payload):
                     raise ReviewError("评议请求参数无效")
                 all_projects = payload.get("all", False)
@@ -500,6 +517,19 @@ def handler_for(store, manager=None, reviews=None):
                 elif route == "/api/reviews/project":
                     identifier = parse_qs(request.query).get("id", [""])[0]
                     self.json_response(200, reviews.project(identifier))
+                elif route == "/api/archives":
+                    query = parse_qs(request.query)
+                    result = archives.list(query.get("project_id", [None])[0], query.get("q", [""])[0])
+                    result["artifacts"] = [previews.decorate(item) for item in result["artifacts"]]
+                    self.json_response(200, result)
+                elif route == "/api/archives/projects":
+                    self.json_response(200, archives.projects())
+                elif route == "/api/archives/prompt":
+                    self.json_response(200, archives.prompt(parse_qs(request.query).get("id", [""])[0]))
+                elif route == "/api/archives/artifact":
+                    detail = archives.artifact(parse_qs(request.query).get("id", [""])[0])
+                    detail["artifact"] = previews.decorate(detail["artifact"])
+                    self.json_response(200, detail)
                 elif route == "/api/project":
                     query = parse_qs(request.query)
                     identifier = query.get("id", [""])[0]
@@ -527,6 +557,71 @@ def handler_for(store, manager=None, reviews=None):
                 self.json_response(500, {"error": "本机记录读取失败，请检查服务日志或数据目录"})
 
     return Handler
+
+
+def archive_handler_for(archives, identifier):
+    """Serve only a registered snapshot manifest, on an isolated scriptless origin."""
+    base = handler_for(None)
+    class ArchiveHandler(base):
+        def end_headers(self):
+            origin = "http://127.0.0.1:{}".format(self.server.server_port)
+            # An explicit snapshot origin also works when CSP sandbox gives
+            # the document an opaque origin; no external assets are allowed.
+            self.send_header("Content-Security-Policy", "sandbox; default-src 'none'; img-src " + origin + " data:; style-src " + origin + " 'unsafe-inline'; font-src " + origin + " data:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'")
+            super().end_headers()
+
+        def do_GET(self):
+            if not self.check_access():
+                return
+            try:
+                parsed = urlsplit(self.path)
+                if parsed.scheme or parsed.netloc:
+                    raise ReviewError("不允许绝对请求地址")
+                path = unquote(parsed.path, errors="strict").lstrip("/")
+                if not path:
+                    path = archives.get(identifier, "artifact")["entry"]
+                body, content_type = archives.artifact_file(identifier, path)
+                if content_type.startswith("text/"):
+                    content_type += "; charset=utf-8"
+                self.respond(200, body, content_type)
+            except ReviewError as error:
+                self.json_response(error.status, {"error": str(error)})
+            except (ValueError, UnicodeError, OSError):
+                self.json_response(400, {"error": "归档文件无法安全读取"})
+    return ArchiveHandler
+
+
+class ArchivePreviews:
+    def __init__(self, archives):
+        self.archives = archives
+        self.servers = {}
+        self.lock = threading.Lock()
+
+    def decorate(self, artifact):
+        result = dict(artifact)
+        try:
+            self.archives.artifact_file(artifact["id"], artifact["entry"])
+        except (ReviewError, OSError):
+            result["preview_url"] = None
+            result["preview_warning"] = "归档入口缺失或校验失败"
+            return result
+        with self.lock:
+            server = self.servers.get(artifact["id"])
+            if server is None:
+                server = WorkhubServer(("127.0.0.1", 0), archive_handler_for(self.archives, artifact["id"]))
+                thread = threading.Thread(target=server.serve_forever, kwargs={"poll_interval": 0.1}, daemon=True)
+                thread.start()
+                self.servers[artifact["id"]] = server
+            result["preview_url"] = "http://127.0.0.1:{}/{}".format(server.server_port, quote(artifact["entry"], safe="/"))
+            result["preview_warning"] = "归档只读阅读；脚本、表单和外部联网被禁用"
+        return result
+
+    def close(self):
+        with self.lock:
+            for server in self.servers.values():
+                server.shutdown()
+                server.server_close()
+            self.servers.clear()
 
 
 def directory_handler_for(directory):
@@ -650,6 +745,41 @@ def build_parser():
     events.add_argument("--limit", type=bounded_limit, default=100)
     sub.add_parser("export", help="导出全部项目和完整事件 JSON")
     sub.add_parser("integrations", help="检查各 Agent 必读入口")
+    archive_list = sub.add_parser("archive-list", help="列出会话、提示词及图文归档（不扫描历史目录）")
+    archive_list.add_argument("--project")
+    archive_list.add_argument("--q", default="")
+    for kind in ("session", "prompt", "artifact"):
+        archive = sub.add_parser("archive-" + kind, help="保存项目" + {"session": "会话元数据", "prompt": "版本化提示词原文", "artifact": "图文产物与明确引用的文件快照"}[kind])
+        archive.add_argument("--project", required=True, help="已登记的真实项目目录")
+        archive.add_argument("--title", required=True)
+        archive.add_argument("--agent", default="unknown", required=kind == "session")
+        archive.add_argument("--session-id", default="", required=kind == "session")
+        archive.add_argument("--source", default="unknown")
+        archive.add_argument("--source-ref", default="")
+        if kind == "session":
+            archive.add_argument("--reference", default="")
+            archive.add_argument("--started-at")
+        elif kind == "prompt":
+            content = archive.add_mutually_exclusive_group(required=True)
+            content.add_argument("--content-file", help="明确选择的 UTF-8 原文文件")
+            content.add_argument("--content", help="直接提供原文，较长文本请用 --content-file")
+            archive.add_argument("--purpose", default="")
+            archive.add_argument("--role", default="user")
+            archive.add_argument("--record-type", choices=("original", "derived"), default="original")
+            archive.add_argument("--prompt-key")
+            archive.add_argument("--derived-from", help="同项目原始提示词的归档 UUID")
+            archive.add_argument("--redact-sensitive", action="store_true", help="仅显式选择时保存脱敏派生副本，原输入只保留 hash")
+        else:
+            archive.add_argument("--directory", required=True)
+            archive.add_argument("--entry", default="index.html")
+            archive.add_argument("--file", action="append", default=[], dest="files", help="显式附带编辑版等包内相对文件；可重复")
+            archive.add_argument("--image", action="append", default=[], dest="images")
+            archive.add_argument("--prompt-id", action="append", default=[], dest="prompt_ids")
+            archive.add_argument("--status", choices=("unknown", "draft", "reviewed", "published"), default="unknown")
+            archive.add_argument("--kind", choices=("publication", "evidence", "report"), default="publication")
+            archive.add_argument("--version", default="unknown")
+            archive.add_argument("--generated-at")
+            archive.add_argument("--artifact-key")
     review = sub.add_parser("review", help="同步运行证据约束的模型项目评议")
     review_target = review.add_mutually_exclusive_group(required=True)
     review_target.add_argument("--project", help="已登记项目的目录")
@@ -668,7 +798,7 @@ def build_parser():
     sub.add_parser("site-list", help="输出已接入网站 JSON（预览端口从网站 API 获取）")
     site_remove = sub.add_parser("site-remove", help="取消一个网站接入，不删除网站文件")
     site_remove.add_argument("--id", required=True)
-    serve = sub.add_parser("serve", help="运行本机只读看板")
+    serve = sub.add_parser("serve", help="运行本机项目门户及受控归档接口")
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8765)
     return parser
@@ -696,6 +826,21 @@ def main(argv=None):
             elif args.command == "export":
                 result = store.state(event_limit=None)
                 result["sites"] = store.sites()
+                result["archives"] = ArchiveStore(store).list(limit=100000)
+            elif args.command.startswith("archive-"):
+                archive = ArchiveStore(store)
+                identifier = project_id(canonical_path(args.project)) if args.project else None
+                if args.command == "archive-list":
+                    result = archive.list(identifier, args.q)
+                else:
+                    payload = {key: value for key, value in vars(args).items() if key not in ("command", "project", "data_dir", "content_file")}
+                    payload["project_id"] = identifier
+                    if args.command == "archive-prompt" and args.content_file:
+                        file = Path(args.content_file).expanduser()
+                        if file.stat().st_size > 1024 * 1024:
+                            raise ReviewError("提示词原文文件过大")
+                        payload["content"] = file.read_text(encoding="utf-8")
+                    result = getattr(archive, "add_" + args.command.split("-", 1)[1])(payload)
             elif args.command == "site-add":
                 result = store.site_add(args.project, args.name, args.url, args.directory, args.template, args.description)
             elif args.command == "site-list":

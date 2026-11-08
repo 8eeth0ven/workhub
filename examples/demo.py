@@ -148,7 +148,40 @@ def seed(store, directory):
         with store.connection() as db:
             db.execute("UPDATE projects SET updated_at=? WHERE id=?", (created, project["id"]))
             db.execute("UPDATE runs SET updated_at=? WHERE project_id=?", (created, project["id"]))
+    seed_archives(store, fixtures, directory)
     return fixtures, public_paths
+
+
+def seed_archives(store, fixtures, directory):
+    """Only fictional prompts, sessions and a small read-only article fixture."""
+    archive = workhub.ArchiveStore(store)
+    for mode, project in fixtures.items():
+        if mode == "plan":
+            continue
+        agent = {"radar": "codex", "library": "claude", "brief": "zcode"}[mode]
+        archive.add_session({"project_id": project["id"], "agent": agent,
+                             "session_id": "fictional-session-" + mode,
+                             "title": "示例 · 项目研究会话", "source": "fictional_demo",
+                             "source_ref": "examples/demo.py · 虚构会话，未读取真实聊天"})
+        original = archive.add_prompt({"project_id": project["id"], "agent": agent,
+                                      "session_id": "fictional-session-" + mode,
+                                      "title": "示例 · 资料整理要求", "prompt_key": "demo-original-" + mode,
+                                      "content": "请整理示例资料的来源，说明目标、当前依据和仍待核查的问题。此提示词完全虚构，仅供演示。",
+                                      "record_type": "original", "source": "fictional_demo"})
+        if mode != "radar":
+            continue
+        archive.add_prompt({"project_id": project["id"], "agent": agent,
+                            "session_id": "fictional-session-radar", "title": "示例 · 整理后的复用提示词",
+                            "prompt_key": "demo-derived-radar", "record_type": "derived", "derived_from": original["id"],
+                            "content": "用一句话解释示例项目，再列出来源、关键反例和可复核的下一步。此文本是虚构的整理版。",
+                            "source": "fictional_demo"})
+        article = directory / "publications" / mode
+        article.mkdir(parents=True)
+        (article / "cover.svg").write_text('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="340"><rect width="800" height="340" fill="#253c33"/><text x="48" y="180" font-family="sans-serif" font-size="42" fill="#e1edda">WORKHUB · FICTIONAL DEMO</text></svg>', encoding="utf-8")
+        (article / "article.html").write_text('<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>示例 · 项目更新草稿</title><body style="font:16px/1.9 sans-serif;margin:24px;max-width:760px"><h1>示例 · 项目更新草稿</h1><p>这是只读的虚构公众号图文，用于展示项目档案内的阅读体验。没有发布到任何平台。</p><img src="cover.svg" alt="虚构演示封面" style="width:100%"><p>示例步骤：接入项目、保存提示词、留存配图和生成版本。</p></body></html>', encoding="utf-8")
+        archive.add_artifact({"project_id": project["id"], "title": "示例 · 项目更新草稿", "directory": str(article),
+                              "entry": "article.html", "kind": "publication", "status": "draft", "version": "fictional-demo",
+                              "prompt_ids": [original["id"]], "source": "fictional_demo"})
 
 
 def public_payload(value, paths):

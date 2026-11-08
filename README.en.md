@@ -16,6 +16,7 @@ Workhub is a local-first project console. Switch between project websites withou
 | --- | --- |
 | **Project spaces** | Connect existing static sites or running local services, then read and interact with them beside persistent portal navigation. |
 | **Work records** | Track projects, agents, task states, artifacts and verification summaries. Independent `run-id` values keep concurrent tasks separate. |
+| **Project archives** | Preserve the actual agent, verifiable sessions, project-specific prompt versions and deliverables, linking sources to outputs. |
 | **Layout studio** | Radar, Library and Brief share typography, colors, spacing and controls while organizing different kinds of information. |
 | **Project reviews** | Examine five dimensions through six kinds of Socratic questions. Distinguish evidence, untested assumptions, blind spots and next actions; add answers and review again. |
 
@@ -75,6 +76,12 @@ python3 workhub.py events --project /path/to/your-project
 
 Record work that actually happened. `completed` means that particular task finished; it does not declare the entire project permanently complete. Cloning the repository or serving the interface does not install global rules, start a background service or call a model.
 
+## Keep agents, prompts and deliverables with the project
+
+Project archives use `archive-session`, `archive-prompt` and `archive-artifact` to retain execution and session provenance, original task prompts and deliverable snapshots. Prompts are versioned by project and purpose. Rewritten instructions are marked `derived` and linked to the original UUID rather than overwriting the user's words. Full conversations and credentials are not retained, and original prompts are not sent to a model reviewer by default.
+
+Snapshots follow a selected entry and its local dependencies. Editor copies and other attachments are explicitly selected; sibling articles in a shared directory are not archived automatically. Distinguish a draft, a checked deliverable and a platform publication by evidence. Without a publication receipt, keep `unknown`: local HTML, complete images or a successful model call do not establish publication or project acceptance. Use `archive-list` to inspect a project's archive. See [Project archives](docs/project-archive.en.md) for commands and data boundaries.
+
 ## Independent sites, a consistent reading experience
 
 Connect an existing static site by directory or a running development server by its local URL. Directory sites receive independent local preview origins, while the portal keeps its navigation around the embedded page. If a site forbids iframe embedding, adjust the configuration of a site you control or connect its static build instead.
@@ -103,6 +110,8 @@ Generated sites start without demo entries. Use `--language en` to choose Englis
 A reviewer reads registered project material; it does not automatically audit the repository. Reviews organize the available evidence around goals, evidence, verification, risks and next steps. Follow-up questions examine clarification, assumptions, evidence, alternative perspectives, consequences and the question itself.
 
 Unknown scores stay **unrated**. Insufficient evidence means a judgment is not yet supported, not that the project is poor. New work records mark older reviews as needing an update. Questions include both a reason for asking and a suggested way to verify an answer, turning review into practical follow-up rather than a decorative score.
+
+Deeper reviews follow **specific claim → original evidence → counterexamples or gaps → verification action → review again**. A conclusion needs a checkable source; an unresolved question needs an executable check. Record the actual result before revisiting the conclusion. A successful model call does not mean the project passed acceptance, and a recommendation is not an action already performed.
 
 Supported adapters include **GLM, OpenAI-compatible Chat Completions, Anthropic, Ollama and an explicitly configured local CLI wrapper**. API services use credentials as configured; Ollama and CLI adapters may not need an API key. A CLI adapter runs a command you configured—it does not install another client or sign you into it.
 

@@ -100,6 +100,7 @@
     if(!review){const empty=node('div','review-no-result');empty.append(verdictBadge(null),node('h3','',t('先了解已有依据，再讨论哪里需要补全。')),node('p','',t('这个项目尚无评议结果。发起评议后，所选评议器会阅读已登记的信息与近期记录，提出具体问题。资料不足时会明确保留判断。')));wrapper.append(empty);}
     else{
       if(review.is_demo)wrapper.append(node('p','review-demo-note',t('演示结果，未调用模型。以下判断、评分与问题均为预置示例。')));
+      if(review.evidence_profile){const basis=review.evidence_profile;wrapper.append(node('p','review-data-note',t('评议依据：Agent 自述 {reports} 条、用户补充 {answers} 条；模型未独立执行验证。',{reports:basis.agent_reports||0,answers:basis.user_statements||0})));}
       const meta=node('div','review-detail-meta');meta.append(verdictBadge(review),node('span','',`${localDate(review.created_at)} · ${review.model||t('模型未标明')}`),node('span','',t('依据 {count} 条 · 置信度{confidence}',{count:Number(review.evidence_count)||0,confidence:t(CONFIDENCE[review.confidence]||'待判断')})));wrapper.append(meta);
       if(review.is_stale)wrapper.append(node('p','review-stale-notice',t('评议之后已有新记录或补充背景。这份结论可能已过期，可重新评议更新判断。')));
       wrapper.append(node('h3','review-headline',review.headline||t('项目评议')),node('p','review-summary',review.summary||t('本轮没有提供概述。')));

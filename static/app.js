@@ -49,7 +49,7 @@ $$('[data-close]').forEach(button=>button.addEventListener('click',()=>document.
 $$('dialog').forEach(dialog=>dialog.addEventListener('click',event=>{if(event.target!==dialog)return;const rect=dialog.getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)dialog.close();}));
 $('#project-dialog').addEventListener('close',()=>{selectedProject=null;});
 $$('[data-copy]').forEach(button=>button.addEventListener('click',async()=>{const text=button.dataset.copy;try{if(navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);else{const area=element('textarea');area.value=text;area.style.position='fixed';area.style.opacity='0';document.body.append(area);area.select();const copied=document.execCommand('copy');area.remove();if(!copied)throw new Error('Clipboard unavailable');}showToast(t('命令已复制，请替换项目路径后运行'));}catch{showToast(t('复制未成功，请手动选择命令'));}}));
-function switchPage(page){if(!['spaces','records','templates','reviews'].includes(page))return;['spaces','records','templates','reviews'].forEach(name=>{document.getElementById(`${name}-page`).hidden=name!==page;});$$('.nav-item').forEach(item=>item.classList.toggle('active',item.dataset.page===page));$('#breadcrumb-page').textContent=t({spaces:'项目空间',records:'工作记录',templates:'版式工坊',reviews:'项目评议'}[page]);window.scrollTo({top:0,behavior:'instant'});try{localStorage.setItem('workhub-current-page',page);}catch{}window.dispatchEvent(new CustomEvent('workhub:page',{detail:{page}}));}
+function switchPage(page){if(!['spaces','records','templates','reviews','archives'].includes(page))return;['spaces','records','templates','reviews','archives'].forEach(name=>{document.getElementById(`${name}-page`).hidden=name!==page;});$$('.nav-item').forEach(item=>item.classList.toggle('active',item.dataset.page===page));$('#breadcrumb-page').textContent=t({spaces:'项目空间',records:'工作记录',templates:'版式工坊',reviews:'项目评议',archives:'项目档案'}[page]);window.scrollTo({top:0,behavior:'instant'});try{localStorage.setItem('workhub-current-page',page);}catch{}window.dispatchEvent(new CustomEvent('workhub:page',{detail:{page}}));}
 $$('.nav-item').forEach(button=>button.addEventListener('click',()=>switchPage(button.dataset.page)));
 function setView(next){view=next;try{localStorage.setItem('workhub-project-view',view);}catch{}$('#project-grid').classList.toggle('list-mode',view==='list');$('#grid-view').classList.toggle('selected',view==='grid');$('#list-view').classList.toggle('selected',view==='list');$('#grid-view').setAttribute('aria-pressed',String(view==='grid'));$('#list-view').setAttribute('aria-pressed',String(view==='list'));}
 $('#grid-view').addEventListener('click',()=>setView('grid'));
@@ -185,7 +185,7 @@ $('#site-review-button').addEventListener('click',()=>{const site=siteState.site
 
 I.onChange(()=>{
  const activePage=$('.nav-item.active')?.dataset.page||'spaces';
- $('#breadcrumb-page').textContent=t({spaces:'项目空间',records:'工作记录',templates:'版式工坊',reviews:'项目评议'}[activePage]);
+ $('#breadcrumb-page').textContent=t({spaces:'项目空间',records:'工作记录',templates:'版式工坊',reviews:'项目评议',archives:'项目档案'}[activePage]);
  if(loaded){renderStats();renderAgentFilter();renderProjectsAndActivity();renderConnections();renderProjectDetail();}
  renderSites();renderTemplates();
  if(sitesOnline===false)$('#sites-sync').textContent=t('网站列表暂时离线');else if(sitesLastSync)$('#sites-sync').textContent=t('上次同步 {time}',{time:timeFormatter.format(sitesLastSync)});

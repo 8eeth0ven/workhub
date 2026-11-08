@@ -37,6 +37,8 @@ python3 scripts/install.py --project "$PROJECT_DIR" --name "项目名称"
 
 仓库移动后需重新运行安装器，以更新本机生成的绝对路径。安装结果中的路径只存在于使用者的本机配置，不应提交到发布仓库。
 
+项目的执行 Agent、会话来源、原始任务提示词和交付物可用 `archive-session`、`archive-prompt`、`archive-artifact` 保留，`archive-list --project "$PROJECT_DIR"` 查看。原始与派生提示词分别保留版本，发布物只收集显式入口与依赖；具体参数、状态和隐私范围见 [项目档案](project-archive.md)。
+
 ## 本地网站和模板
 
 已有静态站使用 `--site-dir`；已有开发服务器使用 `--site-url`，两者互斥：

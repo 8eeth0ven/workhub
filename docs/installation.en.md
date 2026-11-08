@@ -37,6 +37,8 @@ This appends instruction entries to that directory's `AGENTS.md` and `CLAUDE.md`
 
 After moving the repository, run the installer again to update locally generated absolute paths. Those installation paths belong in the user's local configuration, not in a published repository.
 
+Use `archive-session`, `archive-prompt` and `archive-artifact` to retain a project's agent, session provenance, original task instructions and deliverables. Inspect them with `archive-list --project "$PROJECT_DIR"`. Original and derived prompts keep separate revisions; artifact snapshots follow explicitly selected entries and dependencies. See [Project archives](project-archive.en.md) for parameters, status and privacy boundaries.
+
 ## Connect websites and create layouts
 
 Use `--site-dir` for an existing static site or `--site-url` for a running development server. These options are mutually exclusive:

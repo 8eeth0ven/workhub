@@ -6,6 +6,8 @@
 
 Project paths, names, descriptions, work records, supplemental answers and model reviews are stored in the user's state directory. It defaults to `~/.local/share/agent-workhub` and can be changed with `AGENT_WORKHUB_HOME`. The directory may also contain the database, instruction-file backups, model configuration, logs, session process records and an optional runtime copy.
 
+Project archives can also retain the actual agent, session provenance, necessary task prompts and explicitly selected deliverable snapshots locally. Original instructions and rewritten `derived` versions remain separate, with their sources, revisions and hashes. Entire conversations are not copied. Prompts containing credentials are rejected by default; an explicitly requested redacted copy is marked as derived, and the original credential is not written to disk.
+
 The interface-language preference is stored locally in the browser for the current portal origin. It is not written into project content, and changing language does not trigger a translation or model request. Project names, work records, website content and existing reviews remain in their original language.
 
 Published source code should not contain real runtime material. Repository template demos use synthetic content; newly generated real sites default to `is_demo=false` and `items=[]`. Do not replace demo data with a personal database, or copy real project inventories, screenshots or configuration into the examples directory.
@@ -15,6 +17,8 @@ Published source code should not contain real runtime material. Repository templ
 The local portal binds only to loopback by default. Cloning, foreground startup and skill installation do not independently call a model. When the user configures and enables reviews, the backend sends a limited project name, description, recent work summaries, supplemental answers and evidence identifiers to the configured API or CLI. It does not automatically read the full project repository, chat history or environment files.
 
 The backend removes known credentials and some sensitive fields, but automatic redaction cannot guarantee that every sensitive detail is recognized. Before recording a summary, answering a follow-up or requesting a review, check that the material is suitable for the selected reviewer. A local model or CLI may have its own networking, logging and retention behavior; understand that behavior too.
+
+Archived original prompts and deliverable files are not included in model-review requests by default. Local retention is not permission to send them elsewhere. If their contents are needed as context, first select a necessary summary suitable for the reviewer. Deliverable snapshots follow explicitly selected entries, local image/CSS dependencies and explicit attachments; choosing a directory does not read or expose its sibling articles.
 
 Credentials are read only by the backend from private configuration or the environment. They do not belong in frontend code, work records, screenshots, Git or command arguments. Keep `llm.json` and the compatible `glm.json` private; examples use explicit placeholders. CLI commands come only from local user configuration. The web API does not accept command-execution parameters.
 

@@ -45,7 +45,7 @@
     }
   };
   const themeStorageKey = 'workhub-theme';
-  const themes = Object.freeze(['moss', 'fog', 'graphite', 'sand']);
+  const themes = Object.freeze(['moss', 'fog', 'graphite', 'sand', 'orange', 'teal', 'rose', 'indigo']);
   const supportedTheme = value => themes.includes(value);
   let theme = 'moss';
   try { const saved = localStorage.getItem(themeStorageKey); if (supportedTheme(saved)) theme = saved; } catch {}

@@ -48,7 +48,19 @@ Use the **简体中文 / English** selector in the top toolbar. Your choice is s
 
 Project names, work records, website content and existing model reviews stay in their original language. Supported template iframes receive the portal's language choice; third-party websites keep their own language behavior. Documentation has matching language links at the top of each translated page. CLI commands, API paths and stored data are unchanged by the interface setting.
 
-The **Color theme** selector offers Moss, Mist blue, Graphite and Warm sand. Your choice is saved locally and applies across the portal while preserving layout, typography and project state. Supported templates receive the same palette; independent third-party websites keep their own styling.
+The **Color theme** selector offers eight light palettes: Moss, Mist blue, Graphite, Warm sand, Orange, Celadon, Rose and Indigo. The preference is saved locally. Palettes change colors while keeping the same layout, typography, controls and project state; text and primary buttons remain readable. Switching never reloads project frames, rewrites records or invokes a model.
+
+The local directory server injects the restricted palette runtime and shared CSS; compatible templates follow the portal too. Generic embedded styles are color-only: they do not alter font sizes, layout, images, PDFs, video or charts. Native applications can set `body[data-workhub-native]` to skip generic overrides and map their own exact color variables.
+
+Applications with their own backend can explicitly load these resources in their page:
+
+```html
+<link rel="stylesheet" href="http://127.0.0.1:8787/design-system.css">
+<link rel="stylesheet" href="http://127.0.0.1:8787/embedded-theme.css">
+<script defer src="http://127.0.0.1:8787/embedded-theme.js"></script>
+```
+
+The child runtime trusts only its actual parent at `http://127.0.0.1:8787` by default and requests the current palette through a ready/request handshake. For a custom port or a `localhost` alias, explicitly set an HTTP(S) loopback origin such as `data-workhub-parent-origin="http://127.0.0.1:8899"` on the script tag and update the resource URLs. Arbitrary referrers are not trusted. Third-party pages that have not opted in are not forced through cross-origin DOM manipulation. Directory pages can disable automatic injection with `?workhub_theme=original`.
 
 ## Connect your agents' work
 

@@ -63,6 +63,39 @@
   --wh-sidebar-ink: #f1e8dc; --wh-sidebar-muted: #c4b6a3; --wh-sidebar-border: #75634f;
 }
 
+:root[data-workhub-theme="orange"] {
+  --wh-bg: #fff8f2; --wh-surface: #ffffff; --wh-ink: #35281f; --wh-muted: #78614e;
+  --wh-accent: #a74b16; --wh-accent-hover: #853a10; --wh-accent-soft: #fff0e3;
+  --wh-accent-tint: #ffd1aa; --wh-on-accent: #ffffff;
+  --wh-border: #f0ddcc; --wh-border-strong: #c89f7d; --wh-focus: #c9854e;
+  --wh-sidebar-bg: #35261e; --wh-sidebar-active: #61402b;
+  --wh-sidebar-ink: #fff0e2; --wh-sidebar-muted: #dfc6b2; --wh-sidebar-border: #826044;
+}
+:root[data-workhub-theme="teal"] {
+  --wh-bg: #f2f8f7; --wh-surface: #ffffff; --wh-ink: #213633; --wh-muted: #536e69;
+  --wh-accent: #286e65; --wh-accent-hover: #1e554e; --wh-accent-soft: #e6f2ef;
+  --wh-accent-tint: #bae5dc; --wh-on-accent: #ffffff;
+  --wh-border: #d8e7e3; --wh-border-strong: #95b9b0; --wh-focus: #72a89b;
+  --wh-sidebar-bg: #213632; --wh-sidebar-active: #31544c;
+  --wh-sidebar-ink: #e1f6ef; --wh-sidebar-muted: #b9d6cd; --wh-sidebar-border: #50776a;
+}
+:root[data-workhub-theme="rose"] {
+  --wh-bg: #fcf6f8; --wh-surface: #ffffff; --wh-ink: #392730; --wh-muted: #79616d;
+  --wh-accent: #98506e; --wh-accent-hover: #793c56; --wh-accent-soft: #f8eaf0;
+  --wh-accent-tint: #f3cbdc; --wh-on-accent: #ffffff;
+  --wh-border: #eadce3; --wh-border-strong: #c5a1b2; --wh-focus: #bf8da5;
+  --wh-sidebar-bg: #392832; --wh-sidebar-active: #5b3d4c;
+  --wh-sidebar-ink: #fceaf3; --wh-sidebar-muted: #dcc1cf; --wh-sidebar-border: #805b6e;
+}
+:root[data-workhub-theme="indigo"] {
+  --wh-bg: #f5f6fc; --wh-surface: #ffffff; --wh-ink: #2b2d45; --wh-muted: #646984;
+  --wh-accent: #555fa0; --wh-accent-hover: #414a80; --wh-accent-soft: #eceefa;
+  --wh-accent-tint: #d9ddfa; --wh-on-accent: #ffffff;
+  --wh-border: #dfe2f0; --wh-border-strong: #a6acd0; --wh-focus: #929bc8;
+  --wh-sidebar-bg: #292d45; --wh-sidebar-active: #41486c;
+  --wh-sidebar-ink: #edf0ff; --wh-sidebar-muted: #c4cae9; --wh-sidebar-border: #636d98;
+}
+
 .wh-surface { background: var(--wh-surface); border: 1px solid var(--wh-border); border-radius: var(--wh-radius); }
 .wh-muted { color: var(--wh-muted); }
 .wh-button { font: 500 var(--wh-text-sm)/1.4 var(--wh-font); color: var(--wh-surface); background: var(--wh-accent); border: 1px solid var(--wh-accent); border-radius: var(--wh-radius); padding: 10px 16px; cursor: pointer; }

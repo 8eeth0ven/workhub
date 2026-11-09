@@ -23,6 +23,8 @@ function runtime({saved=null,blocked=false}={}){
  unsubscribe();const beforeWrites=r.storageWrites.length;r.listeners.get('window:storage')({key:'workhub-theme',newValue:'graphite'});assert.equal(r.api.getTheme(),'graphite');assert.equal(subscribed,1);assert.equal(r.storageWrites.length,beforeWrites,'cross-tab sync must not loop by writing storage');
  r.listeners.get('window:storage')({key:'workhub-language',newValue:'en'});assert.equal(r.api.getTheme(),'graphite');assert.equal(r.api.setTheme('arbitrary-css-value'),'moss');assert.equal(r.attributes.get('data-workhub-theme'),'moss');
  r.listeners.get('window:storage')({key:'workhub-theme',newValue:null});assert.equal(r.api.getTheme(),'moss');
+ r.api.setTheme('orange');const handshakes=r.messages.length,sourceBefore=r.frame.src;const receive=r.listeners.get('window:message');receive({source:{},origin:'http://127.0.0.1:43001',data:{type:'workhub:theme-request'}});receive({source:r.frame.contentWindow,origin:'https://wrong.example',data:{type:'workhub:theme-ready'}});receive({source:r.frame.contentWindow,origin:'null',data:{type:'workhub:theme-request'}});assert.equal(r.messages.length,handshakes);receive({source:r.frame.contentWindow,origin:'http://127.0.0.1:43001',data:{type:'workhub:theme-ready'}});assert.equal(r.messages.length,handshakes+1);assert.deepEqual(r.messages.at(-1),{data:{type:'workhub:theme',theme:'orange'},origin:'http://127.0.0.1:43001'});receive({source:r.frame.contentWindow,origin:'http://127.0.0.1:43001',data:{type:'workhub:theme',theme:'rose'}});assert.equal(r.api.getTheme(),'orange','child messages cannot change the parent preference');assert.equal(r.frame.src,sourceBefore);
+ for(const value of ['orange','teal','rose','indigo'])assert.equal(r.api.setTheme(value),value);
 }
 {
  const blocked=runtime({blocked:true});assert.equal(blocked.api.getTheme(),'moss');assert.doesNotThrow(()=>blocked.api.setTheme('fog'));assert.equal(blocked.attributes.get('data-workhub-theme'),'fog');assert.equal(runtime({saved:'invalid'}).api.getTheme(),'moss');
@@ -30,11 +32,11 @@ function runtime({saved=null,blocked=false}={}){
 function luminance(hex){const rgb=hex.replace('#','').match(/../g).map(value=>parseInt(value,16)/255).map(value=>value<=0.04045?value/12.92:((value+.055)/1.055)**2.4);return .2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2];}
 function contrast(a,b){const x=luminance(a),y=luminance(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);}
 const css=fs.readFileSync(path.join(root,'static/design-system.css'),'utf8');
-for(const name of ['moss','fog','graphite','sand']){
+for(const name of ['moss','fog','graphite','sand','orange','teal','rose','indigo']){
  const block=css.match(new RegExp(':root\\[data-workhub-theme="'+name+'"\\]\\s*\\{([^}]+)\\}'))?.[1];assert(block,name+' palette must be canonical');const tokens=Object.fromEntries([...block.matchAll(/(--wh-[\w-]+):\s*(#[a-f0-9]{6})/gi)].map(match=>[match[1],match[2]]));
  for(const [text,background]of [['--wh-ink','--wh-bg'],['--wh-muted','--wh-bg'],['--wh-ink','--wh-surface'],['--wh-muted','--wh-surface'],['--wh-on-accent','--wh-accent'],['--wh-on-accent','--wh-accent-hover'],['--wh-sidebar-ink','--wh-sidebar-bg'],['--wh-sidebar-muted','--wh-sidebar-bg'],['--wh-sidebar-ink','--wh-sidebar-active'],['--wh-sidebar-muted','--wh-sidebar-active']]){
   const ratio=contrast(tokens[text],tokens[background]);assert(ratio>=4.5,`${name} ${text}/${background} contrast ${ratio.toFixed(2)} < 4.5`);
  }
  assert(!/--wh-(font|radius|space|text|title)[\w-]*:/.test(block),'palette must not change geometry or type');
 }
-console.log('Theme checks passed: pre-paint restore, enum validation, persistence, blocked storage, cross-tab sync, unchanged frames/input, exact-origin messages, and four-palette text/button/sidebar contrast.');
+console.log('Theme checks passed: pre-paint restore, enum validation, persistence, blocked storage, cross-tab sync, unchanged frames/input, exact-origin messages, and eight-palette text/button/sidebar contrast.');

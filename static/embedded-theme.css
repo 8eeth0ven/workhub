@@ -1,157 +1,76 @@
-/* Workhub's compatibility theme for existing, locally served project pages.
-   Native templates use the canonical design system without these overrides. */
-html:has(body:not([data-template])) {
+/* Color-only compatibility bridge. Native apps opt out of generic rules with
+   body[data-workhub-native] and map their own exact roles to canonical tokens.
+   No typography, dimensions, layout, media filters, or SVG/chart colors here. */
+:root, body {
+  --bg: var(--wh-bg) !important;
+  --page-bg: var(--wh-bg) !important;
+  --background: var(--wh-bg) !important;
+  --surface: var(--wh-surface) !important;
+  --surface-2: var(--wh-accent-soft) !important;
+  --paper: var(--wh-surface) !important;
+  --panel: var(--wh-surface) !important;
+  --panel-bg: var(--wh-surface) !important;
+  --panel-solid: var(--wh-surface) !important;
+  --card: var(--wh-surface) !important;
+  --card-bg: var(--wh-surface) !important;
+  --text: var(--wh-ink) !important;
+  --text-primary: var(--wh-ink) !important;
+  --text-soft: var(--wh-ink) !important;
+  --ink: var(--wh-ink) !important;
+  --muted: var(--wh-muted) !important;
+  --muted-dim: var(--wh-muted) !important;
+  --text-secondary: var(--wh-muted) !important;
+  --line: var(--wh-border) !important;
+  --border: var(--wh-border) !important;
+  --border-color: var(--wh-border) !important;
+  --border-strong: var(--wh-border-strong) !important;
+  --accent: var(--wh-accent) !important;
+  --accent-soft: var(--wh-accent-soft) !important;
+  --accent-hover: var(--wh-accent-hover) !important;
+  --accent-strong: var(--wh-accent-hover) !important;
+  --primary: var(--wh-accent) !important;
+  --primary-hover: var(--wh-accent-hover) !important;
+  --button-bg: var(--wh-accent) !important;
+  --button-text: var(--wh-on-accent) !important;
+  --sidebar-bg: var(--wh-sidebar-bg) !important;
+  --sidebar-active: var(--wh-sidebar-active) !important;
+  --sidebar-text: var(--wh-sidebar-ink) !important;
+  --sidebar-ink: var(--wh-sidebar-ink) !important;
+  --sidebar-muted: var(--wh-sidebar-muted) !important;
+  --sidebar-border: var(--wh-sidebar-border) !important;
+}
+body:not([data-template]):not([data-workhub-native]) {
+  color: var(--wh-ink) !important;
+  background-color: var(--wh-bg) !important;
   color-scheme: light !important;
-  scrollbar-color: #aab69f transparent;
+  scrollbar-color: var(--wh-muted) var(--wh-bg);
 }
-body:not([data-template]) {
-  color-scheme: light !important;
-  font-family: var(--wh-font, -apple-system, BlinkMacSystemFont, "PingFang SC", system-ui, sans-serif) !important;
-  color: var(--wh-ink, #252b26) !important;
-  background: var(--wh-bg, #f7f8f4) !important;
-  background-image: none !important;
-  font-size: 14px;
-  line-height: 1.65;
-  --bg: #f7f8f4; --surface: #ffffff; --panel: #ffffff;
-  --text: #252b26; --ink: #252b26; --muted: #687267;
-  --accent: #53634d; --border: #e1e5dc; --line: #e1e5dc;
-  /* Aliases actually used by the existing radar and an existing project themes. */
-  --panel-solid: #fff; --surface-2: #edf1e9;
-  --text-soft: #252b26; --muted-dim: #687267;
-  --accent-strong: #3f503a; --mint: #53634d; --amber: #86602d;
-  --violet: #53634d; --border-strong: #abb89f; --radius: 10px;
-  --serif: var(--wh-font); --sans: var(--wh-font);
-  --shadow: 0 12px 32px rgb(37 43 38 / 6%);
+body:not([data-template]):not([data-workhub-native]) :is(header,main,section,article,aside,footer,nav,dialog,.card,.panel,.item,.toolbar,.topbar,.sidebar,.filters,.content,.container,.wrap,.wrapper,.app,.layout,.section-nav,.day-picker,.sidebar-card,.feed-block,.feed-head,.empty,.stat-card,.data-panel,.search-field,.group-card,.run-metadata,.dialog-top,.comparison-glass):not(:where(.status,.status *,.status-pill,.status-pill *,.badge,.badge *,.success,.success *,.warning,.warning *,.danger,.danger *,.error,.error *,.alert,.alert *,[role="status"],[role="status"] *,[data-status],[data-status] *,[data-workhub-keep-color],[data-workhub-keep-color] *)) {
+  color: var(--wh-ink) !important;
+  background-color: var(--wh-surface) !important;
+  border-color: var(--wh-border) !important;
 }
-body:not([data-template]) :is(h1,h2,h3,h4,h5,h6,p,a,button,input,select,textarea,table,summary) {
-  font-family: var(--wh-font, -apple-system, BlinkMacSystemFont, "PingFang SC", system-ui, sans-serif) !important;
+body:not([data-template]):not([data-workhub-native]) :is(h1,h2,h3,h4,h5,h6,.wordmark,.footer-brand,.nav-feed-name,.item-text,.empty-title,.stat-card strong):not(:where(.status *,.status-pill *,.badge *,.success *,.warning *,.danger *,.error *,.alert *,[role="status"] *,[data-status] *,[data-workhub-keep-color],[data-workhub-keep-color] *)) {
+  color: var(--wh-ink) !important;
 }
-body:not([data-template]) :is(header,main,section,article,aside,footer,nav,dialog,.card,.panel,.item,.toolbar,.topbar,.sidebar,.hero,.filters,.summary,.content,.container,.wrap,.wrapper,.app,.layout,.section-nav,.day-picker) {
-  color: var(--wh-ink, #252b26) !important;
-  background-color: var(--wh-surface, #fff) !important;
-  border-color: var(--wh-border, #e1e5dc) !important;
-  background-image: none !important;
-  box-shadow: none !important;
+body:not([data-template]):not([data-workhub-native]) :is(p,.subtitle,.description,.summary,.meta,.caption,.muted,.lead,.eyebrow,.row-label,.date-sub,.sidebar-title,.sidebar-total,.nav-feed-count,.nav-count,.board-weekday,.feed-total,.section-count,.item-time,.item-src,.link-arrow,.search-icon,.lane-label,.heading-note,.metadata-line,.results-toolbar):not(:where(.status,.status *,.status-pill,.status-pill *,.badge,.badge *,.success,.success *,.warning,.warning *,.danger,.danger *,.error,.error *,.alert,.alert *,[role="status"],[role="status"] *,[data-status],[data-status] *,[data-workhub-keep-color],[data-workhub-keep-color] *)) {
+  color: var(--wh-muted) !important;
 }
-body:not([data-template]) :is(h1,h2,h3,h4,h5,h6) {
-  color: var(--wh-ink, #252b26) !important;
-  letter-spacing: -.025em !important;
-  line-height: 1.35 !important;
-  text-shadow: none !important;
-  border-color: var(--wh-border, #e1e5dc) !important;
+body:not([data-template]):not([data-workhub-native]) :is(a,button,input,select,textarea,[role="button"]):not(:where(.status,.status *,.success,.success *,.warning,.warning *,.danger,.danger *,.error,.error *,.alert,.alert *,[data-status],[data-status] *,[data-workhub-keep-color],[data-workhub-keep-color] *)) {
+  color: var(--wh-ink) !important;
+  border-color: var(--wh-border) !important;
 }
-body:not([data-template]) h1 {font-size: clamp(25px, 3.2vw, 34px) !important;}
-body:not([data-template]) h2 {font-size: clamp(20px, 2.5vw, 26px) !important;}
-body:not([data-template]) h3 {font-size: 18px !important;}
-body:not([data-template]) :is(p,.subtitle,.description,.summary,.meta,.caption,.muted,.lead,.eyebrow) {color: var(--wh-muted, #687267) !important;}
-body:not([data-template]) a {color: var(--wh-accent, #53634d) !important;}
-body:not([data-template]) :is(button,input,select,textarea,[role="button"]) {
-  border-radius: var(--wh-radius, 10px) !important;
-  border-color: var(--wh-border, #e1e5dc) !important;
-  background-color: var(--wh-surface, #fff) !important;
-  background-image: none !important;
-  color: var(--wh-ink, #252b26) !important;
-  box-shadow: none !important;
-  font-size: 13px !important;
-  line-height: 1.5 !important;
+body:not([data-template]):not([data-workhub-native]) :is(button,input,select,textarea,[role="button"]):not(:where(.success,.success *,.warning,.warning *,.danger,.danger *,.error,.error *,.alert,.alert *,[data-status],[data-status] *,[data-workhub-keep-color],[data-workhub-keep-color] *)) {background-color: var(--wh-surface) !important;}
+body:not([data-template]):not([data-workhub-native]) a:not(:where(.status *,.success *,.warning *,.danger *,.error *,.alert *,[data-status] *,[data-workhub-keep-color],[data-workhub-keep-color] *)) {color: var(--wh-accent) !important;}
+body:not([data-template]):not([data-workhub-native]) :is(input,textarea)::placeholder {color: var(--wh-muted) !important;}
+body:not([data-template]):not([data-workhub-native]) :is(button,[role="button"]):hover:not(:where(.success,.warning,.danger,.error,.alert,[data-status],[data-workhub-keep-color])) {background-color: var(--wh-accent-soft) !important;}
+body:not([data-template]):not([data-workhub-native]) :is(.button.primary,.btn-primary,button.primary,[aria-pressed="true"],[aria-selected="true"],button.active,button.selected,button.on,.tab.active,.tab.on):not(:where(.success,.warning,.danger,.error,.alert,[data-status],[data-workhub-keep-color])) {
+  color: var(--wh-on-accent) !important;
+  background-color: var(--wh-accent) !important;
+  border-color: var(--wh-accent) !important;
 }
-body:not([data-template]) :is(input,textarea)::placeholder {color: var(--wh-muted, #687267) !important; opacity: 1;}
-body:not([data-template]) :is(button,[role="button"]):hover {background-color: #edf1e8 !important;}
-body:not([data-template]) :is([aria-pressed="true"],[aria-selected="true"],button.active,button.selected,button.on,.tab.active,.tab.on) {
-  background-color: var(--wh-accent, #53634d) !important;
-  color: #fff !important;
-}
-body:not([data-template]) :is([aria-pressed="true"],[aria-selected="true"],button.active,button.selected,button.on,.tab.active,.tab.on) :is(span,strong,small,b) {color: inherit !important;}
-body:not([data-template]) :is(.card,.panel,dialog,.topbar,.stat-card,.data-panel,.group-card) {border-radius: var(--wh-radius, 10px) !important;}
-body:not([data-template]) :is(th,td) {border-color: var(--wh-border, #e1e5dc) !important; color: var(--wh-ink, #252b26) !important;}
-body:not([data-template]) th {background: #eef1e9 !important;}
-body:not([data-template]) :is(button,a,input,select,textarea,[tabindex]):focus-visible {outline: 3px solid #80946f !important; outline-offset: 3px;}
-
-/* Compatibility for the radar's dark panels. These div/span selectors come
-   from the existing page; a white outer section alone leaves white titles
-   and dark inner panels, so both surface and text must migrate together. */
-body:not([data-template]) :is(.sidebar-card,.feed-block,.feed-head,.empty) {
-  background: var(--wh-surface, #fff) !important;
-  color: var(--wh-ink, #252b26) !important;
-  border-color: var(--wh-border, #e1e5dc) !important;
-  border-radius: var(--wh-radius, 10px) !important;
-  box-shadow: none !important;
-}
-body:not([data-template]) :is(.nav-feed-name,.item-text,.empty-title),
-body:not([data-template]) a.item:hover .item-text {
-  color: var(--wh-ink, #252b26) !important;
-}
-body:not([data-template]) :is(.row-label,.date-sub,.chip-count,.sidebar-title,.sidebar-total,.nav-feed-count,.nav-count,.board-weekday,.feed-total,.section-count,.item-time,.item-src,.link-arrow,.search-icon) {
-  color: var(--wh-muted, #687267) !important;
-}
-body:not([data-template]) :is(.chip-count,.nav-count,.section-count,.board-mode) {
-  background-color: var(--wh-accent-soft, #edf1e9) !important;
-}
-body:not([data-template]) :is(button.active,button[aria-pressed="true"]) :is(.chip-count,.nav-count) {
-  background-color: rgb(255 255 255 / 12%) !important;
-  color: inherit !important;
-}
-/* These are compact feed labels, not section-level marketing headings. */
-body:not([data-template]) :is(.board-title,.feed-name) {font-size: 16px !important;}
-body:not([data-template]) .section-name {font-size: 14px !important;}
-body:not([data-template]) .sidebar-title {font-size: 13px !important;}
-body:not([data-template]) :is(.generated,.row-label,.date-sub,.sidebar-total,.nav-feed-count,.nav-count,.board-weekday,.feed-total,.section-count,.item-time,.item-src,.chip-count) {
-  font-size: 12px !important;
-}
-body:not([data-template]) .topbar::before,
-body:not([data-template]) .topbar::after {background: none !important;}
-
-/* an existing project uses several nested dark surfaces and literal light text colors.
-   Keep the illustration, comparison layout, table and graph geometry intact. */
-body:not([data-template]) :is(.stat-card,.comparison-glass,.data-panel,.search-field,.group-card,.run-metadata,.dialog-top,.track-node,.track-end) {
-  background: var(--wh-surface, #fff) !important;
-  color: var(--wh-ink, #252b26) !important;
-  border-color: var(--wh-border, #e1e5dc) !important;
-  box-shadow: none !important;
-}
-body:not([data-template]) .hero::after {background: none !important;}
-body:not([data-template]) :is(.wordmark,.footer-brand,.stat-card strong,.score-cell strong,.group-score,.method-number,.empty-symbol) {
-  font-family: var(--wh-font) !important;
-}
-body:not([data-template]) :is(.stat-card>span,.lane-label,.coverage-row strong,.metadata-line strong,.recent-list h3,.recent-name,.site-footer>div,.detail-meta,.detail-small-list,.matrix-cell.self) {
-  color: var(--wh-ink, #252b26) !important;
-}
-body:not([data-template]) :is(.stat-card small,.lane-label small,.lane-track,.caption-separator,.section-kicker,.heading-note,.select-field,.check-field,.results-toolbar,.table-key,.skill-function,.score-cell small,.score-cell .no-data,.group-index,.group-function,.group-score small,.mini-tags span,.coverage-row,.limits-note,.metadata-line,.recent-record time,.recent-list h3 span,.site-footer>p span,.site-footer>div span,.detail-description,.detail-meta,.detail-small-list,.matrix-cell small) {
-  color: var(--wh-muted, #687267) !important;
-}
-body:not([data-template]) .rank-cell {color: var(--wh-muted, #687267) !important;}
-body:not([data-template]) :is(.button.primary,.skip-link) {
-  color: #fff !important;
-  background: var(--wh-accent, #53634d) !important;
-  border-color: var(--wh-accent, #53634d) !important;
-}
-body:not([data-template]) :is(.button.primary:hover,.skip-link:hover) {background: var(--wh-accent-hover, #3f503a) !important;}
-body:not([data-template]) .button.primary :is(span,strong,small,b) {color: inherit !important;}
-body:not([data-template]) .status-pill {
-  color: var(--wh-warning, #86602d) !important;
-  background: #f7f1e8 !important;
-  border-color: #e5d7c5 !important;
-}
-body:not([data-template]) .status-pill.paired,
-body:not([data-template]) .recent-state {
-  color: var(--wh-success, #47684d) !important;
-  background: var(--wh-accent-soft, #edf1e9) !important;
-  border-color: #cfdac9 !important;
-}
-body:not([data-template]) .status-pill.neutral {
-  color: var(--wh-muted, #687267) !important;
-  background: var(--wh-bg, #f7f8f4) !important;
-  border-color: var(--wh-border, #e1e5dc) !important;
-}
-body:not([data-template]) :is(.comparison-warning,.detail-notice) {
-  color: var(--wh-warning, #86602d) !important;
-  background: #f7f1e8 !important;
-  border-color: #e5d7c5 !important;
-}
-body:not([data-template]) :is(.comparison-warning,.detail-notice) p,
-body:not([data-template]) .recent-state.failed {color: var(--wh-warning, #86602d) !important;}
-
-/* Shared reading details; no SVG fill/stroke, image filters or chart palette
-   rules are applied. Data-encoded canvas/heatmap colors keep their meaning. */
-body:not([data-template]) ::selection {background: #d7e2cf; color: var(--wh-ink, #252b26);}
-@media (prefers-reduced-motion: reduce) {body:not([data-template]) * {animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important;}}
+body:not([data-template]):not([data-workhub-native]) :is(.button.primary,.btn-primary,button.primary,[aria-pressed="true"],[aria-selected="true"],button.active,button.selected,button.on,.tab.active,.tab.on):not(:where(.success,.warning,.danger,.error,.alert,[data-status],[data-workhub-keep-color])) :is(span,strong,small,b) {color: inherit !important;}
+body:not([data-template]):not([data-workhub-native]) :is(th,td):not(:where([data-workhub-keep-color],[data-workhub-keep-color] *)) {color: var(--wh-ink) !important; border-color: var(--wh-border) !important;}
+body:not([data-template]):not([data-workhub-native]) th:not(:where([data-workhub-keep-color],[data-workhub-keep-color] *)) {background-color: var(--wh-accent-soft) !important;}
+body:not([data-template]):not([data-workhub-native]) :focus-visible {outline-color: var(--wh-focus) !important;}
+body:not([data-template]):not([data-workhub-native]) ::selection {background-color: var(--wh-accent-tint); color: var(--wh-ink);}

@@ -630,13 +630,20 @@ def directory_handler_for(directory):
 
     class DirectoryHandler(base):
         def transform_html(self, body):
-            if parse_qs(urlsplit(self.path).query).get("workhub_theme") == ["original"] or b"/__workhub/theme.css" in body:
+            if parse_qs(urlsplit(self.path).query).get("workhub_theme") == ["original"]:
                 return body
-            link = b'\n<link rel="stylesheet" href="/__workhub/theme.css" data-workhub-theme="shared">\n'
+            assets = []
+            if b"/__workhub/theme.css" not in body:
+                assets.append(b'<link rel="stylesheet" href="/__workhub/theme.css" data-workhub-theme="shared">')
+            if b"/__workhub/theme.js" not in body:
+                assets.append(b'<script src="/__workhub/theme.js" data-workhub-theme-runtime="shared"></script>')
+            if not assets:
+                return body
+            injection = b"\n" + b"\n".join(assets) + b"\n"
             closing = re.search(br"</head\s*>", body, flags=re.IGNORECASE)
             if closing:
-                return body[:closing.start()] + link + body[closing.start():]
-            return body + link
+                return body[:closing.start()] + injection + body[closing.start():]
+            return body + injection
 
         def do_GET(self):
             if not self.check_access():
@@ -648,6 +655,12 @@ def directory_handler_for(directory):
                 if request.path == "/__workhub/theme.css":
                     stylesheet = b"\n".join((ROOT / "static" / filename).read_bytes() for filename in ("design-system.css", "embedded-theme.css"))
                     self.respond(200, stylesheet, "text/css; charset=utf-8")
+                    return
+                if request.path == "/__workhub/theme.js":
+                    self.respond(200, (ROOT / "static" / "embedded-theme.js").read_bytes(), "application/javascript; charset=utf-8")
+                    return
+                if request.path.startswith("/__workhub/"):
+                    self.json_response(404, {"error": "Theme resource not found"})
                     return
                 self.serve_file(directory, unquote(request.path, errors="strict"))
             except (ValueError, UnicodeError) as error:

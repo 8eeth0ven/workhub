@@ -45,6 +45,18 @@
 
 后续维护主题时修改 canonical 源文件；新生成网站会获得新版本。已有正式站持有独立快照，需要在该项目中明确更新主题文件，不能把“生成成功”误报为所有历史站点已迁移。
 
+## 门户与项目页面同步配色
+
+配色是整个工作空间的选择，不能只改变门户边框。可用颜色以 canonical CSS、`static/theme.js` 的枚举为准；扩充配色时同步模板与嵌入运行时，保留同一套布局和字号。门户收起时，项目画布使用实际剩余窗口空间，不锁住收起前的像素宽高。
+
+目录网站由门户注入固定的 `/__workhub/theme.css` 和 `/__workhub/theme.js`，保留 `workhub_theme=original` 的原样预览入口。独立后端站点在自己的 HTML 中引入门户的 `/design-system.css`、`/embedded-theme.css` 和 `/embedded-theme.js`；有严格 CSP 的站点可发布同源资源快照，不能靠通用代理或跨域读取 DOM 改色。
+
+已有复杂应用使用 `body[data-workhub-native]`，由本地适配 CSS 把原有颜色变量映射到 `--wh-*`；通用嵌入样式跳过原生应用的强覆盖。只改界面颜色，保留布局、字体大小、滚动、表单草稿、PDF/视频图像及风险/成功等语义状态色。
+
+子页接收 `{type: 'workhub:theme', theme}`，并通过 `workhub:theme-request` / `workhub:theme-ready` 向父页请求当前配色。默认只接受真正父窗口的 `http://127.0.0.1:8787` 来源；其他本机端口须在页面明确设置 `data-workhub-parent-origin`，不能把任意 referrer 当成授权。父页只回复当前登记 iframe 的实际窗口与精确 HTTP(S) 来源，不用 `*`。
+
+验收至少切换两种颜色，核对项目正文、工具栏、面板和主要按钮实际跟随，并确认未导航 iframe、未丢失筛选或输入。只证明门户的选择器变了，或只收到消息，不能称项目配色已接通；未完成浏览器视觉核验时如实说明。
+
 ## 双语一致性 / Bilingual consistency
 
 - 简体中文与 English 使用同一视觉 token、导航结构与控件尺寸；翻译不是重新设计各站的理由。

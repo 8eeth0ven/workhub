@@ -472,7 +472,11 @@
     "还没有接入项目或网站。": "还没有接入项目或网站。",
     "{projects} 个项目 · {sites} 个网站": "{projects} 个项目 · {sites} 个网站",
     "查找项目或网站…": "查找项目或网站…",
-    "查找项目或网站": "查找项目或网站"
+    "查找项目或网站": "查找项目或网站",
+    "橙白": "橙白",
+    "青瓷": "青瓷",
+    "玫瑰": "玫瑰",
+    "靛蓝": "靛蓝"
   },
   "en": {
     "收起侧边栏": "Collapse sidebar",
@@ -944,7 +948,11 @@
     "还没有接入项目或网站。": "No projects or websites connected yet.",
     "{projects} 个项目 · {sites} 个网站": "{projects} projects · {sites} websites",
     "查找项目或网站…": "Find projects or websites…",
-    "查找项目或网站": "Find projects or websites"
+    "查找项目或网站": "Find projects or websites",
+    "橙白": "Orange",
+    "青瓷": "Celadon",
+    "玫瑰": "Rose",
+    "靛蓝": "Indigo"
   }
 };
  Object.values(dictionaries).forEach(Object.freeze);Object.freeze(dictionaries);

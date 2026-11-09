@@ -48,7 +48,19 @@ python3 examples/demo.py --port 8899
 
 文档也可通过每页顶部入口在中英文之间切换。英文版见 [README.en.md](README.en.md)；CLI 命令、API 路径与持久化数据结构不因界面语言改变。
 
-顶部「配色」可选择苔绿、雾蓝、石墨或暖沙，偏好在浏览器本地保存。颜色在整个门户中统一使用，布局、字号和项目状态保持不变；支持该协议的模板会同步配色，独立第三方网站保留原有样式。
+顶部「配色」可选择苔绿、雾蓝、石墨、暖沙、橙白、青瓷、玫瑰或靛蓝，偏好在浏览器本地保存。八套浅色方案只改变颜色，沿用同一布局、字体和控件尺寸；正文、辅助字及主按钮保持可读。切换不会重载项目 iframe、改写数据或触发模型。
+
+目录站会由本机服务注入受限配色运行时和共享 CSS，支持该协议的模板也会跟随门户。通用嵌入样式只改颜色，不修改字号、排版、图片、PDF、视频或图表；原生应用可标记 `body[data-workhub-native]`，跳过通用强覆盖并自行映射颜色变量。
+
+有独立后端的项目可在自己的页面显式加载：
+
+```html
+<link rel="stylesheet" href="http://127.0.0.1:8787/design-system.css">
+<link rel="stylesheet" href="http://127.0.0.1:8787/embedded-theme.css">
+<script defer src="http://127.0.0.1:8787/embedded-theme.js"></script>
+```
+
+子页默认只信任父窗口 `http://127.0.0.1:8787` 的八种主题消息，并用 ready/request 握手取得当前配色。自定义端口或 `localhost` 别名需在脚本标签明确指定 `data-workhub-parent-origin="http://127.0.0.1:8899"` 等 HTTP(S) 回环 origin，同时调整资源地址；不会把任意 referrer 当作信任来源。未接入资源的第三方页面不会被强制修改跨域 DOM。目录站可用 `?workhub_theme=original` 关闭自动注入。
 
 ## 把 Agent 的工作接进来
 

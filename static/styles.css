@@ -69,3 +69,24 @@ html.site-navigator-collapsed #spaces-page .site-canvas{grid-column:1/-1;grid-ro
  html.site-navigator-collapsed #spaces-page .portal-shell{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(430px,auto)}
  html.site-navigator-collapsed #spaces-page .portal-shell:has(.site-frame:not([hidden])){grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(630px,auto)}
 }
+/* One tiny, persistent control for chrome-free presentation. No frame scaling. */
+.focus-toggle{position:fixed;top:0;left:calc(50% - 15px);z-index:1000;display:grid;place-items:center;width:30px;height:24px;padding:3px;border:1px solid var(--wh-border,#e1e5dc);border-top:0;border-radius:0 0 6px 6px;background:var(--wh-surface,#fff);color:var(--wh-accent,#53634d);cursor:pointer;opacity:.8}
+.focus-toggle:hover{opacity:1;background:#f1f5eb}
+.focus-toggle:focus-visible{outline:2px solid #9aaa8b;outline-offset:2px;opacity:1}
+.focus-toggle-arrow{display:block;width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:5px solid currentColor;pointer-events:none}
+html.workhub-focus-mode .focus-toggle-arrow{border-bottom:0;border-top:5px solid currentColor}
+html.workhub-focus-mode,html.workhub-focus-mode body{background:#fff!important;overflow:auto!important}
+html.workhub-focus-mode #workspace-sidebar,html.workhub-focus-mode #overview>.topbar,html.workhub-focus-mode #demo-banner{display:none!important}
+html.workhub-focus-mode #overview{margin-left:0!important;min-height:100vh}
+/* These project-only overrides beat the older mobile/grid/:has rules. Other
+   views retain their business controls, forms, and existing content layout. */
+html.workhub-focus-mode.workhub-focus-project #spaces-page{box-sizing:border-box;width:max(100%,var(--workhub-focus-frame-width))!important;min-width:var(--workhub-focus-frame-width)!important;max-width:none!important;margin:0!important;padding:0!important;border:0!important;background:#fff!important}
+html.workhub-focus-mode.workhub-focus-project #spaces-page .site-navigator,
+html.workhub-focus-mode.workhub-focus-project #spaces-page .site-toolbar,
+html.workhub-focus-mode.workhub-focus-project #spaces-page .frame-help,
+html.workhub-focus-mode.workhub-focus-project #spaces-page .frame-notice,
+html.workhub-focus-mode.workhub-focus-project #spaces-page .portal-footnote,
+html.workhub-focus-mode.workhub-focus-project #spaces-page .site-empty{display:none!important}
+html.workhub-focus-mode.workhub-focus-project #spaces-page .portal-shell{display:block!important;grid-template-columns:none!important;grid-template-rows:none!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important;background:#fff!important}
+html.workhub-focus-mode.workhub-focus-project #spaces-page .site-canvas{display:block!important;position:static!important;flex:none!important;width:var(--workhub-focus-frame-width)!important;min-width:var(--workhub-focus-frame-width)!important;max-width:none!important;height:auto!important;min-height:0!important;margin:0 auto!important;padding:0!important;border:0!important;border-radius:0!important;overflow:visible!important;background:#fff!important}
+html.workhub-focus-mode.workhub-focus-project #spaces-page #site-frame:not([hidden]){display:block!important;box-sizing:border-box!important;flex:none!important;width:var(--workhub-focus-frame-width)!important;min-width:var(--workhub-focus-frame-width)!important;max-width:none!important;height:var(--workhub-focus-frame-height)!important;min-height:var(--workhub-focus-frame-height)!important;max-height:var(--workhub-focus-frame-height)!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important}

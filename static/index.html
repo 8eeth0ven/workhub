@@ -11,11 +11,13 @@
   <link rel="stylesheet" href="/design-system.css">
   <link rel="stylesheet" href="/styles.css">
   <script defer src="/i18n.js"></script>
+  <script defer src="/focus.js"></script>
   <script defer src="/app.js"></script>
   <script defer src="/reviews.js"></script>
   <script defer src="/archives.js"></script>
 </head>
 <body>
+  <button id="focus-toggle" class="focus-toggle" type="button" aria-controls="overview workspace-sidebar" aria-expanded="true" aria-pressed="false" aria-label="收起工作台界面（保持项目尺寸）" title="收起工作台界面（保持项目尺寸）" data-i18n-aria-label="收起工作台界面（保持项目尺寸）" data-i18n-title="收起工作台界面（保持项目尺寸）"><span class="focus-toggle-arrow" aria-hidden="true"></span></button>
   <aside id="workspace-sidebar" class="sidebar" aria-label="主导航" data-i18n-aria-label="主导航">
     <a class="brand" href="/" aria-label="Workhub 工作台首页" data-i18n-aria-label="Workhub 工作台首页"><span class="brand-mark">w<span>↗</span></span><span>workhub<span class="brand-caption"><span data-i18n="你的 Agent 工作台">你的 Agent 工作台</span></span></span></a>
     <span class="nav-label"><span data-i18n="WORKSPACE">WORKSPACE</span></span>

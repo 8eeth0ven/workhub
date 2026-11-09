@@ -457,7 +457,9 @@
     "版本与登记时间": "版本与登记时间",
     "网站列表": "网站列表",
     "展开网站列表": "展开网站列表",
-    "收起网站列表": "收起网站列表"
+    "收起网站列表": "收起网站列表",
+    "收起工作台界面（保持项目尺寸）": "收起工作台界面（保持项目尺寸）",
+    "恢复工作台界面": "恢复工作台界面"
   },
   "en": {
     "收起侧边栏": "Collapse sidebar",
@@ -914,7 +916,9 @@
     "版本与登记时间": "Version and registration time",
     "网站列表": "Website list",
     "展开网站列表": "Show website list",
-    "收起网站列表": "Hide website list"
+    "收起网站列表": "Hide website list",
+    "收起工作台界面（保持项目尺寸）": "Hide workspace controls (keep project size)",
+    "恢复工作台界面": "Show workspace controls"
   }
 };
  Object.values(dictionaries).forEach(Object.freeze);Object.freeze(dictionaries);

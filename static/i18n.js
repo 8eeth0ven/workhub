@@ -458,7 +458,7 @@
     "网站列表": "网站列表",
     "展开网站列表": "展开网站列表",
     "收起网站列表": "收起网站列表",
-    "收起工作台界面（保持项目尺寸）": "收起工作台界面（保持项目尺寸）",
+    "收起界面并铺满窗口": "收起界面并铺满窗口",
     "恢复工作台界面": "恢复工作台界面"
   },
   "en": {
@@ -917,7 +917,7 @@
     "网站列表": "Website list",
     "展开网站列表": "Show website list",
     "收起网站列表": "Hide website list",
-    "收起工作台界面（保持项目尺寸）": "Hide workspace controls (keep project size)",
+    "收起界面并铺满窗口": "Hide controls and fill window",
     "恢复工作台界面": "Show workspace controls"
   }
 };

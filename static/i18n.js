@@ -3,6 +3,8 @@
  'use strict';
  const dictionaries={
   "zh-CN": {
+    "收起侧边栏": "收起侧边栏",
+    "展开侧边栏": "展开侧边栏",
     " · 更多记录保存在本机": " · 更多记录保存在本机",
     "Agent 按 skill 记录开工、进展、完成和阻塞。": "Agent 按 skill 记录开工、进展、完成和阻塞。",
     "Agent 的进展将汇总为可追溯的工作时间线。": "Agent 的进展将汇总为可追溯的工作时间线。",
@@ -455,6 +457,8 @@
     "版本与登记时间": "版本与登记时间"
   },
   "en": {
+    "收起侧边栏": "Collapse sidebar",
+    "展开侧边栏": "Expand sidebar",
     " · 更多记录保存在本机": " · More history is stored locally",
     "Agent 按 skill 记录开工、进展、完成和阻塞。": "Agents use the skill to report starts, progress, completion, and blockers.",
     "Agent 的进展将汇总为可追溯的工作时间线。": "Agent updates form a traceable project timeline.",

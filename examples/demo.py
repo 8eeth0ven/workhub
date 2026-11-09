@@ -149,6 +149,22 @@ def seed(store, directory):
             db.execute("UPDATE projects SET updated_at=? WHERE id=?", (created, project["id"]))
             db.execute("UPDATE runs SET updated_at=? WHERE project_id=?", (created, project["id"]))
     seed_archives(store, fixtures, directory)
+    # A visibly fictional coding lesson, with an actual file in its temporary
+    # demo project. It never borrows source or understanding state from the user.
+    lesson_path = directory / "projects" / "radar" / "view.js"
+    lesson_path.write_text("function showTitle(node, item) { node.textContent = item.title; }\n", encoding="utf-8")
+    workhub.LearningStore(store).add_card({
+        "project_id": fixtures["radar"]["id"], "card_key": "demo-literal-text",
+        "title": "示例：为什么把标题当作文字展示？", "concept": "textContent 将内容作为普通文本写入页面。",
+        "explanation": "这是一张虚构演示学习卡。信息条目的标题可能包含尖括号；把它当文字显示，可以让页面忠实呈现标题。",
+        "implementation": "演示项目的 showTitle 接收节点和条目，把 item.title 赋给 node.textContent。它不解析 HTML，也不创建标题中的标签。",
+        "terms": [{"term": "DOM", "definition": "浏览器在内存中表示页面结构的对象。"}, {"term": "textContent", "definition": "读取或设置节点的文本，不把文本解析成 HTML。"}],
+        "steps": ["读取条目的标题。", "找到标题节点。", "通过 textContent 写入文本。"],
+        "example": 'item.title = "<b>示例标题</b>"；页面会显示这些字面字符。',
+        "self_check": "如果标题里有 <b>，为什么这里不会自动变成粗体？",
+        "sources": [{"path": "view.js", "line": 1, "symbol": "showTitle", "note": "仅位于本次临时演示项目。"}],
+        "agent": "demo", "run_id": "fictional-learning-example",
+    })
     return fixtures, public_paths
 
 

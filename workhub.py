@@ -27,6 +27,7 @@ from urllib.parse import parse_qs, quote, unquote, urlsplit
 
 from assessments import AssessmentManager, ReviewError
 from archives import ArchiveStore
+from learning import LearningStore
 
 
 ROOT = Path(__file__).resolve().parent
@@ -348,10 +349,11 @@ class WorkhubServer(ThreadingHTTPServer):
             previews.close()
 
 
-def handler_for(store, manager=None, reviews=None, archives=None):
+def handler_for(store, manager=None, reviews=None, archives=None, learning=None):
     manager = manager or (SiteManager(store) if store is not None else None)
     reviews = reviews or (AssessmentManager(store) if store is not None else None)
     archives = archives or (ArchiveStore(store) if store is not None else None)
+    learning = learning or (LearningStore(store) if store is not None else None)
     previews = ArchivePreviews(archives) if archives is not None else None
     class Handler(BaseHTTPRequestHandler):
         server_version = "AgentWorkhub/1"
@@ -359,6 +361,7 @@ def handler_for(store, manager=None, reviews=None, archives=None):
         site_manager = manager
         assessment_manager = reviews
         archive_previews = previews
+        learning_store = learning
 
         def log_message(self, fmt, *args):
             # Avoid logging raw request URLs (or terminal escape sequences).
@@ -402,7 +405,8 @@ def handler_for(store, manager=None, reviews=None, archives=None):
                 self.json_response(405, {"error": "项目静态网站只允许读取"})
                 return
             archive_kind = self.path.removeprefix("/api/archives/") if self.path.startswith("/api/archives/") else None
-            if self.path != "/api/reviews" and archive_kind not in ("session", "prompt", "artifact"):
+            learning_ack = self.path == "/api/learning/ack"
+            if self.path != "/api/reviews" and not learning_ack and archive_kind not in ("session", "prompt", "artifact"):
                 self.json_response(404, {"error": "接口不存在"})
                 return
             if self.headers.get("X-Workhub-Request") != "1":
@@ -423,6 +427,12 @@ def handler_for(store, manager=None, reviews=None, archives=None):
                 if len(raw) != length:
                     raise ReviewError("请求体不完整")
                 payload = json.loads(raw)
+                if learning_ack:
+                    if not isinstance(payload, dict) or set(payload) != {"card_id", "revision", "understood"}:
+                        raise ReviewError("学习确认参数无效")
+                    result = learning.acknowledge(payload["card_id"], payload["revision"], payload["understood"])
+                    self.json_response(200, {"card": result})
+                    return
                 if archive_kind:
                     if not isinstance(payload, dict):
                         raise ReviewError("归档请求须为 JSON 对象")
@@ -509,6 +519,14 @@ def handler_for(store, manager=None, reviews=None, archives=None):
                     self.json_response(200, integrations())
                 elif route == "/api/sites":
                     self.json_response(200, {"sites": manager.sites(), "templates": template_catalog()})
+                elif route == "/api/learning":
+                    query = parse_qs(request.query)
+                    result = learning.list(query.get("project_id", [None])[0], query.get("q", [""])[0], query.get("status", [""])[0])
+                    result["global_stats"] = learning.list()["stats"] if query.get("project_id") or query.get("q") else result["stats"]
+                    result["projects"] = [{"id": p["id"], "name": p["name"]} for p in store.projects()]
+                    self.json_response(200, result)
+                elif route == "/api/learning/card":
+                    self.json_response(200, learning.get(parse_qs(request.query).get("id", [""])[0]))
                 elif route == "/api/reviews":
                     self.json_response(200, reviews.public_state())
                 elif route == "/api/reviews/job":
@@ -758,6 +776,15 @@ def build_parser():
     events.add_argument("--limit", type=bounded_limit, default=100)
     sub.add_parser("export", help="导出全部项目和完整事件 JSON")
     sub.add_parser("integrations", help="检查各 Agent 必读入口")
+    learn_add = sub.add_parser("learn-add", help="根据真实代码新增或更新学习卡，不代用户确认理解")
+    learn_add.add_argument("--project", required=True)
+    learn_add.add_argument("--file", required=True, help="一张结构化学习卡的 UTF-8 JSON 文件")
+    learn_list = sub.add_parser("learn-list", help="列出学习卡与本人理解进度")
+    learn_list.add_argument("--project")
+    learn_list.add_argument("--q", default="")
+    learn_list.add_argument("--status", choices=("pending", "understood", "needs_review"), default="")
+    learn_card = sub.add_parser("learn-card", help="查看学习卡及版本/理解记录")
+    learn_card.add_argument("--id", required=True)
     archive_list = sub.add_parser("archive-list", help="列出会话、提示词及图文归档（不扫描历史目录）")
     archive_list.add_argument("--project")
     archive_list.add_argument("--q", default="")
@@ -840,6 +867,28 @@ def main(argv=None):
                 result = store.state(event_limit=None)
                 result["sites"] = store.sites()
                 result["archives"] = ArchiveStore(store).list(limit=100000)
+                result["learning"] = LearningStore(store).list()
+            elif args.command == "learn-add":
+                file = Path(args.file).expanduser()
+                if file.stat().st_size > 131072:
+                    raise ReviewError("学习卡文件过大", 413)
+                payload = json.loads(file.read_text(encoding="utf-8"))
+                if not isinstance(payload, dict):
+                    raise ReviewError("学习卡须为 JSON 对象")
+                path = canonical_path(args.project)
+                identifier = project_id(path)
+                if payload.get("project") and canonical_path(payload["project"]) != path:
+                    raise ReviewError("学习卡与指定项目不一致")
+                if payload.get("project_id") and payload["project_id"] != identifier:
+                    raise ReviewError("学习卡与指定项目不一致")
+                payload.pop("project", None)
+                payload["project_id"] = identifier
+                result = LearningStore(store).add_card(payload)
+            elif args.command == "learn-list":
+                identifier = project_id(canonical_path(args.project)) if args.project else None
+                result = LearningStore(store).list(identifier, args.q, args.status)
+            elif args.command == "learn-card":
+                result = LearningStore(store).get(args.id)
             elif args.command.startswith("archive-"):
                 archive = ArchiveStore(store)
                 identifier = project_id(canonical_path(args.project)) if args.project else None

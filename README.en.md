@@ -16,6 +16,7 @@ Workhub is a local-first project console. Switch between project websites withou
 | --- | --- |
 | **Project spaces** | Connect existing static sites or running local services, then read and interact with them beside persistent portal navigation. |
 | **Work records** | Track projects, agents, task states, artifacts and verification summaries. Independent `run-id` values keep concurrent tasks separate. |
+| **Learning** | Explain concepts, terms and source-level implementation from real changes. You acknowledge basic understanding; new content asks for another review. |
 | **Project archives** | Preserve the actual agent, verifiable sessions, project-specific prompt versions and deliverables, linking sources to outputs. |
 | **Layout studio** | Radar, Library and Brief share typography, colors, spacing and controls while organizing different kinds of information. |
 | **Project reviews** | Examine five dimensions through six kinds of Socratic questions. Distinguish evidence, untested assumptions, blind spots and next actions; add answers and review again. |
@@ -61,6 +62,21 @@ Applications with their own backend can explicitly load these resources in their
 ```
 
 The child runtime trusts only its actual parent at `http://127.0.0.1:8787` by default and requests the current palette through a ready/request handshake. For a custom port or a `localhost` alias, explicitly set an HTTP(S) loopback origin such as `data-workhub-parent-origin="http://127.0.0.1:8899"` on the script tag and update the resource URLs. Arbitrary referrers are not trusted. Third-party pages that have not opted in are not forced through cross-origin DOM manipulation. Directory pages can disable automatic injection with `?workhub_theme=original`.
+
+## Learn while building
+
+Open **Learning**, choose a project, and read cards prepared by the coding agent from actual source: a plain-language concept, terminology, implementation steps, examples, a self-check question, and file/line references. Opening this view does not scan your repository or call a model.
+
+![Learning flow: real changes, source references and the reader's acknowledgement; illustrated in Chinese](docs/images/learning-workflow.svg)
+
+Only you check **I have a basic understanding**, and you can undo it. Your local acknowledgement belongs to that knowledge revision. A material explanation or implementation change asks for another review while preserving history; a repeated import or a different agent/run does not revoke your understanding. This is your self-report, not a proficiency certificate.
+
+The shared skill asks coding agents to maintain these cards after substantive changes. See the [learning-card protocol](skill/agent-workhub/references/learning-cards.md) for the JSON format:
+
+```sh
+python3 workhub.py learn-add --project /path/to/project --file /path/to/card.json
+python3 workhub.py learn-list --project /path/to/project --status pending
+```
 
 ## Connect your agents' work
 

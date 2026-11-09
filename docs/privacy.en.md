@@ -6,6 +6,8 @@
 
 Project paths, names, descriptions, work records, supplemental answers and model reviews are stored in the user's state directory. It defaults to `~/.local/share/agent-workhub` and can be changed with `AGENT_WORKHUB_HOME`. The directory may also contain the database, instruction-file backups, model configuration, logs, session process records and an optional runtime copy.
 
+Learning explanations, implementation notes, relative source references, knowledge revisions and user acknowledgements also stay in this private database. Reading, filtering, refreshing or acknowledging a card does not call a model. Coding agents submit new cards through the local CLI. Published source and demonstrations must exclude the user's real cards, source excerpts and understanding status.
+
 Project archives can also retain the actual agent, session provenance, necessary task prompts and explicitly selected deliverable snapshots locally. Original instructions and rewritten `derived` versions remain separate, with their sources, revisions and hashes. Entire conversations are not copied. Prompts containing credentials are rejected by default; an explicitly requested redacted copy is marked as derived, and the original credential is not written to disk.
 
 The interface-language preference is stored locally in the browser for the current portal origin. It is not written into project content, and changing language does not trigger a translation or model request. Project names, work records, website content and existing reviews remain in their original language.

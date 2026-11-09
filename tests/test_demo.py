@@ -41,7 +41,7 @@ class DemoIsolationTests(unittest.TestCase):
     def test_demo_never_constructs_real_provider_or_reads_global_integrations(self):
         with patch.object(workhub, "AssessmentManager", side_effect=AssertionError("real manager must not be used")), patch.object(workhub, "integrations", side_effect=AssertionError("global integration must not be read")), patch.dict(os.environ, {"AGENT_WORKHUB_HOME": "/unused-private-global-database", "GLM_API_KEY": "demo-must-not-read-this-key"}):
             with running_demo() as (port, temporary):
-                endpoints = ["/api/health", "/api/state", "/api/sites", "/api/integrations", "/api/reviews"]
+                endpoints = ["/api/health", "/api/state", "/api/sites", "/api/integrations", "/api/reviews", "/api/learning"]
                 state = json.loads(request(port, "/api/state")[1])
                 for project in state["projects"]:
                     endpoints.extend(["/api/project?id=" + project["id"], "/api/reviews/project?id=" + project["id"]])
@@ -77,6 +77,10 @@ class DemoIsolationTests(unittest.TestCase):
                 self.assertEqual(reviews["provider"]["key_count"], 0)
                 self.assertTrue(all(review["is_demo"] for review in reviews["reviews"]))
                 self.assertTrue(all("未调用模型" in review["summary"] for review in reviews["reviews"]))
+                lesson = json.loads(request(port, "/api/learning")[1])
+                self.assertEqual(lesson["stats"]["total"], 1)
+                self.assertEqual(lesson["stats"]["understood"], 0)
+                self.assertEqual(lesson["cards"][0]["sources"][0]["path"], "view.js")
             self.assertFalse(temporary.exists(), "temporary database and websites must be removed")
 
     def test_post_is_read_only_and_first_paint_marks_demo(self):
@@ -84,6 +88,9 @@ class DemoIsolationTests(unittest.TestCase):
             status, body = request(port, "/api/reviews", "POST", '{"all":true}')
             self.assertEqual(status, 405)
             self.assertIn("演示模式".encode(), body)
+            status, body = request(port, "/api/learning/ack", "POST", '{"card_id":"demo","revision":1,"understood":true}')
+            self.assertEqual(status, 405)
+            self.assertEqual(json.loads(request(port, "/api/learning")[1])["stats"]["understood"], 0)
             status, page = request(port, "/")
             self.assertEqual(status, 200)
             self.assertIn(b'id="demo-banner" class="demo-banner" role="note">', page)

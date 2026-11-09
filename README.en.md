@@ -48,6 +48,8 @@ Use the **简体中文 / English** selector in the top toolbar. Your choice is s
 
 Project names, work records, website content and existing model reviews stay in their original language. Supported template iframes receive the portal's language choice; third-party websites keep their own language behavior. Documentation has matching language links at the top of each translated page. CLI commands, API paths and stored data are unchanged by the interface setting.
 
+The **Color theme** selector offers Moss, Mist blue, Graphite and Warm sand. Your choice is saved locally and applies across the portal while preserving layout, typography and project state. Supported templates receive the same palette; independent third-party websites keep their own styling.
+
 ## Connect your agents' work
 
 Workhub provides a CLI, one shared skill, and required-reading entries in `AGENTS.md` and `CLAUDE.md`. The installer preserves existing rules and backs up files before changing them. Projects can share a protocol rather than maintaining a separate one for every agent.
@@ -85,6 +87,8 @@ Snapshots follow a selected entry and its local dependencies. Editor copies and 
 ## Independent sites, a consistent reading experience
 
 Connect an existing static site by directory or a running development server by its local URL. Directory sites receive independent local preview origins, while the portal keeps its navigation around the embedded page. If a site forbids iframe embedding, adjust the configuration of a site you control or connect its static build instead.
+
+The project list includes registered projects with and without websites. A project without a website opens its record details and is clearly labeled; it is not presented as a working site. Registering a real directory or URL adds the website beneath that project automatically. Collapsing the surrounding interface expands the current website to fill the window without reloading it.
 
 New projects can start from three layouts with a shared visual system:
 

@@ -44,6 +44,20 @@
       footerDemo: 'Template preview · {count} items', footerLocal: 'Local workspace · {count} items'
     }
   };
+  const themeStorageKey = 'workhub-theme';
+  const themes = Object.freeze(['moss', 'fog', 'graphite', 'sand']);
+  const supportedTheme = value => themes.includes(value);
+  let theme = 'moss';
+  try { const saved = localStorage.getItem(themeStorageKey); if (supportedTheme(saved)) theme = saved; } catch {}
+  function applyTheme(value, persist = true) {
+    if (!supportedTheme(value)) return false;
+    theme = value;
+    document.documentElement.setAttribute('data-workhub-theme', theme);
+    try { if (persist) localStorage.setItem(themeStorageKey, theme); } catch {}
+    return true;
+  }
+  window.WorkhubTemplateTheme = {getTheme: () => theme, setTheme: applyTheme, themes};
+  applyTheme(theme, false);
   const storageKey = 'workhub-language';
   let language = supported(document.documentElement.lang) ? document.documentElement.lang : 'zh-CN';
   try { const saved = localStorage.getItem(storageKey); if (supported(saved)) language = saved; } catch {}
@@ -215,23 +229,27 @@
       document.querySelector('header p').hidden = true;
     }
   }
-  function trustedParentMessage(event) {
-    if (window.parent === window || event.source !== window.parent || !event.data || event.data.type !== 'workhub:language' || !supported(event.data.language)) return;
-    let trusted = false;
+  function trustedParent(event) {
+    if (window.parent === window || event.source !== window.parent || !event.data || typeof event.data !== 'object') return false;
     try {
       const origin = new URL(event.origin);
-      if (!['http:', 'https:'].includes(origin.protocol)) return;
+      if (!['http:', 'https:'].includes(origin.protocol)) return false;
       const sameOrigin = origin.origin === window.location.origin;
       let referrerOrigin = '';
       try { referrerOrigin = document.referrer ? new URL(document.referrer).origin : ''; } catch {}
       const loopback = ['127.0.0.1', 'localhost', '[::1]', '::1'].includes(origin.hostname);
-      trusted = sameOrigin || origin.origin === referrerOrigin || loopback;
-    } catch { return; }
-    if (trusted) applyLanguage(event.data.language);
+      return sameOrigin || origin.origin === referrerOrigin || loopback;
+    } catch { return false; }
+  }
+  function trustedParentMessage(event) {
+    if (!trustedParent(event)) return;
+    if (event.data.type === 'workhub:language' && supported(event.data.language)) applyLanguage(event.data.language);
+    else if (event.data.type === 'workhub:theme' && supportedTheme(event.data.theme)) applyTheme(event.data.theme);
   }
   window.addEventListener('message', trustedParentMessage);
   window.addEventListener('storage', event => {
     if (event.key === storageKey && supported(event.newValue)) applyLanguage(event.newValue, false);
+    else if (event.key === themeStorageKey && (event.newValue === null || supportedTheme(event.newValue))) applyTheme(event.newValue || 'moss', false);
   });
   $('language-select').onchange = () => applyLanguage($('language-select').value);
   $(mode === 'library' ? 'dClose' : 'close').onclick = () => dialog.close();

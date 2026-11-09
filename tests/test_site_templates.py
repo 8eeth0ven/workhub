@@ -65,7 +65,7 @@ const matches=(e,s)=>s[0]==='#'?e.attrs.id===s.slice(1):s[0]==='.'?e.className.s
 function query(s,r=root){const parts=s.split(' ');let list=[r];for(const p of parts)list=list.flatMap(n=>all(n).filter(e=>matches(e,p)));return list;}
 const document={documentElement:query('html')[0],body:query('body')[0],referrer:f.referrer||'',title:'',
  getElementById:id=>query('#'+id)[0]||null,querySelector:s=>query(s)[0]||null,querySelectorAll:s=>query(s),createElement:t=>new Element(t),createTextNode:s=>String(s)};
-const stored=new Map(f.saved?[['workhub-language',f.saved]]:[]);
+const stored=new Map(f.saved?[['workhub-language',f.saved]]:[]);if(f.savedTheme)stored.set('workhub-theme',f.savedTheme);
 const localStorage={getItem:k=>{if(f.blockStorage)throw Error('blocked');return stored.get(k)||null;},setItem:(k,v)=>{if(f.blockStorage)throw Error('blocked');stored.set(k,v);}};
 const events={},parent={};
 const window={location:{origin:'https://fixture.example'},addEventListener:(k,fn)=>(events[k]??=[]).push(fn)};
@@ -73,7 +73,7 @@ window.parent=f.standalone?window:parent;
 const sandbox={window,document,localStorage,URL,console,fetch:async()=>({ok:!f.fail,json:async()=>f.data})};
 vm.runInNewContext(f.code,sandbox);
 const get=id=>document.getElementById(id);
-const snapshot=()=>({language:document.documentElement.lang,label:get('language-select').value,search:get('q').value,sort:get('sort')?.value||null,
+const snapshot=()=>({theme:document.documentElement.getAttribute('data-workhub-theme'),savedTheme:stored.get('workhub-theme')||null,language:document.documentElement.lang,label:get('language-select').value,search:get('q').value,sort:get('sort')?.value||null,
  status:query('.template-status')[0].textContent,heading:query('header h1')[0].textContent,body:document.body.textContent,
  content:(get('list')||get('grid')).textContent,lead:get('lead')?.textContent||'',open:get('dlg').open,
  close:get(f.mode==='library'?'dClose':'close').textContent,placeholder:get('q').getAttribute('placeholder'),saved:stored.get('workhub-language')||null,
@@ -88,6 +88,18 @@ const snapshot=()=>({language:document.documentElement.lang,label:get('language-
   if(f.mode==='library'){get('sort').value='date-asc';get('sort').onchange();}
   const target=f.mode==='brief'?get('lead'):(get('list')||get('grid')).children[0];target.onclick();
   get('language-select').value='zh-CN';get('language-select').onchange();
+ }else if(f.action==='theme'){
+  get('q').value='needle';get('q').oninput();
+  if(f.mode==='library'){get('sort').value='date-asc';get('sort').onchange();}
+  const target=f.mode==='brief'?get('lead'):(get('list')||get('grid')).children[0];target.onclick();
+  const beforeTheme=snapshot(),send=e=>events.message.forEach(fn=>fn(e));
+  send({source:{},origin:'https://fixture.example',data:{type:'workhub:theme',theme:'fog'}});const rejectedThemeSource=snapshot().theme;
+  send({source:parent,origin:'https://untrusted.example',data:{type:'workhub:theme',theme:'fog'}});const rejectedThemeOrigin=snapshot().theme;
+  send({source:parent,origin:'null',data:{type:'workhub:theme',theme:'fog'}});const rejectedThemeOpaque=snapshot().theme;
+  send({source:parent,origin:'http://127.0.0.1:8888',data:{type:'workhub:theme',theme:'untrusted-css'}});const rejectedThemeValue=snapshot().theme;
+  send({source:parent,origin:'http://127.0.0.1:8888',data:{type:'workhub:theme',theme:'fog'}});const afterTheme=snapshot();
+  events.storage.forEach(fn=>fn({key:'workhub-theme',newValue:'graphite'}));
+  console.log(JSON.stringify({initial,beforeTheme,afterTheme,final:snapshot(),rejectedThemeSource,rejectedThemeOrigin,rejectedThemeOpaque,rejectedThemeValue}));return;
  }else if(f.action==='messages'){
   const send=e=>events.message.forEach(fn=>fn(e));
   get('language-select').value='zh-CN';get('language-select').onchange();
@@ -201,6 +213,31 @@ class BilingualTemplatesTests(unittest.TestCase):
         self.assertEqual(result["initial"]["heading"], "Knowledge library")
         self.assertIn("Your workspace is ready", result["initial"]["content"])
         self.assertIn("Local workspace", result["initial"]["body"])
+
+
+    def test_theme_messages_change_only_palette_and_require_a_trusted_parent(self):
+        for mode in ("radar", "library", "brief"):
+            with self.subTest(mode=mode):
+                result = self.runtime(mode, action="theme")
+                self.assertEqual(result["initial"]["theme"], "moss")
+                for field in ("rejectedThemeSource", "rejectedThemeOrigin", "rejectedThemeOpaque", "rejectedThemeValue"):
+                    self.assertEqual(result[field], "moss", field)
+                after = result["afterTheme"]
+                self.assertEqual(after["theme"], "fog")
+                self.assertEqual(after["savedTheme"], "fog")
+                for field in ("language", "search", "sort", "content", "lead", "open", "selected"):
+                    self.assertEqual(after[field], result["beforeTheme"][field], field)
+                self.assertTrue(after["open"])
+                self.assertEqual(result["final"]["theme"], "graphite")
+
+    def test_standalone_theme_default_saved_preference_and_blocked_storage(self):
+        saved = self.runtime("radar", standalone=True, savedTheme="sand", action="theme")
+        self.assertEqual(saved["initial"]["theme"], "sand")
+        self.assertEqual(saved["afterTheme"]["theme"], "sand", "standalone sites reject parent messages")
+        blocked = self.runtime("library", blockStorage=True, action="theme")
+        self.assertEqual(blocked["initial"]["theme"], "moss")
+        self.assertEqual(blocked["afterTheme"]["theme"], "fog")
+        self.assertIsNone(blocked["afterTheme"]["savedTheme"])
 
 
 if __name__ == "__main__":

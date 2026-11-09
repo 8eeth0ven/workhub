@@ -108,3 +108,46 @@ html.workhub-focus-mode #spaces-page .portal-shell{grid-template-columns:minmax(
 html.workhub-focus-mode #spaces-page .site-canvas{grid-column:1/-1;grid-row:1;width:100%;height:100%;min-width:0;min-height:0;margin:0;border:0;border-radius:0}
 html.workhub-focus-mode #spaces-page #site-frame:not([hidden]){display:block;flex:1 1 0;width:100%;height:100%;min-width:0;min-height:0;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0}
 html.workhub-focus-mode #spaces-page .site-empty:not([hidden]){min-height:0;overflow:auto}
+/* Palette controls and color-only bridges for older portal components. */
+.theme-control{display:inline-flex;align-items:center;gap:5px;flex-shrink:0}
+.theme-control:before{content:"";display:block;width:6px;height:6px;flex:0 0 6px;border-radius:50%;background:var(--wh-accent)}
+.theme-control select{font:500 11px/1.4 var(--wh-font);color:var(--wh-muted);background:var(--wh-surface);border:1px solid var(--wh-border);border-radius:6px;min-height:29px;padding:4px 6px;max-width:96px;cursor:pointer}
+.theme-control select:focus-visible{outline:3px solid var(--wh-focus);outline-offset:2px}
+.sidebar{background:var(--wh-sidebar-bg);color:var(--wh-sidebar-muted)}
+.brand,.sidebar-note h2,.note-orbit,.agent-connection{color:var(--wh-sidebar-ink)}
+.brand-mark{background:var(--wh-accent-tint);color:var(--wh-sidebar-bg)}
+.brand-caption,.sidebar .nav-label,.sidebar-note p,.sidebar .local-tag,.agent-connection .connection-description{color:var(--wh-sidebar-muted)!important}
+.sidebar .nav-item{color:var(--wh-sidebar-muted)}
+.sidebar .nav-item.active,.sidebar .nav-item:hover{background:var(--wh-sidebar-active);color:var(--wh-sidebar-ink)}
+.sidebar .nav-item.active svg{color:var(--wh-accent-tint)}
+.nav-count,.agent-symbol,.sidebar-guide{background:var(--wh-sidebar-active);color:var(--wh-sidebar-ink);border-color:var(--wh-sidebar-border)}
+.nav-key{color:var(--wh-sidebar-muted)}.note-line{background:var(--wh-sidebar-border)}
+.button-dark,.site-empty .button{background:var(--wh-accent);color:var(--wh-on-accent)}
+.button-dark:hover,.site-empty .button:hover{background:var(--wh-accent-hover)}
+.button-outline,.icon-button,.copy-button,.site-review-button,.archive-text-button{color:var(--wh-accent)}
+.button-outline:hover,.icon-button:hover,.copy-button:hover,.focus-toggle:hover,.site-navigator-toggle:hover{background:var(--wh-accent-soft)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.focus-toggle:focus-visible{outline-color:var(--wh-focus)}
+.project-icon,.project-icon.tint-1,.project-icon.tint-2,.project-icon.tint-3,.empty-icon,.portal-symbol,.portal-symbol-small,.guide-symbol,.review-provider-mark,.review-empty-symbol{background:var(--wh-accent-soft);color:var(--wh-accent);border-color:var(--wh-border)}
+.title-count,.view-toggle,.live-label,.template-card-label,.site-item.selected,.site-item:hover,.new-site-button:hover,.archive-tabs,.archive-tabs>button>span:last-child{background:var(--wh-accent-soft);border-color:var(--wh-border);color:var(--wh-accent)}
+.project-card:hover,.template-card:hover{border-color:var(--wh-border-strong)}
+.code-row,.guide-tip,.detail-event-description,.detail-limit,.review-dimension,.review-question,.review-source-evidence,.review-answer-panel,.review-previous-answers,.archive-prompt-content,.archive-source-ref,.archive-version-button,.archive-usage-details{background:var(--wh-accent-soft);border-color:var(--wh-border)}
+.code-row code,.guide-step h3,.detail-task,.review-question-check,.review-source-evidence summary,.review-source-item strong,.review-previous-answers summary,.review-previous-answer time,.archive-version-history>summary,.archive-version-button,.archive-usage-details>summary{color:var(--wh-accent)!important}
+.review-project-card.selected{border-color:var(--wh-border-strong);background:var(--wh-surface);box-shadow:inset 3px 0 0 var(--wh-accent)}
+.review-dimension-heading>strong,.review-question-title{color:var(--wh-ink)}
+.review-score,.review-evidence-ref,.review-card-dimension,.review-question-group h4>span{background:var(--wh-accent-soft);border-color:var(--wh-border);color:var(--wh-accent)}
+.template-card-visual,.template-tint-1 .template-card-visual,.template-tint-2 .template-card-visual{background:var(--wh-accent-soft)}
+.site-navigator,.site-toolbar,.site-canvas,.portal-shell,.template-detail,.guide-dialog,.project-dialog,.archive-form-dialog{background:var(--wh-surface)}
+.site-empty{background:var(--wh-surface)}
+.template-card-title h2,.template-card-title>span,.template-action,.template-footnote,.template-create strong{color:var(--wh-accent)}
+@media(max-width:1000px){.topbar{gap:12px}.topbar-left{flex:1;min-width:0}.topbar-right{flex-shrink:0;gap:8px}.theme-control select{font-size:10px;min-height:27px;max-width:88px}}
+@media(max-width:760px){.theme-control select{font-size:10px;min-height:26px;max-width:84px}.theme-control{gap:4px}.topbar-right{gap:7px}.topbar .connection-status{width:7px;flex-shrink:0;position:relative}.topbar .connection-status>span{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}}
+@media(max-width:540px){.theme-control select{font-size:9px;min-height:25px;max-width:78px;padding:3px 4px}.theme-control:before{width:5px;height:5px;flex-basis:5px}.topbar{gap:8px}.topbar-right{gap:6px}}
+@media(max-width:420px){.topbar-left .breadcrumb{display:none}.topbar-right{gap:6px}}
+/* Keep compact labels and semantic statuses readable in every light palette. */
+input::placeholder,textarea::placeholder{color:var(--wh-muted)!important;opacity:1}
+.review-job-disclosure-hint,.review-evidence-missing,.activity-footer,.project-section-footer{color:var(--wh-muted)}
+.connection-status.loading{color:var(--wh-muted)}.connection-status:not(.loading):not(.offline){color:var(--wh-success)}.connection-status.offline{color:var(--wh-danger)}
+.status-pill{background:var(--wh-accent-soft);border-color:var(--wh-border);color:var(--wh-accent)}
+.status-pill.running,.status-pill.completed{color:var(--wh-success)}.status-pill.blocked{color:var(--wh-warning)}.status-pill.paused{color:var(--wh-muted)}
+.agent-chip,.agent-chip.codex,.agent-chip.claude,.agent-chip.zcode,.activity-avatar,.activity-avatar.codex,.activity-avatar.claude,.activity-avatar.zcode{background:var(--wh-accent-soft);color:var(--wh-accent);border-color:var(--wh-border)}
+.archive-badge{background:var(--wh-accent-soft);color:var(--wh-accent);border-color:var(--wh-border)}.archive-badge.publication{color:var(--wh-warning)}

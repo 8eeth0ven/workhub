@@ -459,7 +459,20 @@
     "展开网站列表": "展开网站列表",
     "收起网站列表": "收起网站列表",
     "收起界面并铺满窗口": "收起界面并铺满窗口",
-    "恢复工作台界面": "恢复工作台界面"
+    "恢复工作台界面": "恢复工作台界面",
+    "配色": "配色",
+    "苔绿": "苔绿",
+    "雾蓝": "雾蓝",
+    "石墨": "石墨",
+    "暖沙": "暖沙",
+    "尚未接入网站": "尚未接入网站",
+    "已有工作记录 · 查看详情": "已有工作记录 · 查看详情",
+    "已登记项目 · 查看详情": "已登记项目 · 查看详情",
+    "没有匹配的项目或网站。": "没有匹配的项目或网站。",
+    "还没有接入项目或网站。": "还没有接入项目或网站。",
+    "{projects} 个项目 · {sites} 个网站": "{projects} 个项目 · {sites} 个网站",
+    "查找项目或网站…": "查找项目或网站…",
+    "查找项目或网站": "查找项目或网站"
   },
   "en": {
     "收起侧边栏": "Collapse sidebar",
@@ -918,7 +931,20 @@
     "展开网站列表": "Show website list",
     "收起网站列表": "Hide website list",
     "收起界面并铺满窗口": "Hide controls and fill window",
-    "恢复工作台界面": "Show workspace controls"
+    "恢复工作台界面": "Show workspace controls",
+    "配色": "Color palette",
+    "苔绿": "Moss",
+    "雾蓝": "Mist blue",
+    "石墨": "Graphite",
+    "暖沙": "Warm sand",
+    "尚未接入网站": "Website not connected",
+    "已有工作记录 · 查看详情": "Work recorded · View details",
+    "已登记项目 · 查看详情": "Project registered · View details",
+    "没有匹配的项目或网站。": "No matching projects or websites.",
+    "还没有接入项目或网站。": "No projects or websites connected yet.",
+    "{projects} 个项目 · {sites} 个网站": "{projects} projects · {sites} websites",
+    "查找项目或网站…": "Find projects or websites…",
+    "查找项目或网站": "Find projects or websites"
   }
 };
  Object.values(dictionaries).forEach(Object.freeze);Object.freeze(dictionaries);

@@ -81,7 +81,47 @@ let siteState={sites:[],templates:[]},sitesLoaded=false,siteFetchBusy=false,acti
 const FRAME_SANDBOX='allow-scripts allow-same-origin allow-forms allow-downloads allow-popups';
 try{activeSiteId=localStorage.getItem('workhub-current-site');const page=localStorage.getItem('workhub-current-page');if(page)switchPage(page);}catch{}
 function safeFrameUrl(value){if(typeof value!=='string'||!value.trim())return null;try{const url=new URL(value,location.origin);return ['http:','https:'].includes(url.protocol)?url.href:null;}catch{return null;}}
-function renderSites(){if(!sitesLoaded)return;const query=$('#site-search').value.trim().toLowerCase();const sites=siteState.sites.filter(site=>[site.name,site.description,state.projects.find(p=>String(p.id)===String(site.project_id))?.name].filter(Boolean).join(' ').toLowerCase().includes(query));$('#site-count').textContent=String(siteState.sites.length);const list=$('#site-list');if(!sites.length){list.replaceChildren(element('div','site-list-empty',query?t('没有匹配的网站。'):t('还没有接入网站。\n接入已有项目，或从一套版式开始。')));return;}const groups=new Map();sites.forEach(site=>{const key=String(site.project_id||'unassigned');if(!groups.has(key))groups.set(key,[]);groups.get(key).push(site);});const nodes=[];groups.forEach((entries,projectId)=>{const project=state.projects.find(p=>String(p.id)===projectId);const group=element('div','site-group');group.append(element('div','site-group-title',project?.name||entries[0].project_name||t('项目网站')));entries.forEach(site=>{const button=element('button',`site-item${String(site.id)===activeSiteId?' selected':''}`);button.type='button';button.setAttribute('aria-pressed',String(String(site.id)===activeSiteId));const symbol=element('span','site-item-icon');symbol.append(icon('folder'));const info=element('span','site-item-info');info.append(element('strong','',site.name||project?.name||t('项目网站')),element('span','',site.description||({directory:t('本机项目网站'),url:t('已接入网站')}[site.kind])||t('项目网站')));button.append(symbol,info,element('span','site-item-arrow','↗'));button.addEventListener('click',()=>selectSite(String(site.id)));group.append(button);});nodes.push(group);});list.replaceChildren(...nodes);}
+function renderSites(){
+  if(!sitesLoaded)return;
+  const groups=window.WorkhubSiteNavigation.groupProjects(state.projects,siteState.sites,$('#site-search').value);
+  const counter=$('#site-count');
+  counter.textContent=String(siteState.sites.length);
+  counter.title=t('{projects} 个项目 · {sites} 个网站',{projects:state.projects.length,sites:siteState.sites.length});
+  counter.setAttribute('aria-label',counter.title);
+  const list=$('#site-list');
+  if(!groups.length){
+    list.replaceChildren(element('div','site-list-empty',$('#site-search').value.trim()?t('没有匹配的项目或网站。'):t('还没有接入项目或网站。')));
+    return;
+  }
+  const nodes=groups.map(({project,sites})=>{
+    const group=element('div','site-group');
+    group.append(element('div','site-group-title',project.name||t('项目网站')));
+    if(!sites.length){
+      const button=element('button','site-item site-project-records');
+      button.type='button';
+      button.setAttribute('aria-label',t('查看项目 {name} 的详情',{name:project.name}));
+      const symbol=element('span','site-item-icon');symbol.append(icon('book'));
+      const info=element('span','site-item-info');
+      info.append(element('strong','',t('尚未接入网站')),element('span','',t(project.event_count>0?'已有工作记录 · 查看详情':'已登记项目 · 查看详情')));
+      button.append(symbol,info,element('span','site-item-arrow','→'));
+      button.addEventListener('click',()=>{switchPage('records');openProject(project.id);});
+      group.append(button);
+    }
+    sites.forEach(site=>{
+      const button=element('button',`site-item${String(site.id)===activeSiteId?' selected':''}`);
+      button.type='button';button.setAttribute('aria-pressed',String(String(site.id)===activeSiteId));
+      const symbol=element('span','site-item-icon');symbol.append(icon('folder'));
+      const info=element('span','site-item-info');
+      info.append(element('strong','',site.name||project.name||t('项目网站')),element('span','',site.description||({directory:t('本机项目网站'),url:t('已接入网站')}[site.kind])||t('项目网站')));
+      button.append(symbol,info,element('span','site-item-arrow','↗'));
+      button.addEventListener('click',()=>selectSite(String(site.id)));
+      group.append(button);
+    });
+    return group;
+  });
+  list.replaceChildren(...nodes);
+}
+
 function siteSource(site){
   // An explicit null means the backend could not prepare this preview; do not
   // fall back to a stale URL left over from an earlier directory runtime.

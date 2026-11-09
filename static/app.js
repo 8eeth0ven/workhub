@@ -25,7 +25,7 @@ const ICONS = {
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 function element(tag, className, text) {const node=document.createElement(tag);if(className) node.className=className;if(text!==undefined) node.textContent=String(text);return node;}
-function icon(name) {const span=element('span');span.setAttribute('aria-hidden','true');span.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] || ICONS.folder}</svg>`;return span;}
+function icon(name) {const span=element('span');span.setAttribute('aria-hidden','true');span.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] || ICONS.folder}</svg>`;return span;}
 $$('[data-icon]').forEach(node=>node.replaceChildren(icon(node.dataset.icon).firstChild));
 const STATUS = {running:'进行中',completed:'最近任务完成',blocked:'有任务受阻',paused:'已暂停',registered:'已接入'};
 const AGENTS = {codex:{name:'Codex',symbol:'⌘'},claude:{name:'Claude Code',symbol:'✳'},zcode:{name:'Z Code',symbol:'z'}};

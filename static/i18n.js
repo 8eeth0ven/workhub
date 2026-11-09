@@ -454,7 +454,10 @@
     "从工作记录可确认的 Agent 使用情况（{count}）": "从工作记录可确认的 Agent 使用情况（{count}）",
     "工作记录能说明使用过哪些 Agent，不等于完整会话档案；原会话 ID 仍需明确登记。": "工作记录能说明使用过哪些 Agent，不等于完整会话档案；原会话 ID 仍需明确登记。",
     "{project} · {agent} · 工作记录 {records} 条 · 任务 {runs} 个": "{project} · {agent} · 工作记录 {records} 条 · 任务 {runs} 个",
-    "版本与登记时间": "版本与登记时间"
+    "版本与登记时间": "版本与登记时间",
+    "网站列表": "网站列表",
+    "展开网站列表": "展开网站列表",
+    "收起网站列表": "收起网站列表"
   },
   "en": {
     "收起侧边栏": "Collapse sidebar",
@@ -908,7 +911,10 @@
     "从工作记录可确认的 Agent 使用情况（{count}）": "Agent usage confirmed by work records ({count})",
     "工作记录能说明使用过哪些 Agent，不等于完整会话档案；原会话 ID 仍需明确登记。": "Work records show which agents were used, but are not complete session archives. Original session IDs still need to be registered explicitly.",
     "{project} · {agent} · 工作记录 {records} 条 · 任务 {runs} 个": "{project} · {agent} · Work records: {records} · Tasks: {runs}",
-    "版本与登记时间": "Version and registration time"
+    "版本与登记时间": "Version and registration time",
+    "网站列表": "Website list",
+    "展开网站列表": "Show website list",
+    "收起网站列表": "Hide website list"
   }
 };
  Object.values(dictionaries).forEach(Object.freeze);Object.freeze(dictionaries);

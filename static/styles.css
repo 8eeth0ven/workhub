@@ -47,6 +47,25 @@
 .archive-usage{margin-bottom:17px}.archive-usage-details{border:1px solid var(--wh-border);background:#f1f5eb;border-radius:8px;padding:12px 15px}.archive-usage-details>summary{font-size:11px;color:var(--wh-accent);line-height:1.8;cursor:pointer}.archive-usage-details>.archive-muted{font-size:10px;margin:10px 0}.archive-usage-row{font-size:10px;color:var(--wh-muted);line-height:1.9;margin:6px 0;overflow-wrap:anywhere}
 
 /* Collapsing navigation releases its full width while the toggle stays in the header. */
-.topbar-left{display:flex;align-items:center;gap:14px;min-width:0;overflow:hidden}.topbar-left .breadcrumb{min-width:0;white-space:nowrap;overflow:hidden}.topbar-left .breadcrumb>strong{overflow:hidden;text-overflow:ellipsis}.sidebar-toggle{flex:0 0 32px;width:32px;height:32px;border:1px solid var(--wh-border,#e1e5dc);border-radius:7px;background:var(--wh-surface,#fff);color:var(--wh-accent,#53634d);display:grid;place-items:center}.sidebar-toggle svg{width:19px;height:19px}.sidebar-toggle:hover{background:#edf1e9}.sidebar-toggle-arrow{transform-origin:14.5px 12px}html.sidebar-collapsed .sidebar{display:none}html.sidebar-collapsed main{margin-left:0}html.sidebar-collapsed .sidebar-toggle-arrow{transform:rotate(180deg)}
+.topbar-left{display:flex;align-items:center;gap:14px;min-width:0;overflow:hidden}.topbar-left .breadcrumb{min-width:0;white-space:nowrap;overflow:hidden}.topbar-left .breadcrumb>strong{overflow:hidden;text-overflow:ellipsis}.sidebar-toggle{flex:0 0 32px;width:32px;height:32px;border:1px solid var(--wh-border,#e1e5dc);border-radius:7px;background:var(--wh-surface,#fff);color:var(--wh-accent,#53634d);display:grid;place-items:center}.sidebar-toggle:hover{background:#edf1e9}html.sidebar-collapsed .sidebar{display:none}html.sidebar-collapsed main{margin-left:0}
 @media(max-width:760px){.topbar-left{gap:9px}.sidebar-toggle{flex-basis:29px;width:29px;height:29px}.topbar-left .breadcrumb>span{display:none}}
-@media(max-width:540px){.topbar-left{gap:6px}.sidebar-toggle{flex-basis:27px;width:27px;height:27px}.sidebar-toggle svg{width:17px;height:17px}}
+@media(max-width:540px){.topbar-left{gap:6px}.sidebar-toggle{flex-basis:27px;width:27px;height:27px}}
+/* Both panel controls stay outside the panels they hide and have CSS-only icons. */
+.panel-toggle-icon{display:inline-block;position:relative;width:17px;height:15px;border:1.3px solid currentColor;border-radius:3px;box-sizing:border-box;flex:0 0 17px;pointer-events:none}
+.panel-toggle-icon:before{content:"";position:absolute;left:4px;top:-1px;bottom:-1px;border-left:1.3px solid currentColor}
+.panel-toggle-icon:after{content:"";position:absolute;left:8px;top:4px;width:4px;height:4px;border-left:1.3px solid currentColor;border-bottom:1.3px solid currentColor;transform:rotate(45deg)}
+[aria-expanded="false"]>.panel-toggle-icon:after{left:7px;transform:rotate(225deg)}
+.site-toolbar-leading{display:flex;align-items:center;gap:11px;min-width:0;flex:1;overflow:hidden}
+.site-toolbar-leading .site-toolbar-name{min-width:0;flex:1}
+.site-navigator-toggle{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex-shrink:0;border:1px solid var(--wh-border,#e1e5dc);border-radius:6px;background:var(--wh-surface,#fff);color:var(--wh-accent,#53634d);font-size:10px;line-height:1.6;padding:6px 8px;white-space:nowrap;min-height:29px}
+.site-navigator-toggle:hover{background:#edf1e9}
+html.site-navigator-collapsed .site-navigator{display:none}
+html.site-navigator-collapsed #spaces-page .portal-shell{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+html.site-navigator-collapsed #spaces-page .site-canvas{grid-column:1/-1;grid-row:1;min-width:0}
+@media(max-width:640px){
+ .site-toolbar-leading{gap:7px}
+ .site-navigator-toggle{font-size:9px;padding:5px 6px;gap:5px;min-height:27px}
+ .site-navigator-toggle .panel-toggle-icon{width:16px;flex-basis:16px;height:14px}
+ html.site-navigator-collapsed #spaces-page .portal-shell{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(430px,auto)}
+ html.site-navigator-collapsed #spaces-page .portal-shell:has(.site-frame:not([hidden])){grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(630px,auto)}
+}

@@ -85,7 +85,7 @@ def configuration(home: Path, data: Path, port: int) -> dict:
 
 def runtime_payload() -> dict[str, bytes]:
     """Snapshot only product code/assets, never project records or secrets."""
-    payload = {module: (REPO / module).read_bytes() for module in ("workhub.py", "assessments.py", "archives.py", "learning.py")}
+    payload = {module: (REPO / module).read_bytes() for module in ("workhub.py", "assessments.py", "archives.py", "learning.py", "model_access.py", "review_cli.py", "session_context.py")}
     for name in ("static", "templates"):
         directory = REPO / name
         if not directory.is_dir() or directory.is_symlink():

@@ -139,6 +139,8 @@ python3 scripts/install.py --project /path/to/your-project \
 
 支持配置 GLM、OpenAI-compatible、Anthropic、Ollama，或显式启用本机 CLI 适配器。API 服务按配置使用密钥；Ollama 和 CLI 可不需要 API Key。CLI 适配器执行你明确配置的现有命令，不会自动为你安装或登录其他客户端。
 
+在「项目评议 → 模型接入」选择 API 或本机 Codex、Claude Code、Z Code，保存或单独测试连接。资料不足时，评议会从项目关联会话提取少量脱敏片段；同一聊天的其他项目内容会跳过。结果默认只展示结论、依据计数和三条优先行动，完整判断、追问与来源按需展开。
+
 具体选项、`llm.json` 示例、旧 GLM 配置兼容和适配器限制见 [模型与评议器配置](docs/providers.md)。这些是支持的接入协议，不代表所有第三方端点或 CLI 版本均已实测。
 
 ![项目评议：依据、假设、盲点与优先行动](docs/images/project-review.jpg)

@@ -79,6 +79,10 @@ macOS 的可选 `--mode launchd` 使用用户 LaunchAgent，并将后端、评�
 
 ## 可选模型评议
 
+在「项目评议 → 模型接入」选择 API 或本机 CLI，填写对应字段后保存；「测试连接」只测试当前草稿，不保存或发送项目内容。API 可选 GLM、OpenAI-compatible、Anthropic 或本机接口；CLI 可选本机检测到的 Codex、Claude Code、Z Code，或高级自定义参数数组。客户端需要已有登录，Workhub 不代为安装或登录。Z Code 使用客户端当前模型。
+
+也可继续手工配置：
+
 先复制仓库 `examples/provider-*.json` 中适合的例子到状态目录的 `llm.json`，填入自己的配置，并将权限设置为仅本人可读写：
 
 ```sh
@@ -90,6 +94,6 @@ chmod 600 "$WORKHUB_DATA_DIR/llm.json"
 
 `llm.json` 存在时优先使用；只有它不存在才回退到旧 `glm.json`，不混合两份配置。环境变量 `WORKHUB_LLM_PROVIDER`、`WORKHUB_LLM_API_KEYS` / `WORKHUB_LLM_API_KEY`、`WORKHUB_LLM_BASE_URL`、`WORKHUB_LLM_MODEL` 可覆盖对应字段；旧 `GLM_*` 仅用于 GLM 兼容回退。
 
-CLI 提供者的 `command` 是用户在私有配置中指定的参数数组，可选配置 `cwd` 和输出格式；网页请求不能指定要执行的命令、提供者或工作目录。应先审查所选命令会如何处理输入。
+CLI 提供者的 `command` 是可信本机用户明确保存的参数数组，可选配置 `cwd` 和输出格式。界面原生适配器会包装已检测到的客户端；高级自定义命令仍需遵循 JSON 输入输出协议，不能使用 shell 字符串或把密钥放在参数中。API 仅在显式允许并使用字面回环地址时接受 OpenAI-compatible 明文 HTTP；公网端点使用 HTTPS。
 
 用户启用评议后，命令 `python3 workhub.py review --project "$PROJECT_DIR"` 会将有限的已登记项目资料发送给所选模型。未配置或调用失败时如实显示状态，不生成冒充模型的本地评分。数据范围与发布前检查见 [隐私说明](privacy.md)。

@@ -16,13 +16,15 @@ Published source code should not contain real runtime material. Repository templ
 
 ## When data leaves the machine
 
-The local portal binds only to loopback by default. Cloning, foreground startup and skill installation do not independently call a model. When the user configures and enables reviews, the backend sends a limited project name, description, recent work summaries, supplemental answers and evidence identifiers to the configured API or CLI. It does not automatically read the full project repository, chat history or environment files.
+The portal binds to loopback by default. Cloning, startup, page polling and skill installation do not call a model. A requested review sends limited project material to the selected API or CLI. When evidence is insufficient, Workhub performs a bounded lookup of associated JSONL sessions or sessions matching the exact project directory, extracting a few redacted task and outcome excerpts with session, line or byte positions and hashes. Complete conversations, system instructions, tool dumps and environment files are not sent.
+
+Session enrichment is limited to three sessions and about 6,500 characters of excerpts per review. Shared conversations require a project-specific task association; ambiguous material is skipped. Session statements remain unverified and do not establish acceptance. Excerpts are cached privately in the local database; ordinary GET requests and polling read only that cache. Set `WORKHUB_SESSION_CONTEXT=off` to disable enrichment. Unavailable sources or unknown formats remain insufficient evidence.
 
 The backend removes known credentials and some sensitive fields, but automatic redaction cannot guarantee that every sensitive detail is recognized. Before recording a summary, answering a follow-up or requesting a review, check that the material is suitable for the selected reviewer. A local model or CLI may have its own networking, logging and retention behavior; understand that behavior too.
 
 Archived original prompts and deliverable files are not included in model-review requests by default. Local retention is not permission to send them elsewhere. If their contents are needed as context, first select a necessary summary suitable for the reviewer. Deliverable snapshots follow explicitly selected entries, local image/CSS dependencies and explicit attachments; choosing a directory does not read or expose its sibling articles.
 
-Credentials are read only by the backend from private configuration or the environment. They do not belong in frontend code, work records, screenshots, Git or command arguments. Keep `llm.json` and the compatible `glm.json` private; examples use explicit placeholders. CLI commands come only from local user configuration. The web API does not accept command-execution parameters.
+Keys entered in Model access are stored only in local `0600` configuration and are never returned to the form. Keep them out of records, screenshots, Git and CLI arguments. Local users can save API or CLI settings through same-origin guarded endpoints; custom CLI argument arrays are trusted local configuration, not a general shell endpoint. Native CLIs use their existing login, read-only or plan modes, and a temporary directory. Other clients' credentials are not copied, and clients may still connect to their own services. Connection tests use a fixed short prompt, send no project or session material, and do not save the draft configuration.
 
 ## Website visibility
 

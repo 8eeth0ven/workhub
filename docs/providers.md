@@ -43,7 +43,7 @@ chmod 600 "$HOME/.local/share/agent-workhub/llm.json"
 
 未选择新 provider、没有 `llm.json` 且存在旧 GLM 配置或环境时，保持旧 GLM 行为；全新配置默认选择 OpenAI-compatible，但必须自行填写可用模型和 Key。
 
-API 地址仅接受 HTTPS。自定义兼容网关须在私有 JSON 或 `WORKHUB_LLM_BASE_URL` 中明确配置主机；不跟随 HTTP 重定向。只有 `ollama` 可以使用回环 HTTP，不允许把远端明文 HTTP 网关伪装成本机服务。API Key 不会出现在公共配置状态，CLI 命令、工作目录和参数也不会发送到前端。
+公网 API 地址使用 HTTPS，自定义兼容网关须明确配置，不跟随 HTTP 重定向。Ollama 可使用回环 HTTP；OpenAI-compatible 仅在 `allow_local_http: true` 且地址为字面回环 IP 时接受 HTTP，界面会为用户明确填写的本机地址保存此选项。API Key 不会出现在公共状态；模型设置只显示脱敏后的可编辑配置。
 
 ## API 配置
 
@@ -59,7 +59,7 @@ Ollama 的模型名必须是本机已经可用的模型。没有配置 Key 时�
 
 ## 本地 CLI 的包装约定
 
-Workhub 不承诺把任意交互式 CLI 名称填进去就能工作。应编写一个小包装器，负责 CLI 自身的登录、无交互调用、必要的输出提取，并保证下列输入输出约定。用户显式配置的命令会以当前用户权限运行；浏览器请求只能选择已登记项目和补充资料，不能传入命令、参数或 provider 设置。
+模型接入内置已检测到的 Codex、Claude Code、Z Code 适配器，使用非交互调用、只读或计划模式、临时目录及 JSON 输出提取；检测到程序不代表已经登录或连通。Z Code 使用客户端当前模型。其他客户端可在高级设置保存遵循下述协议的自定义包装器；这些是可信本机用户的配置，不是通用 shell 执行接口。
 
 `command` 必须是 JSON 字符串数组，例如示例中的 `['python3', '/absolute/path/to/wrapper.py']`（配置文件本身使用 JSON 双引号）。不经过 shell，不会自动展开 `$VAR`、`~`、管道、重定向或命令替换。使用可执行文件的真实路径或 PATH 中可用的命令；凭据通过包装器自己的安全配置或环境传递，避免写进参数。`cwd` 可指定现有目录，缺省为数据目录，命令本身和每个参数不会被工作项目自动修改。
 

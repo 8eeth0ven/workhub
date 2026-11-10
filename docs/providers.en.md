@@ -43,7 +43,7 @@ Multiple keys can be supplied as a JSON string array, or separated by commas or 
 
 When no new provider has been selected, there is no `llm.json`, and legacy GLM configuration or environment variables exist, legacy GLM behavior is preserved. A new configuration defaults to OpenAI-compatible mode, but still requires a usable model and key.
 
-API endpoints require HTTPS. Explicitly configure a custom compatible gateway's host in the private JSON file or `WORKHUB_LLM_BASE_URL`; HTTP redirects are not followed. Only `ollama` accepts loopback HTTP. A remote plaintext gateway cannot be presented as a local service. Public configuration status never includes API keys, CLI commands, arguments or working directories.
+Public API endpoints use HTTPS and require an explicit compatible gateway; redirects are not followed. Ollama accepts loopback HTTP. OpenAI-compatible HTTP requires `allow_local_http: true` and a literal loopback IP; the interface saves this option for an explicitly entered local address. Public status never contains API keys; Model access shows only redacted editable configuration.
 
 ## API adapters
 
@@ -61,7 +61,7 @@ An Ollama model must already be available on the local service. When no key is c
 
 ## Local CLI wrapper contract
 
-Workhub does not promise that entering the name of an arbitrary interactive CLI will work. Provide a small wrapper that handles the CLI's authentication, noninteractive invocation and any necessary output extraction, then follows this input/output contract. Explicitly configured commands run with the current user's permissions. Browser requests can select registered projects and add evidence; they cannot provide a command, arguments or provider configuration.
+Model access includes native adapters for detected Codex, Claude Code and Z Code clients. They use noninteractive invocation, read-only or plan modes, a temporary directory, and JSON-result extraction; detection does not prove login or connectivity. Z Code uses its current model. Other clients can use an advanced custom wrapper following the contract below. Commands explicitly saved by a trusted local user run with that user's permissions; this is local configuration, not a general shell endpoint.
 
 `command` must be a JSON string array, for example `["python3", "/absolute/path/to/wrapper.py"]`. It is executed without a shell: `$VAR`, `~`, pipes, redirections and command substitutions are not expanded. Use an executable's real path or a command available on `PATH`. Pass credentials through the wrapper's own secure configuration or environment rather than command arguments. Optional `cwd` must name an existing directory; it defaults to the data directory. Project material cannot modify the command or its arguments.
 

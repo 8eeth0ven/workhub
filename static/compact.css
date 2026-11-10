@@ -240,3 +240,46 @@ html.workhub-focus-mode .focus-toggle {
   opacity:1;
 }
 html.workhub-focus-mode .focus-toggle:focus-visible { outline-offset:-3px; }
+
+/* Review summaries stay short; evidence and long reasoning remain available. */
+.review-detail-disclosure { margin:10px 0; border-top:1px solid var(--wh-border); padding-top:10px; }
+.review-detail-disclosure>summary,.review-answer-panel>summary { cursor:pointer; font-size:12px; font-weight:600; color:var(--wh-accent); line-height:1.7; }
+.review-detail-disclosure[open]>summary { margin-bottom:12px; }
+.review-full-analysis>.review-summary { margin-bottom:14px; }
+.review-full-questions .review-question-group:first-child { border-top:0; padding-top:0; margin-top:0; }
+.review-action-list .review-action-disclosure { display:block; min-width:0; }
+.review-action-disclosure>summary { cursor:pointer; font-size:14px; line-height:1.7; }
+.review-action-disclosure>summary .review-priority { display:inline-block; margin-right:8px; vertical-align:middle; }
+.review-action-disclosure>p { margin:8px 0 0; font-size:12px; color:var(--wh-muted); }
+.review-answer-panel>.review-answer-heading { margin-top:12px; }
+.review-answer-panel>summary { margin-bottom:0; }
+.review-project-card .review-card-headline { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; }
+
+/* Local model access: one compact form, separate save and connection test. */
+.model-access-dialog { width:min(540px,calc(100vw - 24px)); max-height:90dvh; overflow:auto; padding:20px; color:var(--wh-ink); background:var(--wh-surface); border:1px solid var(--wh-border); border-radius:var(--wh-radius); }
+.model-access-dialog::backdrop { background:rgb(20 25 20 / 32%); }
+.model-access-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+.model-access-heading h2 { margin:0; font-size:16px; }
+.model-access-heading .icon-button { width:32px; height:32px; min-height:32px; font-size:22px; }
+.model-access-modes { display:flex; gap:4px; padding:3px; margin-bottom:12px; background:var(--wh-bg); border:1px solid var(--wh-border); border-radius:7px; }
+.model-access-modes button { flex:1; min-height:32px; padding:5px 10px; font-size:12px; color:var(--wh-muted); background:transparent; border-radius:5px; }
+.model-access-modes button[aria-selected="true"] { color:var(--wh-accent); background:var(--wh-accent-soft); font-weight:600; }
+.model-access-dialog label:not(.model-access-checkbox) { display:grid; gap:5px; margin:10px 0; font-size:12px; }
+.model-access-dialog :is(input:not([type="checkbox"]),select,textarea) { width:100%; min-width:0; min-height:34px; padding:7px 9px; border:1px solid var(--wh-border); border-radius:6px; color:var(--wh-ink); background:var(--wh-surface); font:13px/1.5 var(--wh-font); }
+.model-access-dialog textarea { font-family:var(--wh-mono); resize:vertical; }
+.model-access-dialog :is(button,input,select,textarea,summary):focus-visible { outline:2px solid var(--wh-focus); outline-offset:2px; }
+.model-access-dialog [hidden] { display:none!important; }
+.model-access-dialog details { margin-top:10px; }
+.model-access-dialog details>summary { color:var(--wh-accent); font-size:12px; cursor:pointer; }
+.model-access-note { margin:8px 0; color:var(--wh-muted); font-size:12px; line-height:1.65; overflow-wrap:anywhere; }
+.model-access-checkbox { display:flex; align-items:center; gap:8px; min-height:32px; font-size:12px; }
+.model-access-checkbox input { appearance:auto; width:16px; height:16px; accent-color:var(--wh-accent); }
+.model-access-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:14px; }
+.model-access-actions .button { min-height:34px; padding:7px 12px; font-size:12px; }
+.model-access-message { margin-top:10px; padding:8px 10px; border:1px solid var(--wh-border); border-radius:6px; color:var(--wh-muted); font-size:12px; line-height:1.65; overflow-wrap:anywhere; }
+.model-access-message.error { color:var(--wh-danger); }
+.model-access-message.success { color:var(--wh-success); }
+.model-access-dialog button:disabled { opacity:.55; cursor:wait; }
+@media(max-width:540px) { .model-access-dialog { padding:16px; } .review-provider-actions { gap:6px; } }
+
+.review-session-reference { display:block; margin-top:4px; color:var(--wh-muted); font:12px/1.6 var(--wh-mono); overflow-wrap:anywhere; }

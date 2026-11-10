@@ -28,6 +28,7 @@ from urllib.parse import parse_qs, quote, unquote, urlsplit
 from assessments import AssessmentManager, ReviewError
 from archives import ArchiveStore
 from learning import LearningStore
+from model_access import ModelAccess
 
 
 ROOT = Path(__file__).resolve().parent
@@ -354,6 +355,7 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None)
     reviews = reviews or (AssessmentManager(store) if store is not None else None)
     archives = archives or (ArchiveStore(store) if store is not None else None)
     learning = learning or (LearningStore(store) if store is not None else None)
+    model_access = ModelAccess(store, reviews) if store is not None else None
     previews = ArchivePreviews(archives) if archives is not None else None
     class Handler(BaseHTTPRequestHandler):
         server_version = "AgentWorkhub/1"
@@ -406,7 +408,8 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None)
                 return
             archive_kind = self.path.removeprefix("/api/archives/") if self.path.startswith("/api/archives/") else None
             learning_ack = self.path == "/api/learning/ack"
-            if self.path != "/api/reviews" and not learning_ack and archive_kind not in ("session", "prompt", "artifact"):
+            model_action = self.path.removeprefix("/api/model-access/") if self.path.startswith("/api/model-access/") else None
+            if self.path != "/api/reviews" and not learning_ack and archive_kind not in ("session", "prompt", "artifact") and model_action not in ("save", "test"):
                 self.json_response(404, {"error": "接口不存在"})
                 return
             if self.headers.get("X-Workhub-Request") != "1":
@@ -427,6 +430,10 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None)
                 if len(raw) != length:
                     raise ReviewError("请求体不完整")
                 payload = json.loads(raw)
+                if model_action in ("save", "test"):
+                    result = getattr(model_access, model_action)(payload)
+                    self.json_response(200, result)
+                    return
                 if learning_ack:
                     if not isinstance(payload, dict) or set(payload) != {"card_id", "revision", "understood"}:
                         raise ReviewError("学习确认参数无效")
@@ -529,6 +536,11 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None)
                     self.json_response(200, learning.get(parse_qs(request.query).get("id", [""])[0]))
                 elif route == "/api/reviews":
                     self.json_response(200, reviews.public_state())
+                elif route == "/api/model-access":
+                    if model_access is None:
+                        self.json_response(405, {"error": "静态网站不提供模型配置"})
+                    else:
+                        self.json_response(200, model_access.state())
                 elif route == "/api/reviews/job":
                     identifier = parse_qs(request.query).get("id", [""])[0]
                     self.json_response(200, reviews.job(identifier))

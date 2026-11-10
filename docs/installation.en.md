@@ -81,6 +81,10 @@ Passing an explicit `--home` to the service script always stages test configurat
 
 ## Optional model reviews
 
+Open **Project reviews → Model access**, choose API or local CLI, fill in the relevant fields, and save. **Test connection** checks the draft without saving it or sending project content. API options include GLM, OpenAI-compatible, Anthropic and local endpoints. CLI options include detected Codex, Claude Code, Z Code, or an advanced custom argument array. Clients need their existing login; Workhub does not install or sign into them. Z Code uses its current client model.
+
+Manual configuration remains available:
+
 Copy an appropriate `examples/provider-*.json` file into `llm.json` in the state directory, fill in your configuration, and make it readable and writable only by your user:
 
 ```sh
@@ -92,6 +96,6 @@ chmod 600 "$WORKHUB_DATA_DIR/llm.json"
 
 When `llm.json` exists, it takes precedence. Legacy `glm.json` is read only when the new file is absent; the files are not merged. `WORKHUB_LLM_PROVIDER`, `WORKHUB_LLM_API_KEYS` / `WORKHUB_LLM_API_KEY`, `WORKHUB_LLM_BASE_URL` and `WORKHUB_LLM_MODEL` can override corresponding fields. Legacy `GLM_*` variables are used only for GLM compatibility fallback.
 
-A CLI provider's `command` is an argument array explicitly stored in private configuration, with optional `cwd` and output format. Browser requests cannot specify a command, provider or working directory. Review how the chosen command handles its input before enabling it.
+A CLI provider's `command` is an argument array explicitly saved by a trusted local user, with optional `cwd` and output format. Native adapters wrap detected clients; advanced custom commands still follow the JSON input/output contract. Shell command strings and credentials in arguments are rejected. OpenAI-compatible HTTP is accepted only with explicit local-HTTP permission and a literal loopback address; public endpoints use HTTPS.
 
 After the user enables reviews, `python3 workhub.py review --project "$PROJECT_DIR"` sends limited registered project material to the selected reviewer. Missing configuration and failed calls are reported as such; Workhub does not invent local scores and present them as model output. Switching the interface language does not start another review or translate an existing one. See [Privacy](privacy.en.md) for the data scope and release checks.

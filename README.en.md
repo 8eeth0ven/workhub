@@ -147,6 +147,8 @@ Deeper reviews follow **specific claim → original evidence → counterexamples
 
 Supported adapters include **GLM, OpenAI-compatible Chat Completions, Anthropic, Ollama and an explicitly configured local CLI wrapper**. API services use credentials as configured; Ollama and CLI adapters may not need an API key. A CLI adapter runs a command you configured—it does not install another client or sign you into it.
 
+Use **Project reviews → Model access** to select an API or installed Codex, Claude Code or Z Code, save settings, or test the connection separately. Insufficient reviews can use a few redacted excerpts from associated sessions, skipping unrelated projects in shared conversations. The default view shows the conclusion, evidence counts and three priority actions; full reasoning, questions and sources expand on demand.
+
 The adapters implement bounded protocols, not universal compatibility. The OpenAI-compatible adapter does not implement the Responses API, tool calls or streaming. Interactive CLI output needs a wrapper that follows Workhub's JSON input/output contract. See [Providers and reviewers](docs/providers.en.md) for examples, legacy GLM compatibility and adapter limitations. Supporting a protocol does not mean every third-party endpoint or CLI version has been tested.
 
 ![Project review: evidence, assumptions, blind spots and priority actions](docs/images/project-review.jpg)

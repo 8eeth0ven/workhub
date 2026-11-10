@@ -1,0 +1,215 @@
+/* Portal density: reclaim spacing while retaining the shared reading scale.
+   This stylesheet belongs to the outer Workhub document, never project iframes. */
+
+/* A shorter navigation shell leaves room for all six destinations. */
+.sidebar { width:200px; padding:20px 12px 14px; }
+main { margin-left:200px; }
+.brand { gap:10px; padding:0 4px 20px; }
+.brand-mark { width:34px; height:34px; flex-shrink:0; }
+.brand-caption { margin-top:3px; }
+.sidebar .nav-label { padding-left:10px; }
+.nav-links { margin-top:8px; gap:4px; }
+.sidebar .nav-item { gap:10px; min-height:38px; padding:9px 10px; font-size:12px; }
+html[lang="en"] .sidebar .nav-item { font-size:12px; gap:10px; }
+.sidebar-note { display:none; }
+.agent-connections { gap:8px; padding:10px 10px 12px; }
+.sidebar-guide { min-height:34px; padding:7px 10px; }
+.local-tag { margin-top:10px; }
+
+/* Common controls and page edges. Existing focus/collapse selectors stay stronger. */
+#overview>.topbar { height:40px; min-height:40px; flex:0 0 40px; padding:0 12px; }
+.topbar-left,.topbar-right { gap:10px; }
+.sidebar-toggle { width:32px; height:32px; flex-basis:32px; }
+.language-control select,.theme-control select { min-height:32px; padding:4px 6px; font-size:12px; }
+.language-control select { max-width:96px; }
+.theme-control select { max-width:96px; }
+.page-content:not(#spaces-page) { padding:12px 20px 20px; }
+.page-heading { margin-bottom:14px; }
+.section-title { margin-bottom:12px; }
+.section-title h2 { margin-bottom:4px; }
+.section-title p,.stat-foot { font-size:12px; line-height:1.6; }
+.section-actions { gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+#overview .button { min-height:32px; padding:6px 10px; font-size:12px; }
+#overview .icon-button { min-width:32px; min-height:32px; padding:6px; }
+#overview .search-field { min-height:32px; padding:6px 10px; }
+#overview .search-field input { font-size:12px; }
+#overview .select-wrap select { min-height:32px; height:32px; font-size:12px; }
+.filter-bar { margin-bottom:12px; }
+
+/* Project websites keep the viewport-filling flex chain from styles.css. */
+html:not(.workhub-focus-mode) #spaces-page:not([hidden]) { padding:6px 8px; gap:4px; }
+#spaces-page .site-navigator { padding:12px 8px 10px; }
+.site-navigator-heading { min-height:32px; margin-bottom:8px; padding:0 6px; font-size:12px; }
+#spaces-page .site-search { margin-bottom:10px; }
+.site-group-title { font-size:12px; letter-spacing:0; margin-bottom:4px; padding:0 7px; }
+.site-item { gap:7px; padding:6px 7px; margin-bottom:2px; }
+.site-item-icon { width:24px; height:24px; }
+.site-item-info { gap:2px; }
+.site-item-info strong { font-size:14px; line-height:1.5; }
+.site-item-info>span { font-size:12px; line-height:1.5; }
+.new-site-button { min-height:32px; padding:7px 8px; font-size:12px; }
+#spaces-page .site-toolbar { height:36px; flex:0 0 36px; padding:0 10px; gap:8px; }
+.site-toolbar-leading { gap:8px; }
+.site-toolbar-name strong { font-size:12px; }
+.site-toolbar-actions { gap:6px; }
+.site-navigator-toggle { min-height:32px; padding:4px 7px; font-size:12px; }
+.site-review-button,html[lang="en"] .site-review-button { min-height:32px; font-size:12px; }
+.frame-help { padding:6px 10px; }
+.portal-footnote { gap:8px; }
+
+/* Work records and reusable layout cards. */
+.stats-grid { gap:12px; margin-bottom:18px; }
+.stat-card { padding:12px 14px; }
+.stat-value { font-size:28px; margin:6px 0 4px; }
+.stat-foot { min-height:0; }
+.workspace-grid { gap:18px; }
+.project-grid { gap:12px; min-height:0; }
+.project-card { padding:12px; }
+.card-top { margin-bottom:10px; }
+.project-summary { margin:8px 0 10px; min-height:0; font-size:14px; line-height:1.65; }
+.card-bottom { padding-top:8px; }
+.list-mode .project-card { padding:10px 12px; }
+.list-mode .project-summary { font-size:14px; }
+.activity-section { padding:14px 14px 0; }
+.activity-section .section-title { margin-bottom:14px; }
+.activity-item { padding-bottom:14px; }
+.activity-meta { margin-bottom:4px; }
+.activity-summary { font-size:14px; line-height:1.65; }
+.activity-project { margin-top:4px; }
+.activity-footer { padding:10px 0; }
+.template-grid { gap:12px; }
+.template-card-visual { height:160px; padding:12px 12px 0; }
+.template-card-body { padding:12px 14px; }
+.template-card-body>p { margin:7px 0 10px; min-height:0; font-size:14px; line-height:1.65; }
+.template-detail-bar { padding:12px 14px; }
+.template-create { padding:14px; }
+
+/* Review evidence stays readable; compact the containers around it. */
+.review-provider-bar { padding:10px 12px; gap:10px; }
+.review-provider-identity { gap:9px; }
+.review-provider-mark { width:32px; height:32px; }
+.review-provider-identity p { margin-top:2px; font-size:12px; }
+.review-data-note { margin:8px 2px 12px; font-size:12px; }
+.reviews-toolbar { margin:12px 0; gap:8px; }
+.reviews-workspace { gap:14px; }
+.review-project-column { top:12px; max-height:calc(100dvh - 24px); }
+.review-list-heading { padding-bottom:8px; font-size:12px; }
+.review-project-list { gap:8px; }
+.review-project-card { padding:12px; }
+.review-card-headline { margin:8px 0; font-size:12px; line-height:1.65; }
+.review-card-dimension { gap:4px; padding:5px 2px; }
+.review-card-foot { margin-top:8px; padding-top:8px; }
+.review-detail-body { padding:16px 18px 2px; }
+.review-detail-heading { margin-bottom:12px; }
+.review-detail-heading h2 { margin-top:5px; }
+.review-detail-meta { padding-bottom:12px; margin-bottom:14px; }
+.review-summary { font-size:14px; line-height:1.75; margin-bottom:18px; }
+.review-section { margin-bottom:18px; }
+.review-section>h3 { margin-bottom:10px; }
+.review-dimension { padding:10px 12px; }
+.review-dimension>p { margin:6px 0; font-size:14px; line-height:1.7; }
+.review-text-list { gap:8px; }
+.review-text-list li { font-size:14px; line-height:1.7; }
+.review-question-group { padding-top:12px; margin-top:12px; }
+.review-question-group h4 { margin-bottom:8px; }
+.review-question { padding:10px 12px; margin-bottom:8px; }
+.review-question-title { font-size:14px; line-height:1.7; }
+.review-question p,.review-action p { margin:6px 0; font-size:12px; line-height:1.75; }
+.review-action { gap:8px; padding:10px 12px; }
+.review-action strong { font-size:14px; }
+.review-source-evidence { padding:10px 12px; margin-bottom:16px; }
+.review-source-item { margin-top:8px; padding-top:8px; }
+.review-source-item p { font-size:12px; line-height:1.75; }
+.review-answer-panel { padding:14px 18px 18px; }
+.review-answer-heading { margin-bottom:10px; }
+.review-answer-panel textarea { min-height:110px; padding:10px 12px; font-size:14px; line-height:1.75; }
+.review-job { padding:9px 12px; }
+
+/* Archives share the same compact control and card rhythm. */
+.archives-toolbar { gap:10px; margin-bottom:8px; flex-wrap:wrap; }
+.archive-tabs { gap:3px; padding:3px; flex-wrap:wrap; }
+.archive-tabs>button { min-height:32px; padding:5px 9px; font-size:12px; }
+html[lang="en"] .archive-tabs>button { font-size:12px; }
+.archive-toolbar-actions { gap:8px; }
+.archive-scope-note { margin-bottom:10px; font-size:12px; line-height:1.7; }
+.archive-filters { margin-bottom:10px; gap:8px; flex-wrap:wrap; }
+.archive-summary { margin-bottom:10px; font-size:12px; }
+.archive-grid { gap:12px; }
+.archive-card { padding:12px; }
+.archive-card-top { margin-bottom:8px; }
+.archive-card>h3 { margin-bottom:8px; line-height:1.5; }
+.archive-fact { gap:8px; margin-bottom:5px; font-size:12px; line-height:1.7; }
+.archive-provenance { margin-top:8px; }
+.archive-card>.archive-provenance { margin-bottom:10px; }
+.archive-card-excerpt { min-height:0; margin-bottom:10px; font-size:14px; line-height:1.65; }
+.archive-card-actions { gap:8px; padding-top:8px; }
+.archive-text-button { min-height:32px; padding:5px 0; font-size:12px; }
+.archive-usage { margin-bottom:10px; }
+.archive-usage-details { padding:9px 12px; }
+.archive-preview-panel { margin-top:16px; }
+.archive-preview-toolbar { padding:9px 12px; gap:10px; }
+
+@media (min-width:761px) {
+  /* Only normal navigation gets two columns; folded and focused views retain one. */
+  html:not(.site-navigator-collapsed):not(.workhub-focus-mode) #spaces-page .portal-shell { grid-template-columns:min(220px,20vw) minmax(0,1fr); }
+}
+@media (min-width:1001px) {
+  .reviews-workspace { grid-template-columns:280px minmax(0,1fr); }
+}
+@media (max-width:1000px) {
+  .workspace-grid { grid-template-columns:1fr; }
+  .review-provider-actions { flex-wrap:wrap; gap:8px; }
+}
+@media (max-width:760px) {
+  .sidebar { width:70px; padding:16px 11px; }
+  main { margin-left:70px; }
+  .brand { padding:0 0 16px; }
+  .sidebar .nav-item,html[lang="en"] .sidebar .nav-item { font-size:0; min-height:38px; padding:10px; }
+  .page-content:not(#spaces-page) { padding:10px 14px 16px; }
+  .topbar-left,.topbar-right { gap:7px; }
+  .language-control select,.theme-control select { font-size:12px; max-width:92px; }
+  .reviews-workspace { grid-template-columns:1fr; gap:14px; }
+  .review-project-column { position:static; max-height:none; }
+  .review-detail-body { padding:14px 16px 2px; }
+  .review-answer-panel { padding:12px 16px 16px; }
+  .archive-tabs { flex:1 1 auto; }
+}
+@media (max-width:640px) {
+  #overview>.topbar { padding-inline:10px; }
+  #spaces-page .site-toolbar { height:auto; min-height:36px; flex:0 0 auto; flex-wrap:wrap; padding-block:4px; }
+  .site-toolbar-leading { flex:1 1 140px; }
+  #spaces-page .site-navigator { padding:8px; }
+  #spaces-page .site-navigator-heading,#spaces-page .site-search { margin-bottom:6px; }
+  #spaces-page .site-list { max-height:96px; }
+  .site-item { padding:6px; min-height:46px; }
+  .site-toolbar-name strong,html[lang="en"] .site-toolbar-name strong { max-width:none; }
+  .site-toolbar-actions { gap:4px; margin-left:auto; }
+  .site-navigator-toggle { gap:5px; }
+  .template-card-visual { height:168px; }
+  .filter-bar { flex-wrap:wrap; }
+  .filter-bar .search-field { flex-basis:100%; }
+  .archive-tabs>button { flex:1 1 auto; }
+  .archive-filters .select-wrap { min-width:0; }
+}
+@media (max-width:540px) {
+  .sidebar { width:58px; padding-inline:7px; }
+  main { margin-left:58px; }
+  .page-content:not(#spaces-page) { padding-inline:12px; }
+  .stats-grid { gap:8px; margin-bottom:14px; }
+  .stat-card { padding:10px 12px; }
+  .project-grid { gap:10px; }
+  .archive-tabs { width:100%; }
+  .archive-card { padding:12px; }
+  .archive-fact { grid-template-columns:76px minmax(0,1fr); }
+}
+@media (max-width:420px) {
+  .topbar-right { gap:4px; }
+  .language-control select { max-width:84px; }
+  .theme-control select { max-width:82px; }
+  .theme-control { gap:3px; }
+}
+@media (pointer:coarse) {
+  #overview>.topbar { height:44px; min-height:44px; flex-basis:44px; }
+  #overview .button,#overview .icon-button,#overview .select-wrap select,.language-control select,.theme-control select,.site-navigator-toggle,.site-review-button { min-height:36px; }
+  #spaces-page .site-toolbar { height:auto; min-height:40px; flex-basis:auto; }
+}

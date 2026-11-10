@@ -213,3 +213,30 @@ html[lang="en"] .archive-tabs>button { font-size:12px; }
   #overview .button,#overview .icon-button,#overview .select-wrap select,.language-control select,.theme-control select,.site-navigator-toggle,.site-review-button { min-height:36px; }
   #spaces-page .site-toolbar { height:auto; min-height:40px; flex-basis:auto; }
 }
+
+/* The restore arrow occupies a real 18px control strip above project content.
+   Parent padding consumes that strip in the existing border-box flex layout;
+   no fixed iframe dimensions or controls floating over a site's text. */
+html.workhub-focus-mode #overview { padding-top:18px; box-sizing:border-box; }
+html.workhub-focus-mode body::before {
+  content:"";
+  position:fixed;
+  inset:0 0 auto;
+  height:18px;
+  box-sizing:border-box;
+  background:var(--wh-bg);
+  border-bottom:1px solid var(--wh-border);
+  z-index:999;
+  pointer-events:none;
+}
+html.workhub-focus-mode .focus-toggle {
+  top:0;
+  height:18px;
+  min-height:0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:var(--wh-bg);
+  opacity:1;
+}
+html.workhub-focus-mode .focus-toggle:focus-visible { outline-offset:-3px; }

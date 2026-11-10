@@ -77,7 +77,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden){sync();sy
 sync();syncIntegrations();setInterval(()=>{if(!document.hidden)sync();},5000);setInterval(()=>{if(!document.hidden)syncIntegrations();},30000);
 
 // Sites retain their own files and runtime; the portal switches only this frame.
-let siteState={sites:[],templates:[]},sitesLoaded=false,siteFetchBusy=false,activeSiteId=null,activeSiteSource='',frameTimer=null,siteLoadFailed=false,sitesLastSync=null,sitesOnline=null;
+let siteState={sites:[],templates:[]},sitesLoaded=false,siteFetchBusy=false,activeSiteId=null,activeSiteSource='',frameTimer=null,siteLoadFailed=false,sitesLastSync=null,sitesOnline=null,siteSelectionInitialized=false;
 const FRAME_SANDBOX='allow-scripts allow-same-origin allow-forms allow-downloads allow-popups';
 try{activeSiteId=localStorage.getItem('workhub-current-site');const requested=new URLSearchParams(location.search||'').get('page');const page=['spaces','records','learning','templates','reviews','archives'].includes(requested)?requested:localStorage.getItem('workhub-current-page');if(page)switchPage(page);}catch{}
 function safeFrameUrl(value){if(typeof value!=='string'||!value.trim())return null;try{const url=new URL(value,location.origin);return ['http:','https:'].includes(url.protocol)?url.href:null;}catch{return null;}}
@@ -127,13 +127,18 @@ function siteSource(site){
   // fall back to a stale URL left over from an earlier directory runtime.
   return safeFrameUrl(Object.hasOwn(site,'preview_url')?site.preview_url:site.url);
 }
+function announceSiteSelection(reason){
+  // Presentation follows explicit selection/restoration, not rendering or load
+  // callbacks. A configured frame is not proof of cross-origin availability.
+  window.dispatchEvent(new CustomEvent('workhub:site',{detail:{siteId:activeSiteId,source:activeSiteSource||null,reason}}));
+}
 function updateFrameHelp(site){
   const warning=typeof site.embedding_warning==='string'?I.translateKnown(site.embedding_warning.trim()):'';
   $('#frame-help').textContent=[warning,t('页面空白时，请检查原站服务是否运行，以及是否允许 iframe 嵌入。')].filter(Boolean).join(' ');
   $('#frame-help').hidden=!activeSiteSource;
 }
 function clearSiteSelection(message){
-  clearTimeout(frameTimer);activeSiteId=null;activeSiteSource='';siteLoadFailed=false;
+  clearTimeout(frameTimer);activeSiteId=null;activeSiteSource='';siteLoadFailed=false;siteSelectionInitialized=true;
   try{localStorage.removeItem('workhub-current-site');}catch{}
   $('#site-frame').src='about:blank';$('#site-frame').hidden=true;
   $('#site-empty').hidden=false;
@@ -141,10 +146,11 @@ function clearSiteSelection(message){
   $('#current-site-name').textContent=t('选择一个项目网站');$('#current-site-url').textContent='';
   $('#reload-site').disabled=true;$('#site-review-button').disabled=true;$('#site-live-dot').className='mini-dot gray';
   $('#site-live-dot').title=t('尚未选择网站');$('#frame-notice').hidden=true;$('#frame-help').hidden=true;
+  announceSiteSelection('clear');
 }
-function selectSite(id){
+function selectSite(id,{reason='select'}={}){
   const site=siteState.sites.find(item=>String(item.id)===String(id));if(!site)return;
-  const source=siteSource(site);activeSiteId=String(id);
+  const source=siteSource(site);activeSiteId=String(id);siteSelectionInitialized=true;
   try{localStorage.setItem('workhub-current-site',activeSiteId);}catch{}
   $('#current-site-name').textContent=site.name||t('项目网站');
   $('#current-site-url').textContent=source||t('网站预览暂不可用');
@@ -156,10 +162,10 @@ function selectSite(id){
   if(!source){
     clearTimeout(frameTimer);activeSiteSource='';$('#site-frame').src='about:blank';
     $('#site-empty-text').textContent=I.translateKnown(site.embedding_warning)||t('这个项目还没有可用的网站地址。请先接入网站目录或 URL。');
-    $('#frame-notice').hidden=true;$('#frame-help').hidden=true;renderSites();return;
+    $('#frame-notice').hidden=true;$('#frame-help').hidden=true;renderSites();announceSiteSelection(reason);return;
   }
   if(source!==activeSiteSource){activeSiteSource=source;loadSiteFrame();}
-  updateFrameHelp(site);renderSites();
+  updateFrameHelp(site);renderSites();announceSiteSelection(reason);
 }
 function loadSiteFrame(){
   clearTimeout(frameTimer);siteLoadFailed=false;
@@ -206,7 +212,7 @@ async function syncSites(){
     if(activeSiteId){
       const selected=siteState.sites.find(site=>String(site.id)===activeSiteId);
       if(!selected)clearSiteSelection(t('上次查看的网站已从项目空间移除。请选择其他网站，或接入一个新网站。'));
-      else if((siteSource(selected)||'')!==activeSiteSource||!siteSource(selected))selectSite(activeSiteId);
+      else if((siteSource(selected)||'')!==activeSiteSource||!siteSource(selected))selectSite(activeSiteId,{reason:siteSelectionInitialized?'sync':'restore'});
       else updateFrameHelp(selected);
     }
     renderSites();

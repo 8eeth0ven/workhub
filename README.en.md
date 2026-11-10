@@ -14,7 +14,7 @@ Workhub is a local-first project console. Switch between project websites withou
 
 | Area | Purpose |
 | --- | --- |
-| **Project spaces** | Connect existing static sites or running local services, then read and interact with them beside persistent portal navigation. |
+| **Project spaces** | Connect existing sites and give their content the project canvas by default; reveal the small arrow to switch projects. |
 | **Work records** | Track projects, agents, task states, artifacts and verification summaries. Independent `run-id` values keep concurrent tasks separate. |
 | **Learning** | Explain concepts, terms and source-level implementation from real changes. You acknowledge basic understanding; new content asks for another review. |
 | **Project archives** | Preserve the actual agent, verifiable sessions, project-specific prompt versions and deliverables, linking sources to outputs. |
@@ -114,9 +114,9 @@ Snapshots follow a selected entry and its local dependencies. Editor copies and 
 
 ## Independent sites, a consistent reading experience
 
-Connect an existing static site by directory or a running development server by its local URL. Directory sites receive independent local preview origins, while the portal keeps its navigation around the embedded page. If a site forbids iframe embedding, adjust the configuration of a site you control or connect its static build instead.
+Connect an existing static site by directory or a running development server by its local URL. Directory sites receive independent local preview origins, and pages switch inside the portal. If a site forbids iframe embedding, adjust the configuration of a site you control or connect its static build instead.
 
-The project list includes registered projects with and without websites. A project without a website opens its record details and is clearly labeled; it is not presented as a working site. Registering a real directory or URL adds the website beneath that project automatically. Collapsing the surrounding interface expands the current website to fill the window without reloading it.
+The project list includes registered projects with and without websites. A project without a website opens its record details and is clearly labeled; it is not presented as a working site. Registering a real directory or URL adds the website beneath that project automatically. Selecting a site or returning to Project spaces hides the surrounding navigation and toolbars by default. A separate 18px control strip keeps the restore arrow outside the original site's content. Reveal the controls to switch projects; selecting a site fills the canvas again. This does not reload the current frame. Empty states and other workspace pages retain normal navigation.
 
 New projects can start from three layouts with a shared visual system:
 

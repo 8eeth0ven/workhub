@@ -1,4 +1,4 @@
-/* Temporary presentation mode; the existing frame fills the available viewport. */
+/* Content-first presentation; selecting a project keeps its frame mounted. */
 (() => {
   'use strict';
   const root = document.documentElement;
@@ -7,6 +7,19 @@
   if (!button) return;
   let active = false;
   let previousScroll = null;
+  let currentPage = document.getElementById('spaces-page')?.hidden === false ? 'spaces' : null;
+  let selected = {siteId: null, source: null};
+
+  function hasSelectedFrame() {
+    const spaces = document.getElementById('spaces-page');
+    const frame = document.getElementById('site-frame');
+    if (currentPage !== 'spaces' || !spaces || spaces.hidden || !frame || frame.hidden || !selected.siteId || !selected.source) return false;
+    try {
+      const source = new URL(selected.source, window.location.href);
+      const actual = new URL(frame.getAttribute('src') || frame.src, window.location.href);
+      return ['http:', 'https:'].includes(source.protocol) && source.href === actual.href;
+    } catch { return false; }
+  }
 
   function render() {
     const label = active ? '恢复工作台界面' : '收起界面并铺满窗口';
@@ -18,7 +31,7 @@
     button.setAttribute('aria-pressed', String(active));
   }
 
-  function enter() {
+  function enter(options = {}) {
     if (active) return;
     previousScroll = {x: window.scrollX || 0, y: window.scrollY || 0};
     active = true;
@@ -26,8 +39,10 @@
     // navigate/replace the frame: its application and inputs stay mounted.
     root.classList.add('workhub-focus-mode');
     render();
-    button.focus({preventScroll: true});
-    window.scrollTo({left: 0, top: 0, behavior: 'instant'});
+    if (options.automatic !== true) {
+      button.focus({preventScroll: true});
+      window.scrollTo({left: 0, top: 0, behavior: 'instant'});
+    }
   }
 
   function exit(options = {}) {
@@ -43,7 +58,24 @@
 
   function toggle() { if (active) exit(); else enter(); }
   button.addEventListener('click', toggle);
-  window.addEventListener('workhub:page', () => exit({restoreScroll: false}));
+  window.addEventListener('workhub:page', event => {
+    const page = event.detail?.page;
+    const changed = currentPage !== page;
+    currentPage = page;
+    if (page !== 'spaces') exit({restoreScroll: false});
+    else if (changed && hasSelectedFrame()) enter({automatic: true});
+  });
+  window.addEventListener('workhub:site', event => {
+    const detail = event.detail || {};
+    selected = {siteId: detail.siteId || null, source: detail.source || null};
+    if (!hasSelectedFrame()) {
+      if (currentPage === 'spaces') exit({restoreScroll: false});
+      return;
+    }
+    // A user's expansion survives polling, reloads and language changes.
+    // Selecting even the current project is an explicit return to its canvas.
+    if (detail.reason === 'select' || detail.reason === 'restore') enter({automatic: true});
+  });
   window.addEventListener('keydown', event => { if (active && event.key === 'Escape') exit(); });
   if (i18n) i18n.onChange(render);
   window.WorkhubFocus = {

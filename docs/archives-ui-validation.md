@@ -1,5 +1,7 @@
 # Project archives UI validation
 
+> Historical development verification: test-only files are retained outside the published source tree; the commands below document the checks originally run.
+
 `Project archives` adds three compact views: agent sessions, prompt versions, and publication artifacts. It uses the existing Workhub visual tokens and Chinese/English selector; archived names, source references, prompt text, and publication titles remain verbatim.
 
 ## Behavior and boundaries

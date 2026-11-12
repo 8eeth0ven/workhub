@@ -1,5 +1,7 @@
 # Project archive validation
 
+> Historical development verification: test-only files are retained outside the published source tree; the commands below document the checks originally run.
+
 The archive stores explicit project session references, original prompts and derived versions, and a manifest of selected publication files. Source attribution and platform publication status are supplied facts; neither is inferred from filenames or from a later file organizer.
 
 Validation covers:

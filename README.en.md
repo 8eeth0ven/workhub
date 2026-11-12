@@ -174,13 +174,11 @@ Model adapters validate the returned review structure and evidence references. T
 
 See [Privacy](docs/privacy.en.md) for data boundaries, demo isolation and release checks. Automatic redaction helps remove known credentials; it cannot guarantee that every sensitive detail has been removed.
 
-## Development and verification
+## Release checks
 
 ```sh
-python3 -m unittest discover -s tests -v
 python3 scripts/audit_release.py
+git diff --check
 ```
 
-Tests use temporary data and simulated reviewers. Demo isolation tests check that API responses do not expose local paths, global configuration is not read, and real model calls cannot be triggered. Verify real models, external CLI wrappers and browser compatibility in your own environment.
-
-Run `node tests/test_i18n.cjs` for the standalone interface-language checks. That development check requires Node.js; running Workhub itself does not.
+The published tree contains runtime source, documentation and fictional demos. Local development tests, real project material, databases and session logs are excluded. The scanner rejects test-only files, known private configuration, suspected credentials and personal absolute paths; images and the actual staged file list still need manual review. Verify real models, external CLI clients and browser compatibility in your own environment.

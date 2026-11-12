@@ -40,7 +40,7 @@ python3 scripts/audit_release.py
 
 The scanner reads only candidate source files and files Git might track inside the release directory. It does not read the user's state directory, credential configuration or Agent history. In a Git repository, candidates are tracked files plus nonignored files that could be added. A private file that is already tracked remains blocked even after an ignore rule is added. Without Git metadata, the scanner uses a restricted source-tree walk and reports sensitive filenames and runtime artifacts.
 
-Personal absolute home paths, suspected credentials or private keys, databases, private configuration and runtime copies cause a nonzero exit code. Reports contain only relative filenames, finding types and line numbers; suspected secret values are not echoed. This is a heuristic release check, not a replacement for reviewing the actual changes, examples and screenshots.
+Test-only files, personal absolute home paths, suspected credentials or private keys, databases, private configuration and runtime copies cause a nonzero exit code. Reports contain only relative filenames, finding types and line numbers; suspected secret values are not echoed. This is a heuristic release check, not a replacement for reviewing the actual changes, examples and screenshots.
 
 `.gitignore` excludes environment configuration, private model configuration, databases, logs, runtime directories, exports, reports and screenshots. Only reviewed documentation screenshots belong in `docs/images/`. Ordinary `git add` should not add ignored runtime files, but new ignore rules do not remove already tracked files. Inspect staged content before publishing.
 

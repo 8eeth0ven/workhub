@@ -50,6 +50,9 @@ def candidates(root: Path) -> tuple[list[Path], str]:
 
 def forbidden_kind(relative: Path) -> str | None:
     lower = relative.name.lower()
+    if (any(part.lower() in {"tests", "test", "__tests__"} for part in relative.parts[:-1]) or
+            re.fullmatch(r"(?:test_.*\.py|.*_test\.(?:py|go)|.*\.(?:test|spec)\..+)", lower)):
+        return "test-only-artifact"
     if any(part in RUNTIME_DIRECTORIES or part == "reports" for part in relative.parts):
         return "runtime-artifact"
     if lower in PRIVATE_NAMES or (lower.startswith(".env.") and lower != ".env.example"):

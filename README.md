@@ -160,12 +160,11 @@ python3 scripts/install.py --project /path/to/your-project \
 
 更多边界与演示隔离说明见 [隐私文档](docs/privacy.md)。
 
-## 开发与验证
+## 发布检查
 
 ```sh
-python3 -m unittest discover -s tests -v
+python3 scripts/audit_release.py
+git diff --check
 ```
 
-测试使用临时数据和模拟评议器；演示隔离检查还会确认 API 不泄露本机路径、不读取全局配置且不能触发模型调用。真实模型、外部 CLI 和浏览器兼容性仍应在你的环境中验证。
-
-界面语言的独立行为检查可运行 `node tests/test_i18n.cjs`。这项开发检查需要 Node.js，运行 Workhub 本身不需要。
+发布目录只保留运行源码、文档与虚构演示，不附带本地开发测试、真实项目资料、数据库或会话日志。扫描会阻止测试专用文件、已知敏感配置、疑似凭据与个人绝对路径进入发布内容；图片和实际提交清单仍需人工复核。真实模型、外部 CLI 和浏览器兼容性应在你的环境中验证。

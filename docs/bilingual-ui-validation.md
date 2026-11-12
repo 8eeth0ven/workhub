@@ -1,5 +1,7 @@
 # Bilingual interface validation
 
+> 历史开发验证记录：测试专用文件保存在发布目录之外；以下测试命令说明当时实际执行的检查。
+
 The portal supports `zh-CN` and `en` through its compact top-bar selector. The browser stores the preference under `workhub-language`; unavailable storage falls back to Chinese without blocking in-session switching. No language query parameter is added to project URLs.
 
 ## Implementation

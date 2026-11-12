@@ -9,6 +9,16 @@ node_modules/
 .coverage
 htmlcov/
 
+# Test-only development files are not part of the published source tree.
+tests/
+test/
+__tests__/
+test_*.py
+*_test.py
+*_test.go
+*.test.*
+*.spec.*
+
 # Private configuration and credentials.
 .env
 .env.*

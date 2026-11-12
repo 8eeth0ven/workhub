@@ -1,5 +1,7 @@
 # 提供方适配验证记录
 
+> 历史开发验证记录：测试专用文件保存在发布目录之外；以下测试命令说明当时实际执行的检查。
+
 发布版新增 GLM、OpenAI-compatible、Anthropic native、Ollama 和显式本地 CLI 五类入口，共用 `build_prompt`、证据脱敏与 `normalize_result`。旧 GLM 文件和环境保留兼容；新私有配置优先 `llm.json`。公共状态只包含提供方类型、显示名、模型、是否配置、Key 数和端点主机，不提供凭据或 CLI 参数。
 
 新增 `tests/test_providers.py` 的 14 项行为测试，覆盖：

@@ -29,6 +29,7 @@ from assessments import AssessmentManager, ReviewError
 from archives import ArchiveStore
 from learning import LearningStore
 from model_access import ModelAccess
+from project_catalog import ProjectCatalog
 
 
 ROOT = Path(__file__).resolve().parent
@@ -336,6 +337,7 @@ class Workspace:
             if member is None:
                 continue
             project["source_agents"] = json.loads(member["source_agents"])
+            project["recorded_agents"] = project["agents"][:]
             project["agents"] = sorted(set(project["agents"]) | set(project["source_agents"]))
             project["theme_mode"] = member["theme_mode"]
             project["added_at"] = member["added_at"]
@@ -683,6 +685,8 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None)
                     self.json_response(200, {"ok": True, "service": "agent-workhub", "version": 1})
                 elif route == "/api/state":
                     self.json_response(200, workspace.state())
+                elif route == "/api/workspace/catalog":
+                    self.json_response(200, ProjectCatalog().list())
                 elif route == "/api/integrations":
                     self.json_response(200, integrations())
                 elif route == "/api/sites":

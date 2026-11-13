@@ -1,4 +1,4 @@
-/* User-controlled admission only. No client-history discovery or CLI execution. */
+/* Read-only project metadata candidates; only user submission admits a project. */
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);
@@ -6,6 +6,8 @@
   const dialog = $('workspace-dialog'), form = $('workspace-form');
   const message = $('workspace-message');
   let busy = false;
+  let catalog = [], catalogLoaded = false, catalogLoading = false, catalogFailed = false;
+  const agentName = agent => ({codex:'Codex',zcode:'Z Code',claude:'Claude CLI',other:t('其他')})[agent] || agent;
   function text(tag, value, cls) {
     const node = document.createElement(tag);
     node.textContent = value;
@@ -21,7 +23,50 @@
     feedback('');
     renderProjects();
     if (!dialog.open) dialog.showModal();
+    loadCatalog();
   }
+  function renderCatalog() {
+    const select = $('workspace-existing'), chosen = select.value;
+    const source = $('workspace-catalog-source').value;
+    const projects = catalog.filter(project => !source || project.agents.includes(source));
+    const placeholder = text('option', t(catalogLoading?'正在读取已有项目…':'选择已有项目，或在下方手动填写'));
+    placeholder.value = '';
+    select.replaceChildren(placeholder, ...projects.map(project => {
+      const option = text('option', `${project.agents.map(agentName).join(' · ')} | ${project.name} — ${project.path}`);
+      option.value = project.id;
+      return option;
+    }));
+    if (projects.some(project => project.id === chosen)) select.value = chosen;
+    select.disabled = catalogLoading;
+    $('workspace-catalog-refresh').disabled = catalogLoading;
+    $('workspace-catalog-hint').textContent = catalogLoading?t('正在读取客户端保存的项目目录…')
+      :catalogFailed?t('目录列表暂不可用，仍可手动填写。')
+      :projects.length?t('找到 {count} 个现有项目；选中后点击“加入中控”。',{count:projects.length})
+      :t('未找到可用目录，仍可手动填写。');
+  }
+  async function loadCatalog() {
+    if (catalogLoading) return;
+    catalogLoading = true; catalogFailed = false; renderCatalog();
+    try {
+      const response = await fetch('/api/workspace/catalog', {cache:'no-store', signal:AbortSignal.timeout(6000)});
+      if (!response.ok) throw new Error('catalog unavailable');
+      const data = await response.json();
+      if (!Array.isArray(data.projects)) throw new Error('invalid catalog');
+      catalog = data.projects.filter(project => typeof project.id==='string' && typeof project.path==='string' && typeof project.name==='string' && Array.isArray(project.agents));
+      catalogLoaded = true;
+    } catch { catalogFailed = true; }
+    finally { catalogLoading = false; renderCatalog(); }
+  }
+  $('workspace-existing').addEventListener('change', () => {
+    const project = catalog.find(project => project.id === $('workspace-existing').value);
+    if (!project) return;
+    $('workspace-path').value = project.path;
+    $('workspace-name').value = project.name;
+    form.querySelectorAll('input[name="workspace-agent"]').forEach(input => { input.checked = project.agents.includes(input.value); });
+    feedback('');
+  });
+  $('workspace-catalog-source').addEventListener('change', renderCatalog);
+  $('workspace-catalog-refresh').addEventListener('click', loadCatalog);
   async function request(action, payload) {
     const response = await fetch('/api/workspace/' + action, {
       method: 'POST', headers: {'Content-Type':'application/json', 'X-Workhub-Request':'1'},
@@ -45,7 +90,7 @@
     box.replaceChildren(...projects.map(project => {
       const row = text('div', '', 'workspace-project');
       const info = text('div', '', 'workspace-project-info');
-      info.append(text('strong', project.name), text('span', project.path), text('small', (project.source_agents || []).map(agent => ({codex:'Codex',zcode:'Z Code',claude:'Claude CLI',other:t('其他')})[agent] || agent).join(' · ')));
+      info.append(text('strong', project.name), text('span', project.path), text('small', (project.source_agents || []).map(agentName).join(' · ')));
       const remove = text('button', t('从中控移除'), 'button button-outline button-compact');
       remove.type = 'button';
       remove.disabled = busy;
@@ -82,7 +127,7 @@
     try {
       await request('add', payload);
       await refresh();
-      form.reset(); updateSiteFields();
+      form.reset(); updateSiteFields(); renderCatalog();
       feedback(t('已加入中控；只有手动添加的项目会显示。'));
     } catch (error) { feedback(error.message || t('项目操作未成功。'), true); }
     finally { busy = false; $('workspace-submit').disabled = false; renderProjects(); }
@@ -90,7 +135,7 @@
   document.querySelectorAll('[data-workspace-add]').forEach(button => button.addEventListener('click', show));
   $('workspace-site-kind').addEventListener('change', updateSiteFields);
   window.addEventListener('workhub:state', () => { if (dialog.open) renderProjects(); });
-  I.onChange(() => { renderProjects(); updateSiteFields(); if (!message.hidden) message.textContent = I.translateKnown(message.textContent); });
+  I.onChange(() => { renderProjects(); updateSiteFields(); if (catalogLoaded || dialog.open) renderCatalog(); if (!message.hidden) message.textContent = I.translateKnown(message.textContent); });
   window.WorkhubWorkspace = {open:show};
   updateSiteFields();
 })();

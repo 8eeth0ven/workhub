@@ -1232,6 +1232,20 @@
   "请选择 Codex、Z Code、Claude CLI 或其他来源": "Select Codex, Z Code, Claude CLI or another source",
   "请填写有效的网站地址或目录": "Enter a valid website URL or directory"
 });
+ Object.assign(dictionaries.en, {
+  "从客户端选择已有项目": "Choose an existing client project",
+  "关闭": "Close",
+  "客户端来源": "Client source",
+  "全部来源": "All sources",
+  "已有项目": "Existing projects",
+  "刷新项目列表": "Refresh project list",
+  "选择已有项目，或在下方手动填写": "Choose a project, or enter a directory below",
+  "正在读取已有项目…": "Loading existing projects…",
+  "正在读取客户端保存的项目目录…": "Reading project directories saved by your clients…",
+  "目录列表暂不可用，仍可手动填写。": "The project list is unavailable. You can still enter a directory.",
+  "找到 {count} 个现有项目；选中后点击“加入中控”。": "Found {count} existing projects. Select one, then choose Add to workspace.",
+  "未找到可用目录，仍可手动填写。": "No available directories were found. You can still enter one."
+});
  Object.values(dictionaries).forEach(Object.freeze);Object.freeze(dictionaries);
  const normalize=value=>value==='en'||value==='en-US'||value==='en-GB'?'en':'zh-CN';
  let locale='zh-CN';try{locale=normalize(localStorage.getItem('workhub-language'));}catch{}

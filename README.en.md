@@ -18,7 +18,7 @@ cd workhub
 python3 workhub.py serve --port 8787
 ```
 
-Open [http://127.0.0.1:8787](http://127.0.0.1:8787), choose **Add existing project**, enter its directory and select Codex, Z Code or Claude CLI. Only manually added projects and their records appear. CLI reports do not add directories to the workspace automatically. **Recording work, viewing sites and using templates do not require a model key.** Project reviews need a separately configured reviewer. On Windows, use `python` if `python3` is unavailable.
+Open [http://127.0.0.1:8787](http://127.0.0.1:8787), choose **Add existing project**, choose a directory from the Codex, Z Code or Claude CLI project dropdown, or enter one manually. Only manually added projects and their records appear. CLI reports do not add directories to the workspace automatically. **Recording work, viewing sites and using templates do not require a model key.** Project reviews need a separately configured reviewer. On Windows, use `python` if `python3` is unavailable.
 
 <details>
 <summary>Explore a populated interface with the isolated demo</summary>
@@ -72,6 +72,8 @@ Every interface screenshot uses **Codex Light**: white surfaces, neutral text an
 Only you check “I have a basic understanding,” and you can undo it. Updated content asks for another review while preserving earlier acknowledgements. Reading and acknowledging do not trigger model calls.
 
 ## Connect projects and agents
+
+The add-project dialog reads known local project directories from Codex, Z Code and Claude CLI. Filter by client, select a project to fill its directory and source tags, then click **Add to workspace**. Listing or selecting a candidate does not add it. See [project directory sources](docs/project-catalog.md) for read-only metadata boundaries.
 
 Manually add a project in the local UI, optionally connecting its existing local URL or static website directory. Adding does not move files, rewrite client project registries or import chat history. Removing only detaches the workspace entry; re-adding restores access to existing work records.
 

@@ -1,15 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="750" height="1070" viewBox="0 0 750 1070" role="img" aria-labelledby="t d">
-<title id="t">从一次改动，到一次理解</title><desc id="d">四步原创功能示意：Agent据实整理概念、实现、术语与源码来源；用户阅读并复述自检；本人勾选初步理解且可取消；卡片内容更新后待复习，再由本人确认。不是真实界面截图。</desc>
-<rect width="750" height="1070" fill="#fff8f2"/><path d="M0 0H750V7H0Z" fill="#a74b16"/>
-<g font-family="PingFang SC,Helvetica Neue,Arial,sans-serif">
-<text x="44" y="53" fill="#a74b16" font-size="17" font-weight="650" letter-spacing="2">WORKHUB / 边做边学</text>
-<text x="42" y="107" fill="#35281f" font-size="34" font-weight="650">从一次改动，到一次理解</text><text x="44" y="145" fill="#78614e" font-size="23">内容有来源，理解由本人确认</text>
-<path d="M77 248V804" stroke="#d9c3b0" stroke-width="2"/>
-<g fill="#fff" stroke="#ecdccc" stroke-width="1.5"><rect x="43" y="183" width="664" height="150" rx="13"/><rect x="43" y="360" width="664" height="150" rx="13"/><rect x="43" y="537" width="664" height="150" rx="13"/><rect x="43" y="714" width="664" height="150" rx="13"/></g>
-<g fill="#a74b16"><circle cx="78" cy="222" r="21"/><circle cx="78" cy="399" r="21"/><circle cx="78" cy="576" r="21"/><circle cx="78" cy="753" r="21"/></g>
-<g fill="#fff" text-anchor="middle" font-size="22" font-weight="650"><text x="78" y="230">1</text><text x="78" y="407">2</text><text x="78" y="584">3</text><text x="78" y="761">4</text></g>
-<g fill="#35281f" font-size="29" font-weight="600"><text x="119" y="233">整理这次真实改动</text><text x="119" y="410">阅读，并试着复述</text><text x="119" y="587">本人勾选初步理解</text><text x="119" y="764">内容更新，再来复习</text></g>
-<g fill="#687267" font-size="24"><text x="119" y="277">Agent 说明概念与具体实现，</text><text x="119" y="311">术语、步骤、例子和来源一起留存。</text><text x="119" y="454">对照源码位置，回答自检问题，</text><text x="119" y="488">按项目、状态或关键词回看。</text><text x="119" y="630">读懂后亲自勾选，可随时取消；</text><text x="119" y="664">只记录本人的确认，不代表精通。</text><text x="119" y="808">新版出现，旧确认不会自动沿用；</text><text x="119" y="842">读过新内容，再由本人确认。</text></g>
-<rect x="43" y="899" width="664" height="98" rx="9" fill="#edf1e8"/><text x="63" y="932" fill="#53634d" font-size="22">学习卡与确认记录保存在本机。</text><text x="63" y="970" fill="#53634d" font-size="22">查看和勾选，不会为此自动调用模型。</text>
-<text x="44" y="1036" fill="#78614e" font-size="18">原创功能示意 · 非真实界面截图 · 待验收草稿</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+<title id="title">Workhub 学习流程</title><desc id="desc">有来源的讲解、用户本人确认及内容更新后的复习。</desc>
+<rect width="1280" height="720" fill="#ffffff"/>
+<g font-family="-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif"><text x="64" y="80" font-size="36" fill="#171717" font-weight="600" >从一次改动，到一次理解。</text>
+<text x="64" y="128" font-size="22" fill="#666666" font-weight="400" >讲解有来源，理解由本人确认。</text>
+<rect x="64" y="184" width="560" height="194" rx="12" fill="#ffffff" stroke="#e8e8e8"/>
+<circle cx="100" cy="227" r="18" fill="#171717"/><text x="100" y="233" font-size="18" fill="#ffffff" font-weight="600" text-anchor="middle">1</text>
+<text x="136" y="236" font-size="27" fill="#171717" font-weight="600" >整理真实改动</text>
+<text x="92" y="292" font-size="22" fill="#666666" font-weight="400" >整理概念、术语、步骤与例子</text>
+<text x="92" y="334" font-size="22" fill="#666666" font-weight="400" >关联实际源码位置</text>
+<rect x="656" y="184" width="560" height="194" rx="12" fill="#ffffff" stroke="#e8e8e8"/>
+<circle cx="692" cy="227" r="18" fill="#171717"/><text x="692" y="233" font-size="18" fill="#ffffff" font-weight="600" text-anchor="middle">2</text>
+<text x="728" y="236" font-size="27" fill="#171717" font-weight="600" >阅读并自检</text>
+<text x="684" y="292" font-size="22" fill="#666666" font-weight="400" >对照实现阅读学习卡</text>
+<text x="684" y="334" font-size="22" fill="#666666" font-weight="400" >试着复述，并回答自检问题</text>
+<rect x="64" y="406" width="560" height="194" rx="12" fill="#ffffff" stroke="#e8e8e8"/>
+<circle cx="100" cy="449" r="18" fill="#171717"/><text x="100" y="455" font-size="18" fill="#ffffff" font-weight="600" text-anchor="middle">3</text>
+<text x="136" y="458" font-size="27" fill="#171717" font-weight="600" >本人确认理解</text>
+<text x="92" y="514" font-size="22" fill="#666666" font-weight="400" >亲自勾选，可随时取消</text>
+<text x="92" y="556" font-size="22" fill="#666666" font-weight="400" >记录初步理解，不等于精通</text>
+<rect x="656" y="406" width="560" height="194" rx="12" fill="#ffffff" stroke="#e8e8e8"/>
+<circle cx="692" cy="449" r="18" fill="#171717"/><text x="692" y="455" font-size="18" fill="#ffffff" font-weight="600" text-anchor="middle">4</text>
+<text x="728" y="458" font-size="27" fill="#171717" font-weight="600" >更新后再复习</text>
+<text x="684" y="514" font-size="22" fill="#666666" font-weight="400" >保留旧版确认记录</text>
+<text x="684" y="556" font-size="22" fill="#666666" font-weight="400" >重新阅读并确认新内容</text>
+<text x="64" y="655" font-size="18" fill="#666666" font-weight="400" >工作流程示意，非界面截图。</text>
+<text x="64" y="688" font-size="18" fill="#666666" font-weight="400" >学习卡与确认保存在本机；阅读和勾选不会自动调用模型。</text>
 </g></svg>

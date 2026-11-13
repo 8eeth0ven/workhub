@@ -8,10 +8,10 @@
 
 | 要素 | 统一值 |
 | --- | --- |
-| 页面背景 / 内容表面 | `--wh-bg: #f7f8f4` / `--wh-surface: #fff` |
-| 正文 / 辅助文字 | `--wh-ink: #252b26` / `--wh-muted: #687267` |
-| 强调色 | `--wh-accent: #53634d` |
-| 边框 / 圆角 | `--wh-border: #e1e5dc` / `--wh-radius: 10px` |
+| 页面背景 / 内容表面 | `--wh-bg: #ffffff` / `--wh-surface: #fff` |
+| 正文 / 辅助文字 | `--wh-ink: #171717` / `--wh-muted: #666666` |
+| 强调色 | `--wh-accent: #171717` |
+| 边框 / 圆角 | `--wh-border: #e8e8e8` / `--wh-radius: 10px` |
 | 字体 | `--wh-font`：系统无衬线，包括 PingFang SC |
 | 字号 | 12px 元信息、13px 辅助正文、14px 正文、16px 内容标题；中控台无重复页面大标题 |
 | 间距 | 4 / 8 / 12 / 16 / 24 / 32 / 48px |
@@ -77,3 +77,10 @@ Both languages share the same visual system. Save the language preference withou
 默认 codex-light 为纯白界面，codex-dark 为中性深色；原有八种浅色配色继续兼容。主题枚举由 static/theme.js 提供，模板在首屏 CSS 前加载同一脚本；生成器需同时复制 theme.js。
 文章用 meta[name="workhub-reading-theme"][content="light"] 或 html[data-workhub-reading-theme="light"] 显式固定明亮。嵌入运行时尊重这一局部声明且不改写保存的工作空间偏好。通用主题注入不改变字体、排版、内容或媒体。
 复用示例：examples/reading-light/index.html 与 markdown-light.css。公众号粘贴版仍使用全内联白名单 HTML，不能把本地预览的 style/class 当作微信兼容产物。
+
+
+## README 配图
+
+README 使用 Codex 明亮风格：封面和示意图为白底、黑灰文字、浅灰细线，截图从隔离演示实际采集并选用 codex-light；不对截图滤色，不将示意图标为真实界面。中英文入口与图片含义对应；技术接入细节见 docs/appearance.md 及其英文版。
+
+配图采用横向构图，高度小于宽度；不强制固定长宽比。避免窄横条和纵向长图，流程图按内容重新布局，截图保留实际界面。

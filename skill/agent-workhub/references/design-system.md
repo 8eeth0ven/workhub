@@ -70,3 +70,10 @@
 - 检查英文长标签、窄屏、键盘焦点和表单标签。左侧已显示页面标题时，两种语言均不增加重复大页头或顶部占位。
 
 Both languages share the same visual system. Save the language preference without losing navigation or input state. Translate UI chrome, not stored project content, and keep the sidebar-first title rule in both languages. Documentation must provide reciprocal language links and describe the same technical and privacy boundaries.
+
+
+## Codex 外观与文章阅读
+
+默认 codex-light 为纯白界面，codex-dark 为中性深色；原有八种浅色配色继续兼容。主题枚举由 static/theme.js 提供，模板在首屏 CSS 前加载同一脚本；生成器需同时复制 theme.js。
+文章用 meta[name="workhub-reading-theme"][content="light"] 或 html[data-workhub-reading-theme="light"] 显式固定明亮。嵌入运行时尊重这一局部声明且不改写保存的工作空间偏好。通用主题注入不改变字体、排版、内容或媒体。
+复用示例：examples/reading-light/index.html 与 markdown-light.css。公众号粘贴版仍使用全内联白名单 HTML，不能把本地预览的 style/class 当作微信兼容产物。

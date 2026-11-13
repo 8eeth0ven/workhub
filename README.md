@@ -49,7 +49,7 @@ python3 examples/demo.py --port 8899
 
 文档也可通过每页顶部入口在中英文之间切换。英文版见 [README.en.md](README.en.md)；CLI 命令、API 路径与持久化数据结构不因界面语言改变。
 
-顶部「配色」可选择苔绿、雾蓝、石墨、暖沙、橙白、青瓷、玫瑰或靛蓝，偏好在浏览器本地保存。八套浅色方案只改变颜色，沿用同一布局、字体和控件尺寸；正文、辅助字及主按钮保持可读。切换不会重载项目 iframe、改写数据或触发模型。
+默认采用纯白的 **Codex 明亮**，顶部「配色」可切换 **Codex 深色**，并保留原有八种配色。门户和三个项目模板共用颜色变量，偏好在浏览器本地保存；切换不重载 iframe、不丢搜索或输入，也不触发模型。生成的独立模板同样带外观选择器。
 
 目录站会由本机服务注入受限配色运行时和共享 CSS，支持该协议的模板也会跟随门户。通用嵌入样式只改颜色，不修改字号、排版、图片、PDF、视频或图表；原生应用可标记 `body[data-workhub-native]`，跳过通用强覆盖并自行映射颜色变量。
 
@@ -61,7 +61,17 @@ python3 examples/demo.py --port 8899
 <script defer src="http://127.0.0.1:8787/embedded-theme.js"></script>
 ```
 
-子页默认只信任父窗口 `http://127.0.0.1:8787` 的八种主题消息，并用 ready/request 握手取得当前配色。自定义端口或 `localhost` 别名需在脚本标签明确指定 `data-workhub-parent-origin="http://127.0.0.1:8899"` 等 HTTP(S) 回环 origin，同时调整资源地址；不会把任意 referrer 当作信任来源。未接入资源的第三方页面不会被强制修改跨域 DOM。目录站可用 `?workhub_theme=original` 关闭自动注入。
+子页默认只信任父窗口 `http://127.0.0.1:8787` 的受支持主题消息，并用 ready/request 握手取得当前配色。自定义端口或 `localhost` 别名需在脚本标签明确指定 `data-workhub-parent-origin="http://127.0.0.1:8899"` 等 HTTP(S) 回环 origin，同时调整资源地址；不会把任意 referrer 当作信任来源。未接入资源的第三方页面不会被强制修改跨域 DOM。目录站可用 `?workhub_theme=original` 关闭自动注入。
+
+公众号或长文可固定明亮外观，在页面 head 中声明：
+
+```html
+<meta name="workhub-reading-theme" content="light">
+```
+
+也可在 html 上设置 `data-workhub-reading-theme="light"`。目录预览会尊重此声明，即使门户为深色，文章仍保持明亮；它不会覆盖全局保存的外观偏好。已有网页需在其源码加入声明，Markdown 文件本身不写 CSS。可复用的白底示例及 Markdown 样式见 [reading-light](examples/reading-light/)；微信粘贴模板仍需全内联样式和白名单标签。示例仅用于排版演示。
+
+![Codex 深色：项目页面同步外观](docs/images/project-spaces.dark.jpg)
 
 ## 边做边学
 

@@ -6,7 +6,7 @@
   const supported = value => value === 'zh-CN' || value === 'en';
   const messages = {
     'zh-CN': {
-      language: '界面语言', search: '搜索', searchContent: '搜索内容', placeholder: '搜索标题、摘要、标签…',
+      appearance: '外观', language: '界面语言', search: '搜索', searchContent: '搜索内容', placeholder: '搜索标题、摘要、标签…',
       radar: '信息雷达', library: '知识资料库', brief: '分析简报', sources: '来源分布', categories: '分类目录',
       informationStats: '信息统计', informationCategories: '信息分类', informationItems: '信息条目',
       libraryStats: '资料统计', libraryItems: '资料列表', briefStats: '简报统计', outline: '本期目录',
@@ -25,7 +25,7 @@
       footerDemo: '模板预览 · {count} 条内容', footerLocal: '本地工作空间 · {count} 条内容'
     },
     en: {
-      language: 'Interface language', search: 'Search', searchContent: 'Search content', placeholder: 'Search titles, summaries, or tags…',
+      appearance: 'Appearance', language: 'Interface language', search: 'Search', searchContent: 'Search content', placeholder: 'Search titles, summaries, or tags…',
       radar: 'Information radar', library: 'Knowledge library', brief: 'Research brief', sources: 'Sources', categories: 'Categories',
       informationStats: 'Information statistics', informationCategories: 'Information categories', informationItems: 'Information items',
       libraryStats: 'Library statistics', libraryItems: 'Library items', briefStats: 'Brief statistics', outline: 'In this issue',
@@ -44,20 +44,36 @@
       footerDemo: 'Template preview · {count} items', footerLocal: 'Local workspace · {count} items'
     }
   };
-  const themeStorageKey = 'workhub-theme';
-  const themes = Object.freeze(['moss', 'fog', 'graphite', 'sand', 'orange', 'teal', 'rose', 'indigo']);
+  const themeController = window.WorkhubTheme;
+  const themes = themeController.themes;
   const supportedTheme = value => themes.includes(value);
-  let theme = 'moss';
-  try { const saved = localStorage.getItem(themeStorageKey); if (supportedTheme(saved)) theme = saved; } catch {}
-  function applyTheme(value, persist = true) {
-    if (!supportedTheme(value)) return false;
-    theme = value;
-    document.documentElement.setAttribute('data-workhub-theme', theme);
-    try { if (persist) localStorage.setItem(themeStorageKey, theme); } catch {}
-    return true;
+  const applyTheme = (value, persist = true) => supportedTheme(value)
+    && themeController.setTheme(value, {persist, source: 'template'});
+  window.WorkhubTemplateTheme = {getTheme: themeController.getTheme, setTheme: applyTheme, themes};
+  const themeControl = document.createElement('select');
+  themeControl.id = 'template-theme';
+  const themeLabel = document.createElement('label');
+  themeLabel.htmlFor = themeControl.id;
+  themeLabel.dataset.i18n = 'appearance';
+  const themeGroup = document.createElement('div');
+  themeGroup.className = 'template-language';
+  themeGroup.append(themeLabel, themeControl);
+  document.querySelector('.template-header').append(themeGroup);
+  const names = {
+    'zh-CN': ['Codex 明亮', 'Codex 深色', '苔绿', '雾蓝', '石墨', '暖砂', '橙色', '青瓷', '玫瑰', '靛蓝'],
+    en: ['Codex Light', 'Codex Dark', 'Moss', 'Mist blue', 'Graphite', 'Warm sand', 'Orange', 'Celadon', 'Rose', 'Indigo']
+  };
+  function renderThemeControl() {
+    themeControl.replaceChildren(...themes.map((value, index) => {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = names[language][index];
+      return option;
+    }));
+    themeControl.value = themeController.getTheme();
   }
-  window.WorkhubTemplateTheme = {getTheme: () => theme, setTheme: applyTheme, themes};
-  applyTheme(theme, false);
+  themeControl.onchange = () => applyTheme(themeControl.value);
+  themeController.onChange(renderThemeControl);
   const storageKey = 'workhub-language';
   let language = supported(document.documentElement.lang) ? document.documentElement.lang : 'zh-CN';
   try { const saved = localStorage.getItem(storageKey); if (supported(saved)) language = saved; } catch {}
@@ -211,6 +227,7 @@
     document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.setAttribute('placeholder', t(el.dataset.i18nPlaceholder)); });
     $('language-select').value = language;
+    renderThemeControl();
     status.textContent = failure ? t(failure) : !data ? t('loading') : t(data.is_demo === true ? 'demo' : 'local');
     if (data) {
       const heading = document.querySelector('header h1');
@@ -249,7 +266,6 @@
   window.addEventListener('message', trustedParentMessage);
   window.addEventListener('storage', event => {
     if (event.key === storageKey && supported(event.newValue)) applyLanguage(event.newValue, false);
-    else if (event.key === themeStorageKey && (event.newValue === null || supportedTheme(event.newValue))) applyTheme(event.newValue || 'moss', false);
   });
   $('language-select').onchange = () => applyLanguage($('language-select').value);
   $(mode === 'library' ? 'dClose' : 'close').onclick = () => dialog.close();

@@ -2,7 +2,7 @@
 (() => {
   'use strict';
   if (window.WorkhubEmbeddedTheme) return;
-  const themes = Object.freeze(['moss', 'fog', 'graphite', 'sand', 'orange', 'teal', 'rose', 'indigo']);
+  const themes = Object.freeze(['codex-light', 'codex-dark', 'moss', 'fog', 'graphite', 'sand', 'orange', 'teal', 'rose', 'indigo']);
   const supported = value => themes.includes(value);
   const key = 'workhub-theme';
   const allowedParents = new Set(['http://127.0.0.1:8787']);
@@ -16,13 +16,17 @@
       if (['http:', 'https:'].includes(url.protocol) && ['127.0.0.1', 'localhost', '[::1]', '::1'].includes(url.hostname) && !url.username && !url.password && !url.search && !url.hash && url.pathname === '/' && (url.origin === value || url.origin + '/' === value)) allowedParents.add(url.origin);
     } catch {}
   }
-  let theme = 'moss';
+  // Article reading is deliberately independent of the workspace preference.
+  const fixedLight = document.documentElement.dataset.workhubReadingTheme === 'light'
+    || document.querySelector('meta[name="workhub-reading-theme"]')?.content === 'light';
+  if (fixedLight) document.documentElement.dataset.workhubReadingTheme = 'light';
+  let theme = 'codex-light';
   try { const saved = localStorage.getItem(key); if (supported(saved)) theme = saved; } catch {}
   function apply(value, persist = true) {
     if (!supported(value)) return false;
-    theme = value;
+    theme = fixedLight ? 'codex-light' : value;
     document.documentElement.setAttribute('data-workhub-theme', theme);
-    try { if (persist) localStorage.setItem(key, theme); } catch {}
+    try { if (persist && !fixedLight) localStorage.setItem(key, theme); } catch {}
     return true;
   }
   function request(type = 'workhub:theme-request') {
@@ -34,7 +38,7 @@
     apply(event.data.theme);
   });
   window.addEventListener('storage', event => {
-    if (event.key === key && (event.newValue === null || supported(event.newValue))) apply(event.newValue || 'moss', false);
+    if (event.key === key && (event.newValue === null || supported(event.newValue))) apply(event.newValue || 'codex-light', false);
   });
   window.addEventListener('pageshow', () => request());
   window.WorkhubEmbeddedTheme = {themes, getTheme: () => theme, requestTheme: request};

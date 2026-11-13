@@ -11,6 +11,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parent.parent
 DESIGN = ROOT / "static" / "design-system.css"
+THEME = ROOT / "static" / "theme.js"
 RUNTIME = ROOT / "templates" / "runtime.js"
 SHELL = ROOT / "templates" / "template-shell.css"
 DESIGN_SYSTEM = "workhub-v1"
@@ -53,7 +54,7 @@ def main():
         parser.error("为保护现有网站，输出目录必须不存在或为空")
     if not (source / "index.html").is_file():
         parser.error("模板文件缺失：" + str(source))
-    if not DESIGN.is_file() or not RUNTIME.is_file() or not SHELL.is_file():
+    if not DESIGN.is_file() or not THEME.is_file() or not RUNTIME.is_file() or not SHELL.is_file():
         parser.error("统一设计系统或模板运行脚本缺失，请恢复工作台文件")
     data = json.loads((source / "data.json").read_text(encoding="utf-8")) if args.demo else {"items": [], "is_demo": False}
     catalog = ENGLISH_TEMPLATES if args.language == "en" else TEMPLATES
@@ -65,11 +66,13 @@ def main():
     # Preview loads canonical assets through the hub. A generated site owns
     # local copies and has no dependency on Workhub's URL or listening port.
     page = (source / "index.html").read_text(encoding="utf-8")
+    page = page.replace('src="/theme.js"', 'src="theme.js"')
     page = page.replace('href="/design-system.css"', 'href="design-system.css"')
     page = page.replace('src="/templates/runtime.js"', 'src="runtime.js"')
     page = page.replace('href="/templates/template-shell.css"', 'href="template-shell.css"')
     page = page.replace('<html lang="zh-CN">', f'<html lang="{args.language}">')
     (destination / "index.html").write_text(page, encoding="utf-8")
+    shutil.copyfile(THEME, destination / "theme.js")
     shutil.copyfile(DESIGN, destination / "design-system.css")
     shutil.copyfile(RUNTIME, destination / "runtime.js")
     shutil.copyfile(SHELL, destination / "template-shell.css")

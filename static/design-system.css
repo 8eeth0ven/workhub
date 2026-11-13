@@ -96,9 +96,34 @@
   --wh-sidebar-ink: #edf0ff; --wh-sidebar-muted: #c4cae9; --wh-sidebar-border: #636d98;
 }
 
+/* Codex neutral appearance. The default is pure white, including the sidebar. */
+:root:not([data-workhub-theme]), :root[data-workhub-theme="codex-light"] {
+  --wh-color-scheme: light;
+  --wh-bg: #ffffff; --wh-surface: #ffffff; --wh-ink: #171717; --wh-muted: #666666;
+  --wh-accent: #171717; --wh-accent-hover: #343434; --wh-accent-soft: #fafafa;
+  --wh-accent-tint: #e5e5e5; --wh-on-accent: #ffffff;
+  --wh-border: #e8e8e8; --wh-border-strong: #b8b8b8; --wh-focus: #737373;
+  --wh-sidebar-bg: #fcfcfc; --wh-sidebar-active: #f0f0f0;
+  --wh-sidebar-ink: #171717; --wh-sidebar-muted: #666666; --wh-sidebar-border: #e8e8e8;
+  --wh-shadow: 0 12px 32px rgb(0 0 0 / 5%);
+  --wh-success: #286240; --wh-warning: #805315; --wh-danger: #b03232;
+}
+:root[data-workhub-theme="codex-dark"] {
+  --wh-color-scheme: dark;
+  --wh-bg: #181818; --wh-surface: #212121; --wh-ink: #ececec; --wh-muted: #b0b0b0;
+  --wh-accent: #eeeeee; --wh-accent-hover: #ffffff; --wh-accent-soft: #2a2a2a;
+  --wh-accent-tint: #494949; --wh-on-accent: #171717;
+  --wh-border: #3a3a3a; --wh-border-strong: #666666; --wh-focus: #b4b4b4;
+  --wh-sidebar-bg: #171717; --wh-sidebar-active: #2a2a2a;
+  --wh-sidebar-ink: #ececec; --wh-sidebar-muted: #b0b0b0; --wh-sidebar-border: #383838;
+  --wh-shadow: 0 12px 32px rgb(0 0 0 / 22%);
+  --wh-success: #93d5aa; --wh-warning: #e5be7a; --wh-danger: #ffa2a2;
+}
+:root { color-scheme: var(--wh-color-scheme, light); }
+
 .wh-surface { background: var(--wh-surface); border: 1px solid var(--wh-border); border-radius: var(--wh-radius); }
 .wh-muted { color: var(--wh-muted); }
-.wh-button { font: 500 var(--wh-text-sm)/1.4 var(--wh-font); color: var(--wh-surface); background: var(--wh-accent); border: 1px solid var(--wh-accent); border-radius: var(--wh-radius); padding: 10px 16px; cursor: pointer; }
+.wh-button { font: 500 var(--wh-text-sm)/1.4 var(--wh-font); color: var(--wh-on-accent); background: var(--wh-accent); border: 1px solid var(--wh-accent); border-radius: var(--wh-radius); padding: 10px 16px; cursor: pointer; }
 .wh-button:hover { background: var(--wh-accent-hover); border-color: var(--wh-accent-hover); }
 .wh-button:focus-visible { outline: 3px solid var(--wh-focus); outline-offset: 3px; }
 
@@ -111,7 +136,7 @@ body[data-template] h1 { font-size: var(--wh-title); font-weight: 650; letter-sp
 body[data-template] h2 { font-size: 22px; font-weight: 600; line-height: 1.5; letter-spacing: -.3px; }
 body[data-template] h3, body[data-template] h4 { font-size: var(--wh-text-lg); font-weight: 600; line-height: 1.65; }
 body[data-template] button, body[data-template] input, body[data-template] select { font: inherit; }
-body[data-template] button { display: inline-flex; align-items: center; justify-content: center; gap: var(--wh-space-2); min-height: 40px; color: var(--wh-surface); background: var(--wh-accent); border: 1px solid var(--wh-accent); border-radius: var(--wh-radius); padding: 8px 16px; font-size: var(--wh-text-sm); font-weight: 500; cursor: pointer; }
+body[data-template] button { display: inline-flex; align-items: center; justify-content: center; gap: var(--wh-space-2); min-height: 40px; color: var(--wh-on-accent); background: var(--wh-accent); border: 1px solid var(--wh-accent); border-radius: var(--wh-radius); padding: 8px 16px; font-size: var(--wh-text-sm); font-weight: 500; cursor: pointer; }
 body[data-template] button:hover { background: var(--wh-accent-hover); border-color: var(--wh-accent-hover); }
 body[data-template] input, body[data-template] select { min-width: 0; max-width: 100%; min-height: 42px; color: var(--wh-ink); background: var(--wh-surface); border: 1px solid var(--wh-border); border-radius: var(--wh-radius); padding: 9px 13px; font-size: var(--wh-text-sm); }
 body[data-template] input::placeholder { color: var(--wh-muted); opacity: 1; }

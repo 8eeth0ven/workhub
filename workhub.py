@@ -131,7 +131,13 @@ class Store:
                     updated_at TEXT NOT NULL
                 );
                 CREATE INDEX IF NOT EXISTS sites_project_idx ON sites(project_id);
-                PRAGMA user_version = 2;
+                CREATE TABLE IF NOT EXISTS workspace_projects (
+                    project_id TEXT PRIMARY KEY REFERENCES projects(id),
+                    source_agents TEXT NOT NULL,
+                    theme_mode TEXT NOT NULL DEFAULT 'original' CHECK(theme_mode IN ('original','shared')),
+                    added_at TEXT NOT NULL
+                );
+                PRAGMA user_version = 3;
             """)
         with contextlib.suppress(OSError):
             self.database.chmod(0o600)
@@ -314,6 +320,125 @@ class Store:
         }
 
 
+class Workspace:
+    """Explicit dashboard membership; recording work never opts a project in."""
+
+    AGENTS = {"codex", "zcode", "claude", "other"}
+
+    def __init__(self, store):
+        self.store = store
+
+    def _projects(self, db):
+        members = {row["project_id"]: dict(row) for row in db.execute("SELECT * FROM workspace_projects")}
+        result = []
+        for project in self.store._projects(db):
+            member = members.get(project["id"])
+            if member is None:
+                continue
+            project["source_agents"] = json.loads(member["source_agents"])
+            project["agents"] = sorted(set(project["agents"]) | set(project["source_agents"]))
+            project["theme_mode"] = member["theme_mode"]
+            project["added_at"] = member["added_at"]
+            result.append(project)
+        return result
+
+    def projects(self):
+        with self.store.connection() as db:
+            return self._projects(db)
+
+    def contains(self, identifier):
+        with self.store.connection() as db:
+            return db.execute("SELECT 1 FROM workspace_projects WHERE project_id=?", (identifier,)).fetchone() is not None
+
+    def add(self, path, name=None, agents=None, site=None, theme_mode="original"):
+        if not isinstance(path, str) or not path.strip() or len(path) > 4096 or not Path(path).expanduser().is_absolute():
+            raise ValueError("请填写已有项目的绝对目录路径")
+        path = canonical_path(path.strip())
+        if name is not None and (not isinstance(name, str) or not name.strip() or len(name) > 300):
+            raise ValueError("项目名必须为 1 至 300 个字符")
+        if not isinstance(agents, list) or not agents or any(not isinstance(a, str) or a not in self.AGENTS for a in agents):
+            raise ValueError("请选择 Codex、Z Code、Claude CLI 或其他来源")
+        if theme_mode not in ("original", "shared"):
+            raise ValueError("未知项目外观设置")
+        prepared = None
+        if site is not None:
+            if not isinstance(site, dict) or set(site) - {"kind", "target", "name"}:
+                raise ValueError("网站参数无效")
+            kind, target = site.get("kind"), site.get("target")
+            if kind not in ("url", "directory") or not isinstance(target, str) or not target.strip():
+                raise ValueError("请填写有效的网站地址或目录")
+            target = local_site_url(target.strip()) if kind == "url" else canonical_path(target.strip())
+            site_name = site.get("name") or name or Path(path).name
+            if not isinstance(site_name, str) or not site_name.strip() or len(site_name) > 300:
+                raise ValueError("网站名必须为 1 至 300 个字符")
+            prepared = kind, target, site_name.strip()
+        now = timestamp()
+        with self.store.connection() as db:
+            db.execute("BEGIN IMMEDIATE")
+            identifier = self.store._register(db, path, name.strip() if name else None)
+            db.execute("INSERT INTO workspace_projects(project_id,source_agents,theme_mode,added_at) VALUES(?,?,?,?) "
+                       "ON CONFLICT(project_id) DO UPDATE SET source_agents=excluded.source_agents,theme_mode=excluded.theme_mode",
+                       (identifier, json.dumps(sorted(set(agents))), theme_mode, now))
+            if prepared:
+                kind, target, site_name = prepared
+                sid = hashlib.sha256((identifier + "\0" + kind + "\0" + target).encode("utf-8")).hexdigest()[:24]
+                db.execute("INSERT INTO sites(id,project_id,name,kind,url,directory,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?) "
+                           "ON CONFLICT(id) DO UPDATE SET name=excluded.name,updated_at=excluded.updated_at",
+                           (sid, identifier, site_name, kind, target if kind == "url" else None, target if kind == "directory" else None, now, now))
+        return next(p for p in self.projects() if p["id"] == identifier)
+
+    def remove(self, identifier):
+        if not isinstance(identifier, str) or not re.fullmatch(r"[0-9a-f]{24}", identifier):
+            raise ValueError("项目 ID 无效")
+        with self.store.connection() as db:
+            cursor = db.execute("DELETE FROM workspace_projects WHERE project_id=?", (identifier,))
+            return {"ok": True, "removed": cursor.rowcount > 0, "id": identifier}
+
+    def sites(self):
+        with self.store.connection() as db:
+            return [dict(row) for row in db.execute(
+                "SELECT s.*,p.name AS project_name,p.path AS project_path,w.theme_mode FROM sites s "
+                "JOIN projects p ON p.id=s.project_id JOIN workspace_projects w ON w.project_id=p.id "
+                "ORDER BY s.updated_at DESC,s.name COLLATE NOCASE")]
+
+    def state(self, event_limit=EVENT_LIMIT):
+        with self.store.connection() as db:
+            db.execute("BEGIN")
+            projects = self._projects(db)
+            events = [dict(row) for row in db.execute(
+                "SELECT e.*,p.name AS project_name FROM events e JOIN projects p ON p.id=e.project_id "
+                "JOIN workspace_projects w ON w.project_id=e.project_id ORDER BY e.id DESC LIMIT ?", (event_limit,))]
+            count = db.execute("SELECT COUNT(*) FROM events e JOIN workspace_projects w ON w.project_id=e.project_id").fetchone()[0]
+        return {"projects": projects, "events": events, "stats": {"project_count":len(projects), "event_count":count,
+                "running_count":sum(p["status"] == "running" for p in projects), "blocked_count":sum(p["blocked_runs"] > 0 for p in projects)},
+                "agents":sorted({a for p in projects for a in p["agents"]}), "event_limit":event_limit,
+                "has_more":count > len(events), "generated_at":timestamp(), "manual_workspace":True}
+
+
+class DashboardStore:
+    """Scope UI managers to explicit membership; CLI access remains unchanged."""
+    workspace_only = True
+
+    def __init__(self, store):
+        self.original = store
+        self.workspace = Workspace(store)
+
+    def __getattr__(self, name):
+        return getattr(self.original, name)
+
+    def projects(self):
+        return self.workspace.projects()
+
+    def project(self, identifier):
+        return self.original.project(identifier) if self.workspace.contains(identifier) else None
+
+    def sites(self):
+        return self.workspace.sites()
+
+    def state(self, event_limit=EVENT_LIMIT):
+        return self.workspace.state(event_limit if event_limit is not None else -1)
+
+
 def integrations():
     entries = (
         ("codex", "~/.codex/AGENTS.md", "~/.codex/skills/agent-workhub/SKILL.md"),
@@ -351,10 +476,12 @@ class WorkhubServer(ThreadingHTTPServer):
 
 
 def handler_for(store, manager=None, reviews=None, archives=None, learning=None):
+    dashboard_store = DashboardStore(store) if store is not None else None
     manager = manager or (SiteManager(store) if store is not None else None)
-    reviews = reviews or (AssessmentManager(store) if store is not None else None)
-    archives = archives or (ArchiveStore(store) if store is not None else None)
-    learning = learning or (LearningStore(store) if store is not None else None)
+    reviews = reviews or (AssessmentManager(dashboard_store) if store is not None else None)
+    archives = archives or (ArchiveStore(dashboard_store) if store is not None else None)
+    learning = learning or (LearningStore(dashboard_store) if store is not None else None)
+    workspace = Workspace(store) if store is not None else None
     model_access = ModelAccess(store, reviews) if store is not None else None
     previews = ArchivePreviews(archives) if archives is not None else None
     class Handler(BaseHTTPRequestHandler):
@@ -400,16 +527,31 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None)
         def do_HEAD(self):
             self.do_GET()
 
+        def workspace_record(self, payload):
+            record = payload
+            if isinstance(payload, dict):
+                for key in ("card", "prompt", "artifact", "job"):
+                    if isinstance(payload.get(key), dict):
+                        record = payload[key]
+                        break
+            if not isinstance(record, dict):
+                raise ReviewError("项目未加入中控", 404)
+            identifiers = record.get("project_ids") or [record.get("project_id")]
+            if not identifiers or any(not workspace.contains(pid) for pid in identifiers):
+                raise ReviewError("项目未加入中控", 404)
+            return payload
+
         def do_POST(self):
             if not self.check_access():
                 return
             if store is None:
                 self.json_response(405, {"error": "项目静态网站只允许读取"})
                 return
+            workspace_action = self.path.removeprefix("/api/workspace/") if self.path.startswith("/api/workspace/") else None
             archive_kind = self.path.removeprefix("/api/archives/") if self.path.startswith("/api/archives/") else None
             learning_ack = self.path == "/api/learning/ack"
             model_action = self.path.removeprefix("/api/model-access/") if self.path.startswith("/api/model-access/") else None
-            if self.path != "/api/reviews" and not learning_ack and archive_kind not in ("session", "prompt", "artifact") and model_action not in ("save", "test"):
+            if self.path != "/api/reviews" and not learning_ack and archive_kind not in ("session", "prompt", "artifact") and model_action not in ("save", "test") and workspace_action not in ("add", "remove"):
                 self.json_response(404, {"error": "接口不存在"})
                 return
             if self.headers.get("X-Workhub-Request") != "1":
@@ -430,6 +572,22 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None)
                 if len(raw) != length:
                     raise ReviewError("请求体不完整")
                 payload = json.loads(raw)
+                if workspace_action:
+                    try:
+                        if not isinstance(payload, dict):
+                            raise ValueError("项目请求须为 JSON 对象")
+                        if workspace_action == "add":
+                            if set(payload) - {"path", "name", "agents", "site", "theme_mode"}:
+                                raise ValueError("项目参数无效")
+                            result = workspace.add(**payload)
+                            self.json_response(201, {"project": result})
+                        else:
+                            if set(payload) != {"id"}:
+                                raise ValueError("项目移除参数无效")
+                            self.json_response(200, workspace.remove(payload["id"]))
+                        return
+                    except (ValueError, TypeError) as error:
+                        raise ReviewError(str(error))
                 if model_action in ("save", "test"):
                     result = getattr(model_access, model_action)(payload)
                     self.json_response(200, result)
@@ -437,6 +595,7 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None)
                 if learning_ack:
                     if not isinstance(payload, dict) or set(payload) != {"card_id", "revision", "understood"}:
                         raise ReviewError("学习确认参数无效")
+                    self.workspace_record(learning.get(payload["card_id"]))
                     result = learning.acknowledge(payload["card_id"], payload["revision"], payload["understood"])
                     self.json_response(200, {"card": result})
                     return
@@ -457,6 +616,8 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None)
                     raise ReviewError("请指定单个项目或 all:true")
                 if not all_projects and (not isinstance(identifier, str) or not identifier):
                     raise ReviewError("缺少项目 ID")
+                if identifier and not workspace.contains(identifier):
+                    raise ReviewError("项目未加入中控", 404)
                 result = reviews.submit(project_ids=[identifier] if identifier else None, all_projects=all_projects, answer=payload.get("answer"), force=force)
                 self.json_response(202, result)
             except ReviewError as error:
@@ -521,7 +682,7 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None)
                 if route == "/api/health":
                     self.json_response(200, {"ok": True, "service": "agent-workhub", "version": 1})
                 elif route == "/api/state":
-                    self.json_response(200, store.state())
+                    self.json_response(200, workspace.state())
                 elif route == "/api/integrations":
                     self.json_response(200, integrations())
                 elif route == "/api/sites":
@@ -530,10 +691,10 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None)
                     query = parse_qs(request.query)
                     result = learning.list(query.get("project_id", [None])[0], query.get("q", [""])[0], query.get("status", [""])[0])
                     result["global_stats"] = learning.list()["stats"] if query.get("project_id") or query.get("q") else result["stats"]
-                    result["projects"] = [{"id": p["id"], "name": p["name"]} for p in store.projects()]
+                    result["projects"] = [{"id": p["id"], "name": p["name"]} for p in workspace.projects()]
                     self.json_response(200, result)
                 elif route == "/api/learning/card":
-                    self.json_response(200, learning.get(parse_qs(request.query).get("id", [""])[0]))
+                    self.json_response(200, self.workspace_record(learning.get(parse_qs(request.query).get("id", [""])[0])))
                 elif route == "/api/reviews":
                     self.json_response(200, reviews.public_state())
                 elif route == "/api/model-access":
@@ -543,9 +704,11 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None)
                         self.json_response(200, model_access.state())
                 elif route == "/api/reviews/job":
                     identifier = parse_qs(request.query).get("id", [""])[0]
-                    self.json_response(200, reviews.job(identifier))
+                    self.json_response(200, self.workspace_record(reviews.job(identifier)))
                 elif route == "/api/reviews/project":
                     identifier = parse_qs(request.query).get("id", [""])[0]
+                    if not workspace.contains(identifier):
+                        raise ReviewError("项目未加入中控", 404)
                     self.json_response(200, reviews.project(identifier))
                 elif route == "/api/archives":
                     query = parse_qs(request.query)
@@ -555,16 +718,17 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None)
                 elif route == "/api/archives/projects":
                     self.json_response(200, archives.projects())
                 elif route == "/api/archives/prompt":
-                    self.json_response(200, archives.prompt(parse_qs(request.query).get("id", [""])[0]))
+                    self.json_response(200, self.workspace_record(archives.prompt(parse_qs(request.query).get("id", [""])[0])))
                 elif route == "/api/archives/artifact":
                     detail = archives.artifact(parse_qs(request.query).get("id", [""])[0])
+                    self.workspace_record(detail)
                     detail["artifact"] = previews.decorate(detail["artifact"])
                     self.json_response(200, detail)
                 elif route == "/api/project":
                     query = parse_qs(request.query)
                     identifier = query.get("id", [""])[0]
                     project = store.project(identifier)
-                    if project is None:
+                    if project is None or not workspace.contains(identifier):
                         self.json_response(404, {"error": "项目不存在"})
                         return
                     offset = int(query.get("offset", ["0"])[0])
@@ -654,12 +818,14 @@ class ArchivePreviews:
             self.servers.clear()
 
 
-def directory_handler_for(directory):
+def directory_handler_for(directory, shared_theme=False):
     """A project gets its own origin and root; it cannot read Workhub APIs."""
     base = handler_for(None)
 
     class DirectoryHandler(base):
         def transform_html(self, body):
+            if not shared_theme:
+                return body
             if parse_qs(urlsplit(self.path).query).get("workhub_theme") == ["original"]:
                 return body
             assets = []
@@ -716,11 +882,11 @@ class SiteManager:
         preview["thread"].join(timeout=2)
 
     def sites(self):
-        sites = self.store.sites()
+        sites = Workspace(self.store).sites()
         with self.lock:
             current = {site["id"]: site for site in sites if site["kind"] == "directory"}
             for identifier in list(self.previews):
-                if identifier not in current or self.previews[identifier]["directory"] != current[identifier]["directory"]:
+                if identifier not in current or (self.previews[identifier]["directory"] != current[identifier]["directory"] or self.previews[identifier]["theme_mode"] != current[identifier]["theme_mode"]):
                     self._stop(self.previews.pop(identifier))
             for site in sites:
                 if site["kind"] == "url":
@@ -738,14 +904,14 @@ class SiteManager:
                 preview = self.previews.get(site["id"])
                 if preview is None:
                     try:
-                        server = WorkhubServer(("127.0.0.1", 0), directory_handler_for(directory))
+                        server = WorkhubServer(("127.0.0.1", 0), directory_handler_for(directory, shared_theme=site["theme_mode"] == "shared"))
                         thread = threading.Thread(target=server.serve_forever, kwargs={"poll_interval": 0.1}, daemon=True)
                         thread.start()
                     except OSError:
                         site["preview_url"] = None
                         site["embedding_warning"] = "无法启动本机目录预览，请检查本机服务资源。"
                         continue
-                    preview = {"directory": str(directory), "server": server, "thread": thread}
+                    preview = {"directory": str(directory), "theme_mode": site["theme_mode"], "server": server, "thread": thread}
                     self.previews[site["id"]] = preview
                 site["preview_url"] = "http://127.0.0.1:{}/".format(preview["server"].server_port)
                 site["embedding_warning"] = ""
@@ -770,6 +936,13 @@ def build_parser():
     parser.add_argument("--data-dir", help="数据目录（默认 ~/.local/share/agent-workhub）")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("init", help="创建数据库")
+    workspace_add = sub.add_parser("workspace-add", help="手动将已有项目加入中控")
+    workspace_add.add_argument("--path", required=True)
+    workspace_add.add_argument("--name")
+    workspace_add.add_argument("--agent", action="append", choices=sorted(Workspace.AGENTS), required=True)
+    workspace_add.add_argument("--shared-theme", action="store_true")
+    workspace_remove = sub.add_parser("workspace-remove", help="从中控移除，保留项目文件和记录")
+    workspace_remove.add_argument("--id", required=True)
     register = sub.add_parser("register", help="幂等接入已有项目目录")
     register.add_argument("--path", required=True)
     register.add_argument("--name")
@@ -867,6 +1040,10 @@ def main(argv=None):
             store = Store(args.data_dir)
             if args.command == "init":
                 result = {"ok": True, "database": str(store.database)}
+            elif args.command == "workspace-add":
+                result = Workspace(store).add(canonical_path(args.path), args.name, args.agent, theme_mode="shared" if args.shared_theme else "original")
+            elif args.command == "workspace-remove":
+                result = Workspace(store).remove(args.id)
             elif args.command == "register":
                 result = store.register(args.path, args.name, args.description)
             elif args.command == "record":
@@ -877,6 +1054,7 @@ def main(argv=None):
                 result = store.events(args.project, args.limit)
             elif args.command == "export":
                 result = store.state(event_limit=None)
+                result["workspace"] = Workspace(store).projects()
                 result["sites"] = store.sites()
                 result["archives"] = ArchiveStore(store).list(limit=100000)
                 result["learning"] = LearningStore(store).list()

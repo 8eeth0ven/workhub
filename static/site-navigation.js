@@ -8,9 +8,8 @@
     }
     for (const site of sites) {
       const id = String(site.project_id || 'unassigned');
-      if (!groups.has(id)) {
-        groups.set(id, {project: {id, name: site.project_name || ''}, sites: []});
-      }
+      // A stale site response cannot re-admit a removed project.
+      if (!groups.has(id)) continue;
       groups.get(id).sites.push(site);
     }
     const needle = query.trim().toLocaleLowerCase();

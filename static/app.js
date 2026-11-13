@@ -60,7 +60,7 @@ function filteredProjects(){const {query,agent,status}=filters();return state.pr
 function renderStats(){const stats=state.stats||{};const numbers={projects:stats.project_count??state.projects.length,running:stats.running_count??state.projects.filter(p=>p.status==='running').length,events:stats.event_count??state.events.length,blocked:stats.blocked_count??state.projects.filter(p=>p.status==='blocked').length};Object.entries(numbers).forEach(([key,value])=>{$(`#stat-${key}`).textContent=Number.isFinite(Number(value))?new Intl.NumberFormat(I.getLocale()).format(Number(value)):'0';});$('#nav-project-count').textContent=String(state.projects.length);}
 function renderAgentFilter(){const current=$('#agent-filter').value;const names=[...new Set([...(state.agents||[]),...state.projects.flatMap(p=>p.agents||[])])].sort();const options=[element('option','',t('全部 Agent'))];options[0].value='';names.forEach(name=>{const option=element('option','',agentInfo(name).name);option.value=name;options.push(option);});$('#agent-filter').replaceChildren(...options);if(names.includes(current))$('#agent-filter').value=current;}
 function projectCard(project,index){const card=element('button','project-card');card.type='button';card.setAttribute('aria-label',t('查看项目 {name} 的详情',{name:project.name}));card.addEventListener('click',()=>openProject(project.id));const top=element('div','card-top');const projectIcon=element('span',`project-icon tint-${index%4}`);projectIcon.append(icon('folder'));top.append(projectIcon,statusPill(project.status));const path=element('div','project-path',project.path||t('路径未记录'));path.title=project.path||'';const summary=element('div','project-summary',project.last_summary||project.description||t('已接入，等待第一条工作记录。'));const bottom=element('div','card-bottom');const agents=element('div','agent-chips');(project.agents||[]).slice(0,3).forEach(agent=>agents.append(agentChip(agent)));if(!(project.agents||[]).length)agents.append(element('span','agent-chip',t('等待 Agent')));const time=element('time','card-time',relativeDate(project.updated_at));if(validDate(project.updated_at))time.dateTime=project.updated_at;time.title=formattedDate(project.updated_at);bottom.append(agents,time,element('span','card-chevron','↗'));card.append(top,element('div','project-name',project.name||t('未命名项目')),path,summary,bottom);return card;}
-function emptyProjects(filtered){const empty=element('div','empty-state');const pictogram=element('span','empty-icon');pictogram.append(icon(filtered?'search':'folder'));empty.append(pictogram,element('h3','',filtered?t('没有匹配的项目'):t('你的下一项进展，从这里开始')),element('p','',filtered?t('试着换一个关键词，或清除筛选条件。'):t('接入一个项目，让 Agent 的每次推进自动汇集到这个工作台。')));const button=element('button','button button-dark',filtered?t('清除筛选'):t('接入第一个项目'));button.addEventListener('click',filtered?()=>{$('#project-search').value='';$('#agent-filter').value='';$('#status-filter').value='';renderProjectsAndActivity();}:openGuide);empty.append(button);return empty;}
+function emptyProjects(filtered){const empty=element('div','empty-state');const pictogram=element('span','empty-icon');pictogram.append(icon(filtered?'search':'folder'));empty.append(pictogram,element('h3','',filtered?t('没有匹配的项目'):t('你的下一项进展，从这里开始')),element('p','',filtered?t('试着换一个关键词，或清除筛选条件。'):t('接入一个项目，让 Agent 的每次推进自动汇集到这个工作台。')));const button=element('button','button button-dark',filtered?t('清除筛选'):t('接入第一个项目'));button.addEventListener('click',filtered?()=>{$('#project-search').value='';$('#agent-filter').value='';$('#status-filter').value='';renderProjectsAndActivity();}:()=>window.WorkhubWorkspace?.open());empty.append(button);return empty;}
 function renderProjectsAndActivity(){const projects=filteredProjects();$('#project-result-count').textContent=String(projects.length);const filter=filters();const filtering=Boolean(filter.query||filter.agent||filter.status);$('#project-grid').replaceChildren(...(projects.length?projects.map(projectCard):[emptyProjects(filtering)]));renderActivity(projects);}
 function renderActivity(projects){const {agent,status,query}=filters();const projectIds=new Set(projects.map(p=>String(p.id)));const events=state.events.filter(event=>projectIds.has(String(event.project_id))&&(!agent||event.agent===agent)&&(!status||event.status===status));const list=$('#activity-list');if(!events.length){list.replaceChildren(element('div','activity-empty',agent||status||query?t('当前筛选下还没有工作记录。'):t('这里还很安静。\nAgent 提交第一条记录后，最新进展就会出现在这里。')));}else{list.replaceChildren(...events.slice(0,10).map(event=>{const item=element('button','activity-item');item.type='button';item.addEventListener('click',()=>openProject(event.project_id));const info=agentInfo(event.agent);item.append(element('span',`activity-avatar ${agentClass(event.agent)}`,info.symbol));const content=element('div','activity-content');const meta=element('div','activity-meta');const time=element('time','activity-time',relativeDate(event.created_at));time.title=formattedDate(event.created_at);if(validDate(event.created_at))time.dateTime=event.created_at;meta.append(element('span','activity-agent',info.name),time);const project=element('div','activity-project');project.append(icon('folder'),element('span','',event.project_name||state.projects.find(p=>String(p.id)===String(event.project_id))?.name||t('项目')));content.append(meta,element('div','activity-summary',event.summary||t(STATUS[event.status]||'工作更新')||t('工作更新')),project);item.append(content);return item;}));}$('#activity-footer').textContent=events.length?t('展示最近 {count} 条',{count:Math.min(events.length,10)})+(state.has_more?t(' · 更多记录保存在本机'):''):t('只展示真实记录');}
 function detailField(label,value,mono=false){const row=element('div','detail-field');row.append(element('span','detail-label',label));if(value instanceof Node){const holder=element('div','detail-value');holder.append(value);row.append(holder);}else row.append(element('span',`detail-value${mono?' mono':''}`,value));return row;}
@@ -135,7 +135,7 @@ function announceSiteSelection(reason){
 function updateFrameHelp(site){
   const warning=typeof site.embedding_warning==='string'?I.translateKnown(site.embedding_warning.trim()):'';
   $('#frame-help').textContent=[warning,t('页面空白时，请检查原站服务是否运行，以及是否允许 iframe 嵌入。')].filter(Boolean).join(' ');
-  $('#frame-help').hidden=!activeSiteSource;
+  $('#frame-help').hidden=!activeSiteSource||!warning;
 }
 function clearSiteSelection(message){
   clearTimeout(frameTimer);activeSiteId=null;activeSiteSource='';siteLoadFailed=false;siteSelectionInitialized=true;
@@ -151,6 +151,7 @@ function clearSiteSelection(message){
 function selectSite(id,{reason='select'}={}){
   const site=siteState.sites.find(item=>String(item.id)===String(id));if(!site)return;
   const source=siteSource(site);activeSiteId=String(id);siteSelectionInitialized=true;
+  $('#site-frame').dataset.workhubTheme=site.theme_mode==='shared'?'shared':'original';
   try{localStorage.setItem('workhub-current-site',activeSiteId);}catch{}
   $('#current-site-name').textContent=site.name||t('项目网站');
   $('#current-site-url').textContent=source||t('网站预览暂不可用');
@@ -187,7 +188,7 @@ $('#site-frame').addEventListener('error',()=>{
 });
 $('#reload-site').addEventListener('click',()=>{if(activeSiteSource)loadSiteFrame();});
 $('#site-search').addEventListener('input',renderSites);
-['go-templates','empty-go-templates'].forEach(id=>document.getElementById(id).addEventListener('click',()=>switchPage('templates')));
+['go-templates'].forEach(id=>document.getElementById(id).addEventListener('click',()=>switchPage('templates')));
 function templatePresentation(template){
  const names={radar:t('信息雷达'),library:t('知识资料库'),brief:t('分析简报')};
  const categories={radar:t('信息收集'),library:t('知识管理'),brief:t('研究分析')};
@@ -213,7 +214,13 @@ async function syncSites(){
       const selected=siteState.sites.find(site=>String(site.id)===activeSiteId);
       if(!selected)clearSiteSelection(t('上次查看的网站已从项目空间移除。请选择其他网站，或接入一个新网站。'));
       else if((siteSource(selected)||'')!==activeSiteSource||!siteSource(selected))selectSite(activeSiteId,{reason:siteSelectionInitialized?'sync':'restore'});
-      else updateFrameHelp(selected);
+      else {
+        const mode=selected.theme_mode==='shared'?'shared':'original';
+        const changed=$('#site-frame').dataset.workhubTheme!==mode;
+        $('#site-frame').dataset.workhubTheme=mode;
+        if(changed&&mode==='shared'){window.WorkhubTheme?.broadcastFrames();I.broadcastFrames();}
+        updateFrameHelp(selected);
+      }
     }
     renderSites();
     if(templatesChanged||!$('#template-grid .template-card'))renderTemplates();
@@ -244,3 +251,14 @@ I.onChange(()=>{
  if(activeTemplate){const id=String(activeTemplate.id||'radar').replace(/[^a-zA-Z0-9_-]/g,'');$('#template-command').textContent=`python3 scripts/site_templates.py create --template ${id} --output /path/to/project --name Project-site --language ${I.getLocale()}`;$('#template-detail-title').textContent=templatePresentation(activeTemplate).name;$('#template-frame').title=t('{name} · 完整版式预览',{name:templatePresentation(activeTemplate).name});}
  if(!$('#toast').hidden)$('#toast').textContent=I.translateKnown($('#toast').textContent);
 });
+
+// Refresh membership only after pending polls settle; keep the active frame mounted.
+window.WorkhubDashboard = {
+  refresh: async () => {
+    const deadline=Date.now()+6000;
+    while((fetching||siteFetchBusy)&&Date.now()<deadline) await new Promise(resolve=>setTimeout(resolve,40));
+    await sync(); await syncSites();
+  },
+  projects: () => state.projects,
+};
+window.addEventListener('workhub:workspace-updated',()=>window.WorkhubDashboard.refresh());

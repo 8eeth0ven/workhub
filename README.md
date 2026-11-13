@@ -18,7 +18,7 @@ cd workhub
 python3 workhub.py serve --port 8787
 ```
 
-打开 [http://127.0.0.1:8787](http://127.0.0.1:8787)。**记录工作、查看项目网站和使用模板不需要模型密钥**；项目评议需要单独配置评议器。Windows 可用 `python` 替换 `python3`。
+打开 [http://127.0.0.1:8787](http://127.0.0.1:8787)，点击项目空间右上角 **添加已有项目**，填写现有目录并选择 Codex、Z Code 或 Claude CLI 来源。只有你手动添加的项目及其记录会显示；CLI 上报不会自动将目录加入中控。**记录工作、查看项目网站和使用模板不需要模型密钥**；项目评议需要单独配置评议器。Windows 可用 `python` 替换 `python3`。
 
 <details>
 <summary>先体验有内容的界面：运行隔离演示</summary>
@@ -35,7 +35,7 @@ python3 examples/demo.py --port 8899
 
 | 入口 | 你可以做什么 |
 | --- | --- |
-| **项目空间** | 同页切换已有网站，让项目正文占据主要画布。 |
+| **项目空间** | 手动添加已有项目，同页切换网站，原项目正文占据主要画布。 |
 | **工作记录** | 查看项目、Agent、任务状态、产物与验证摘要；用 `run-id` 区分并行任务。 |
 | **项目档案** | 关联执行者、可核实会话、原始提示词版本和交付物。 |
 | **边做边学** | 回看概念、术语与实际源码，由本人确认理解，内容更新后再复习。 |
@@ -67,13 +67,17 @@ python3 examples/demo.py --port 8899
 
 </details>
 
-![边做边学：整理改动、阅读自检、本人确认与更新复习](docs/images/learning-workflow.svg)
+![边做边学：整理改动、阅读自检、本人确认与更新复习](docs/images/learning-workflow-light.svg)
 
 学习卡只记录你亲自勾选的“初步理解”，支持取消；内容更新后提示复习，并保留旧版确认。查看和勾选不会自动调用模型。
 
 ## 接入项目与 Agent
 
-在 Workhub 仓库目录执行，为项目追加必读入口并登记项目；安装器保留原有规则并备份修改。
+先在本地 UI 手动添加项目，可选接入已有本机网址或静态网站目录。添加不搬动文件、不改写客户端项目库，也不自动导入聊天历史。移除只取消中控入口，重新添加可继续查看原有工作记录。
+
+![手动添加已有 Codex、Z Code、Claude CLI 项目](docs/images/manual-projects.jpg)
+
+如需让 CLI 持续上报工作，在 Workhub 仓库目录执行，为项目追加必读入口并登记项目；安装器保留原有规则并备份修改。
 
 ```sh
 python3 scripts/install.py --project /path/to/your-project
@@ -94,11 +98,11 @@ python3 scripts/site_templates.py create --template radar \
 
 默认 **Codex 明亮**，顶部可切换 **Codex 深色**，并保留原有配色。支持中英文界面；语言与配色切换保留当前站点、筛选及未提交输入，不重载项目页面或改写内容。
 
-公众号与长文可独立固定明亮外观。嵌入协议、允许来源和 Markdown 阅读样式见 [外观与嵌入阅读](docs/appearance.md)。
+Workhub 负责中控导航，项目网站默认保留自己的配色、字体、排版和交互；选择网站后收起外围控件。只有你选择“网站跟随中控配色”时才启用主题适配。公众号与长文可独立固定明亮外观。嵌入协议、允许来源和 Markdown 阅读样式见 [外观与嵌入阅读](docs/appearance.md)。
 
 ## 数据与模型
 
-![Workhub 数据流：本机工作记录、统一门户与按需评议](docs/images/architecture.svg)
+![Workhub 数据流：本机工作记录、统一门户与按需评议](docs/images/architecture-light.svg)
 
 - 工作记录默认保存在本机 SQLite，可用 `AGENT_WORKHUB_HOME` 指定位置；密钥与命令配置留在后端。
 - 发起评议时，仅将选定项目摘要和补充背景交给配置的评议器，不会自动上传完整仓库、完整聊天或网站文件。

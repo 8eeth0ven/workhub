@@ -1203,6 +1203,35 @@
     "会话摘要是原始陈述，不代表独立验证。": "Session excerpts are recorded statements, not independent verification."
   }
 };
+ Object.assign(dictionaries.en, {
+  "添加已有项目": "Add existing project",
+  "手动添加后，项目才会出现在项目空间和工作记录。": "Only manually added projects appear in Project spaces and Work records.",
+  "项目目录": "Project directory",
+  "显示名称（可选）": "Display name (optional)",
+  "项目来源": "Project sources",
+  "其他": "Other",
+  "已有项目的绝对目录路径": "Absolute path to an existing project",
+  "已有网站的绝对目录路径": "Absolute path to an existing website",
+  "暂不接入网站": "No website yet",
+  "已有本机网址": "Existing local URL",
+  "已有静态网站目录": "Existing static site directory",
+  "网站地址或目录": "Website URL or directory",
+  "网站跟随中控配色（可选）": "Follow workspace colors (optional)",
+  "加入中控": "Add to workspace",
+  "管理已添加项目": "Manage added projects",
+  "只建立中控入口，不移动项目文件，也不自动导入历史聊天；网站默认原样展示。": "Create a workspace entry without moving files or importing chat history. Websites keep their original appearance.",
+  "尚未手动添加项目。": "No projects have been manually added.",
+  "从中控移除": "Remove from workspace",
+  "已从中控移除，项目文件与历史记录保留。": "Removed from the workspace. Project files and existing records are preserved.",
+  "项目操作未成功。": "The project action failed.",
+  "至少选择一个项目来源。": "Select at least one project source.",
+  "正在添加…": "Adding…",
+  "已加入中控；只有手动添加的项目会显示。": "Added to the workspace. Only manually added projects are displayed.",
+  "请填写已有项目的绝对目录路径": "Enter the absolute path to an existing project",
+  "项目名必须为 1 至 300 个字符": "Project names must contain 1–300 characters",
+  "请选择 Codex、Z Code、Claude CLI 或其他来源": "Select Codex, Z Code, Claude CLI or another source",
+  "请填写有效的网站地址或目录": "Enter a valid website URL or directory"
+});
  Object.values(dictionaries).forEach(Object.freeze);Object.freeze(dictionaries);
  const normalize=value=>value==='en'||value==='en-US'||value==='en-GB'?'en':'zh-CN';
  let locale='zh-CN';try{locale=normalize(localStorage.getItem('workhub-language'));}catch{}
@@ -1212,7 +1241,7 @@
  function translateKnown(text){if(text==null)return '';const raw=String(text);return t(Object.hasOwn(dictionaries.en,raw)?raw:reverse.get(raw)||raw);}
  function formatDate(value,options={}){if(value==null||value==='')return t('时间未记录');const date=value instanceof Date?value:new Date(value);if(Number.isNaN(date.getTime()))return t('时间未记录');const defaults=Object.keys(options).length?options:{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'};return new Intl.DateTimeFormat(locale,{timeZone:'Asia/Shanghai',hour12:false,...defaults}).format(date);}
  function formatRelative(value,unit){return new Intl.RelativeTimeFormat(locale,{numeric:'auto'}).format(value,unit);}
- function broadcastFrame(frame){try{const url=new URL(frame.src,location.href);if(!['http:','https:'].includes(url.protocol)||!frame.contentWindow)return;frame.contentWindow.postMessage({type:'workhub:language',language:locale},url.origin);}catch{}}
+ function broadcastFrame(frame){if(frame.dataset.workhubTheme==='original')return;try{const url=new URL(frame.src,location.href);if(!['http:','https:'].includes(url.protocol)||!frame.contentWindow)return;frame.contentWindow.postMessage({type:'workhub:language',language:locale},url.origin);}catch{}}
  function broadcastFrames(){document.querySelectorAll('iframe').forEach(broadcastFrame);}
  function apply(root=document){
   root.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=t(el.getAttribute('data-i18n'));});

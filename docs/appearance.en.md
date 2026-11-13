@@ -10,7 +10,7 @@ Project names, work records, website content and existing model reviews stay in 
 
 The default is pure-white **Codex Light**. The **Appearance** selector also offers **Codex Dark** and the eight existing palettes. The portal and all three layouts share color tokens; standalone generated sites include the same selector. Preferences are saved locally. Switching preserves search, draft input and frames, and never invokes a model.
 
-The local directory server injects the restricted palette runtime and shared CSS; compatible templates follow the portal too. Generic embedded styles are color-only: they do not alter font sizes, layout, images, PDFs, video or charts. Native applications can set `body[data-workhub-native]` to skip generic overrides and map their own exact color variables.
+Project websites keep their original appearance by default. When manually adding the project, opt in to following workspace colors to enable the restricted runtime and shared CSS for directory sites; compatible URL-based applications can also opt in. Generic embedded styles are color-only: they do not alter font sizes, layout, images, PDFs, video or charts. Native applications can set `body[data-workhub-native]` to skip generic overrides and map their own exact color variables.
 
 Applications with their own backend can explicitly load these resources in their page:
 

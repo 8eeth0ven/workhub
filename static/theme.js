@@ -12,6 +12,7 @@
   const callbacks = new Set();
 
   function broadcastFrame(frame) {
+    if (frame.dataset.workhubTheme === 'original') return;
     try {
       const url = new URL(frame.src, location.href);
       if (!['http:', 'https:'].includes(url.protocol) || !frame.contentWindow) return;

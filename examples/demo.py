@@ -123,6 +123,7 @@ def seed(store, directory):
         project_path = directory / "projects" / mode
         project_path.mkdir(parents=True)
         project = store.register(str(project_path), name, description)
+        workhub.Workspace(store).add(str(project_path), agents=[{"radar":"codex", "library":"claude", "brief":"zcode", "plan":"other"}[mode]], theme_mode="shared")
         fixtures[mode] = project
         public_paths[str(project_path)] = "examples/" + mode
         if site_name:

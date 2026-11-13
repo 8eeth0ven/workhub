@@ -53,7 +53,7 @@
 
 配色是整个工作空间的选择，不能只改变门户边框。可用颜色以 canonical CSS、`static/theme.js` 的枚举为准；扩充配色时同步模板与嵌入运行时，保留同一套布局和字号。门户收起时，项目画布使用实际剩余窗口空间，不锁住收起前的像素宽高。
 
-目录网站由门户注入固定的 `/__workhub/theme.css` 和 `/__workhub/theme.js`，保留 `workhub_theme=original` 的原样预览入口。独立后端站点在自己的 HTML 中引入门户的 `/design-system.css`、`/embedded-theme.css` 和 `/embedded-theme.js`；有严格 CSP 的站点可发布同源资源快照，不能靠通用代理或跨域读取 DOM 改色。
+项目网站默认原样展示；用户选择跟随中控配色后，目录网站才由门户注入固定的 `/__workhub/theme.css` 和 `/__workhub/theme.js`，保留 `workhub_theme=original` 的原样预览入口。独立后端站点在自己的 HTML 中引入门户的 `/design-system.css`、`/embedded-theme.css` 和 `/embedded-theme.js`；有严格 CSP 的站点可发布同源资源快照，不能靠通用代理或跨域读取 DOM 改色。
 
 已有复杂应用使用 `body[data-workhub-native]`，由本地适配 CSS 把原有颜色变量映射到 `--wh-*`；通用嵌入样式跳过原生应用的强覆盖。只改界面颜色，保留布局、字体大小、滚动、表单草稿、PDF/视频图像及风险/成功等语义状态色。
 
@@ -84,3 +84,8 @@ Both languages share the same visual system. Save the language preference withou
 README 使用 Codex 明亮风格：封面和示意图为白底、黑灰文字、浅灰细线，截图从隔离演示实际采集并选用 codex-light；不对截图滤色，不将示意图标为真实界面。中英文入口与图片含义对应；技术接入细节见 docs/appearance.md 及其英文版。
 
 配图采用横向构图，高度小于宽度；不强制固定长宽比。避免窄横条和纵向长图，流程图按内容重新布局，截图保留实际界面。
+
+
+## 中控边界
+
+项目与工作记录按 workspace_projects 的手动入选范围展示；CLI 登记或上报不加入中控。项目内容默认 original，不注入通用主题，也不发送主题/语言写入消息；用户选择 shared 后才接入同步。外围导航收起与成员列表刷新不重载当前项目，不冻结画布宽高、不覆盖原站正文。

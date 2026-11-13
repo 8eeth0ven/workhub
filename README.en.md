@@ -18,7 +18,7 @@ cd workhub
 python3 workhub.py serve --port 8787
 ```
 
-Open [http://127.0.0.1:8787](http://127.0.0.1:8787). **Recording work, viewing sites and using templates do not require a model key.** Project reviews need a separately configured reviewer. On Windows, use `python` if `python3` is unavailable.
+Open [http://127.0.0.1:8787](http://127.0.0.1:8787), choose **Add existing project**, enter its directory and select Codex, Z Code or Claude CLI. Only manually added projects and their records appear. CLI reports do not add directories to the workspace automatically. **Recording work, viewing sites and using templates do not require a model key.** Project reviews need a separately configured reviewer. On Windows, use `python` if `python3` is unavailable.
 
 <details>
 <summary>Explore a populated interface with the isolated demo</summary>
@@ -67,13 +67,17 @@ Every interface screenshot uses **Codex Light**: white surfaces, neutral text an
 
 </details>
 
-![Learning: explain a change, read, acknowledge and revisit updates](docs/images/learning-workflow.en.svg)
+![Learning: explain a change, read, acknowledge and revisit updates](docs/images/learning-workflow-light.en.svg)
 
 Only you check “I have a basic understanding,” and you can undo it. Updated content asks for another review while preserving earlier acknowledgements. Reading and acknowledging do not trigger model calls.
 
 ## Connect projects and agents
 
-Run this in the Workhub checkout to add required-reading entries and register a project. The installer preserves existing rules and backs up changes.
+Manually add a project in the local UI, optionally connecting its existing local URL or static website directory. Adding does not move files, rewrite client project registries or import chat history. Removing only detaches the workspace entry; re-adding restores access to existing work records.
+
+![Manually add an existing Codex, Z Code or Claude CLI project; interface shown in Chinese](docs/images/manual-projects.jpg)
+
+To enable continuing CLI work reports, run this in the Workhub checkout to add required-reading entries and register a project. The installer preserves existing rules and backs up changes.
 
 ```sh
 python3 scripts/install.py --project /path/to/your-project
@@ -94,11 +98,11 @@ Agents that actually load the project rules—including Codex, Z Code and Claude
 
 **Codex Light** is the default. The toolbar also offers **Codex Dark** and the existing palettes. English and Simplified Chinese share the same interface. Language and appearance changes preserve the selected site, filters and draft input without reloading project pages or rewriting content.
 
-Long-form articles can stay light independently of the workspace. See [Appearance and embedded reading](docs/appearance.en.md) for theme integration, allowed parent origins and Markdown reading styles.
+Workhub handles navigation while project websites retain their own colors, typography, layout and interactions by default. Selecting a site hides the surrounding controls. Theme adaptation is enabled only when you choose to follow workspace colors. Long-form articles can stay light independently of the workspace. See [Appearance and embedded reading](docs/appearance.en.md) for theme integration, allowed parent origins and Markdown reading styles.
 
 ## Data and models
 
-![Workhub data flow: local records, one workspace and reviews on request](docs/images/architecture.en.svg)
+![Workhub data flow: local records, one workspace and reviews on request](docs/images/architecture-light.en.svg)
 
 - Work records use local SQLite by default; set `AGENT_WORKHUB_HOME` to change the location. Credentials and command configuration stay in the backend.
 - A requested review sends selected project summaries and additional context to the configured reviewer. It does not automatically upload the full repository, complete conversations or website files.

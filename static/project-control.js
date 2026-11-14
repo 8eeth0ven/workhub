@@ -4,31 +4,58 @@
   const I=window.WorkhubI18n,$=id=>document.getElementById(id),t=(key,values)=>I.t(key,values);
 
 
-  const discoveryDrafts=new Map(),discoveryOpened=new Set();
+  const discoveryDrafts=new Map(),discoveryOpened=new Set(),comparisonOpened=new Set();
+  const localized=value=>typeof value==='string'?value:value?.[I.getLocale()==='en'?'en':'zh']||'';
+  function comparisonNode(row,repo){
+    const data=repo.comparison,key=row.id+':'+repo.github_id,box=el('details','','control-comparison');box.open=comparisonOpened.has(key);
+    box.addEventListener('toggle',()=>{if(box.open)comparisonOpened.add(key);else comparisonOpened.delete(key);});
+    const summary=el('summary');summary.append(el('strong',repo.full_name),el('small',data?.notes?.length?localized(data.notes[0].title):t('待核对具体功能')));box.append(summary,link(t('打开来源项目'),repo.url));
+    box.append(el('p',repo.description,'workspace-muted'));
+    if(!data){box.append(el('p',t('旧结果尚无比较，重新检索后生成。'),'workspace-muted'));return box;}
+    box.append(el('p',t(data.coverage==='readme'?'依据公开 README 的规则归纳，未经运行验证。':'仅依据公开描述，未深入读取 README。'),'workspace-muted'));
+    if(data.observed_at)box.append(el('small',t('资料读取：{time}',{time:date(data.observed_at)})));
+    if(data.license)box.append(el('small',t('许可证：{license}',{license:data.license})));
+    if(!data.notes.length)box.append(el('p',t('现有材料不足以提出具体借鉴点，先查看来源；不据此生成优化结论。'),'workspace-muted'));
+    const more=el('details','','control-comparison-more');more.append(el('summary',t('更多借鉴点')));
+    for(const [index,note] of (data.notes||[]).entries()){
+      const entry=el('section','','control-comparison-note');entry.append(el('strong',localized(note.title)));
+      const list=el('dl');for(const [label,value] of [['值得借鉴',note.benefit],['与本项目的差别',note.difference],['下一步验证',note.next_step]]){list.append(el('dt',t(label)),el('dd',localized(value)));}entry.append(list);
+      const sources=el('details','','control-comparison-sources');sources.append(el('summary',t('来源依据')));
+      for(const [label,evidence] of [['参考项目依据',note.evidence],['本项目依据',note.baseline_evidence]]){if(!evidence)continue;const quote=el('blockquote',evidence.text);const url=evidence.url+(evidence.kind==='readme'?'?plain=1#L'+evidence.line:'');sources.append(el('small',t(label)),quote,link(t('查看证据'),url));if(evidence.sha)sources.append(el('small','README SHA · '+evidence.sha.slice(0,12)));}entry.append(sources);
+      entry.append(button('填入下一步',()=>{const current=drafts.get(row.id);drafts.set(row.id,{text:localized(note.next_step),priority:current?.priority??row.plan?.priority??2});render(true);feedback(t('已填入草稿，保存后生效。'));}));(index===0?box:more).append(entry);
+    }
+    if(data.notes.length>1)box.append(more);
+    return box;
+  }
   function discoveryNode(row) {
     const config=row.discovery||{},data=config.results,draft=discoveryDrafts.get(row.id);
     const box=el('details','','control-discovery');box.open=discoveryOpened.has(row.id);
     box.append(el('summary',t('发现相似项目')+(data?' · '+data.repositories.length:'')));
     box.addEventListener('toggle',()=>{if(box.open)discoveryOpened.add(row.id);else discoveryOpened.delete(row.id);});
-    box.append(el('p',t('检索公开 GitHub 项目，结果作为参考线索。'),'workspace-muted'));
+    box.append(el('p',t('检索公开项目，展开查看借鉴点、差别与下一步。'),'workspace-muted'));
     const form=el('form'),field=el('label',t('检索关键词')),keywords=el('input');keywords.maxLength=200;keywords.placeholder='multi project agent workspace';keywords.value=draft?.keywords??config.keywords??'';field.append(keywords);
+    const focusField=el('label',t('本项目定位（可选，仅用于本机比较）')),focus=el('textarea');focus.maxLength=1000;focus.rows=2;focus.value=draft?.project_focus??config.project_focus??'';focusField.append(focus);
     const options=el('div','','control-discovery-options'),label=el('label'),enabled=el('input');enabled.type='checkbox';enabled.checked=draft?.enabled??config.enabled??false;label.append(enabled,document.createTextNode(t('定时检索')));
     const interval=el('select');interval.setAttribute('aria-label',t('定时检索'));for(const [hours,text] of [[6,'每 6 小时'],[24,'每天'],[168,'每周']]){const option=el('option',t(text));option.value=String(hours);interval.append(option);}interval.value=String(draft?.interval_hours??config.interval_hours??24);options.append(label,interval);
-    const remember=()=>discoveryDrafts.set(row.id,{keywords:keywords.value,enabled:enabled.checked,interval_hours:Number(interval.value)});keywords.addEventListener('input',remember);enabled.addEventListener('change',remember);interval.addEventListener('change',remember);
+    const remember=()=>discoveryDrafts.set(row.id,{keywords:keywords.value,project_focus:focus.value,enabled:enabled.checked,interval_hours:Number(interval.value)});keywords.addEventListener('input',remember);focus.addEventListener('input',remember);enabled.addEventListener('change',remember);interval.addEventListener('change',remember);
     const save=button('保存检索设置',()=>form.requestSubmit());
     const run=button(config.running?'检索中…':'立即检索',async()=>{
-      run.disabled=true;try{const answer=await post('discovery-run',{id:row.id,keywords:keywords.value.trim()});if(answer.retry_after)feedback(t('请在 {seconds} 秒后重试。',{seconds:answer.retry_after}));else{discoveryDrafts.delete(row.id);await load(true);}}catch(error){feedback(error.message,true);}finally{run.disabled=false;}
+      run.disabled=true;try{const answer=await post('discovery-run',{id:row.id,keywords:keywords.value.trim(),project_focus:focus.value.trim()});if(answer.retry_after)feedback(t('请在 {seconds} 秒后重试。',{seconds:answer.retry_after}));else{discoveryDrafts.delete(row.id);await load(true);}}catch(error){feedback(error.message,true);}finally{run.disabled=false;}
     });run.disabled=Boolean(config.running);
-    form.append(field,options,save,run);form.addEventListener('submit',async event=>{event.preventDefault();save.disabled=true;try{await post('discovery-save',{id:row.id,keywords:keywords.value.trim(),enabled:enabled.checked,interval_hours:Number(interval.value)});discoveryDrafts.delete(row.id);feedback(t('已保存检索设置。'));await load(true);}catch(error){feedback(error.message,true);}finally{save.disabled=false;}});box.append(form);
+    form.append(field,focusField,options,save,run);form.addEventListener('submit',async event=>{event.preventDefault();save.disabled=true;try{await post('discovery-save',{id:row.id,keywords:keywords.value.trim(),project_focus:focus.value.trim(),enabled:enabled.checked,interval_hours:Number(interval.value)});discoveryDrafts.delete(row.id);feedback(t('已保存检索设置。'));await load(true);}catch(error){feedback(error.message,true);}finally{save.disabled=false;}});box.append(form);
     if(config.last_run_at)box.append(el('p',t('上次检索：{time}',{time:date(config.last_run_at)}),'workspace-muted'));
     if(config.enabled&&config.next_run_at)box.append(el('p',t('下次检索：{time}',{time:date(config.next_run_at)}),'workspace-muted'));
     if(config.last_error)box.append(el('p',I.translateKnown(config.last_error),'control-error'));
     if(data){
+      if(config.stale)box.append(el('p',t('结果对应旧设置或上次读取失败，重新检索可更新。'),'control-error'));
+      box.append(el('p',t('最多深入读取前 3 个项目的 README，其余仅参考描述；材料未提及不代表没有实现。'),'workspace-muted'));
+      if(data.baseline?.readme_sha)box.append(el('small',t('本项目公开 README：{sha}',{sha:data.baseline.readme_sha.slice(0,12)})));
+      else box.append(el('p',t('本项目公开 README 不可用，比较将保留未知；可补充项目定位。'),'workspace-muted'));
       if(data.keywords!==config.keywords)box.append(el('p',t('上次结果的关键词：{keywords}',{keywords:data.keywords}),'workspace-muted'));
       box.append(el('p',t('本次新增 {count} 条线索',{count:data.new_count||0}),'workspace-muted'));
       if(data.incomplete)box.append(el('p',t('结果未完整返回，可缩小关键词范围。'),'workspace-muted'));
       if(!data.repositories.length)box.append(el('p',t('本次未找到匹配项目。'),'workspace-muted'));
-      const list=el('div','','control-related');for(const repo of data.repositories){const entry=el('article');entry.append(link(repo.full_name,repo.url),el('p',repo.description),el('small',[repo.language,repo.stars!=null?'★ '+repo.stars:''].filter(Boolean).join(' · ')));list.append(entry);}box.append(list,link(t('查询来源'),data.source_url));
+      const list=el('div','','control-related');for(const repo of data.repositories){const entry=el('article');entry.append(comparisonNode(row,repo));list.append(entry);}box.append(list,link(t('查询来源'),data.source_url));
     }
     return box;
   }

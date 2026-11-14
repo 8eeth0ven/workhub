@@ -4,6 +4,7 @@ Snapshots and personal plans are distinct from Agent execution events. Nothing h
 clones repositories, edits source, invokes a model, comments or creates a PR.
 """
 from concurrent.futures import ThreadPoolExecutor
+import base64
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -16,6 +17,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import quote, urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 from project_discovery import ProjectDiscovery
+from project_comparison import safe_text
 
 
 REPO = re.compile(r'([A-Za-z0-9][A-Za-z0-9-]{0,38})/([A-Za-z0-9_.-]{1,100})')
@@ -52,12 +54,12 @@ class GitHubRedirect(HTTPRedirectHandler):
 
 
 class GitHub:
-    def get(self, path):
+    def get(self, path, *, public=False):
         if not path.startswith('/') or path.startswith('//') or '\\' in path:
             raise GitHubError('GitHub 请求路径无效')
         headers={'User-Agent':'Workhub/project-control','Accept':'application/vnd.github+json',
                  'X-GitHub-Api-Version':'2022-11-28'}
-        token=os.environ.get('GH_TOKEN') or os.environ.get('GITHUB_TOKEN')
+        token=None if public else (os.environ.get('GH_TOKEN') or os.environ.get('GITHUB_TOKEN'))
         if token:
             headers['Authorization']='Bearer '+token
         try:
@@ -105,11 +107,41 @@ class GitHub:
             if item.get('private') or item.get('archived') or item.get('fork'):continue
             name=repository_name(item['full_name'])
             rows[item['id']]={'github_id':item['id'],'full_name':name,'url':'https://github.com/'+name,
-                             'description':str(item.get('description') or '')[:700],'language':item.get('language'),
+                             'description':safe_text(item.get('description'),700),'language':item.get('language'),
                              'stars':item.get('stargazers_count'),'pushed_at':item.get('pushed_at')}
         return {'keywords':keywords,'repositories':list(rows.values()),'total_count':data['total_count'],
                 'incomplete':bool(data.get('incomplete_results',True)), 'has_more':more,'limit':10,
                 'observed_at':stamp(),'source_url':'https://api.github.com'+path,'ranking':'keyword relevance'}
+
+    def public_profile(self, full_name):
+        """Anonymous reads only: a private baseline or a newly private candidate cannot leak."""
+        name=repository_name(full_name)
+        meta,_=self.get('/repos/'+name,public=True)
+        if not isinstance(meta,dict) or meta.get('private') is not False or type(meta.get('id')) is not int:
+            raise GitHubError('无法读取公开项目资料')
+        name=repository_name(meta['full_name'])
+        profile={'github_id':meta['id'],'full_name':name,'url':'https://github.com/'+name,
+                 'description':safe_text(meta.get('description'),700),'observed_at':stamp(),
+                 'license':meta['license'].get('spdx_id') if isinstance(meta.get('license'),dict) else None,'readme_status':'unavailable'}
+        try:
+            readme,_=self.get('/repos/'+name+'/readme',public=True)
+            if not isinstance(readme,dict):raise ValueError('invalid readme')
+            if readme.get('encoding')!='base64' or type(readme.get('size')) is not int or readme['size']>65536:
+                profile['readme_status']='too_large'
+                return profile
+            raw=base64.b64decode(readme['content'],validate=False)
+            if len(raw)>65536:
+                profile['readme_status']='too_large'
+                return profile
+            path=quote(str(readme.get('path') or 'README.md'),safe='/')
+            sha=str(readme.get('sha') or '')
+            if not re.fullmatch(r'[a-f0-9]{40,64}',sha):raise ValueError('invalid readme sha')
+            profile.update(readme=safe_text(raw.decode('utf-8',errors='replace'),32000),readme_sha=sha,
+                           readme_url='https://github.com/'+name+'/blob/'+quote(meta['default_branch'],safe='')+'/'+path,
+                           readme_status='read',truncated=len(raw)>32000)
+        except (GitHubError,ValueError,KeyError,TypeError):
+            pass
+        return profile
 
     def snapshot(self, full_name, expected_id=None):
         repo=self.metadata(full_name)

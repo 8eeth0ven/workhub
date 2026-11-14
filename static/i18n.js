@@ -1310,6 +1310,28 @@
     '请先填写检索关键词':'Enter search keywords first',
     'PR 暂不可读':'PR data is unavailable','Issue 暂不可读':'Issue data is unavailable',
   });
+ Object.assign(dictionaries.en, {
+   '待核对具体功能':'Check specific capabilities',
+   '更多借鉴点':'More ideas to study','来源依据':'Source evidence',
+   '打开来源项目':'Open reference project',
+   '旧结果尚无比较，重新检索后生成。':'These older results have no comparison. Search again to generate one.',
+   '依据公开 README 的规则归纳，未经运行验证。':'Rule-based notes from public READMEs; not verified by execution.',
+   '仅依据公开描述，未深入读取 README。':'Based on the public description only; README not inspected.',
+   '资料读取：{time}':'Source retrieved: {time}',
+   '许可证：{license}':'License: {license}',
+   '现有材料不足以提出具体借鉴点，先查看来源；不据此生成优化结论。':'The material is insufficient for specific lessons. Inspect the source before proposing improvements.',
+   '值得借鉴':'Worth studying','与本项目的差别':'Differences from this project','下一步验证':'Next validation step',
+   '参考项目依据':'Reference evidence','本项目依据':'Current project evidence',
+   '填入下一步':'Use as next-step draft','已填入草稿，保存后生效。':'Added to the draft. Save it to keep the change.',
+   '检索公开项目，展开查看借鉴点、差别与下一步。':'Find public projects; expand each for lessons, differences and next steps.',
+   '本项目定位（可选，仅用于本机比较）':'Project focus (optional; used locally for comparison)',
+   '结果对应旧设置或上次读取失败，重新检索可更新。':'Results use older settings or the last read failed. Search again to update.',
+   '最多深入读取前 3 个项目的 README，其余仅参考描述；材料未提及不代表没有实现。':'Read READMEs for up to the first 3 results; others use descriptions. Undocumented does not mean unimplemented.',
+   '本项目公开 README：{sha}':'Current public README: {sha}',
+   '本项目公开 README 不可用，比较将保留未知；可补充项目定位。':'The current public README is unavailable; differences remain uncertain. You can add project focus.',
+   '项目定位最多 1000 字':'Project focus must be at most 1,000 characters',
+   '检索词含敏感信息，请移除后重试':'Remove sensitive information from search keywords and try again',
+ });
  Object.values(dictionaries).forEach(Object.freeze);Object.freeze(dictionaries);
  const normalize=value=>value==='en'||value==='en-US'||value==='en-GB'?'en':'zh-CN';
  let locale='zh-CN';try{locale=normalize(localStorage.getItem('workhub-language'));}catch{}

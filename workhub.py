@@ -586,7 +586,7 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None,
                 if control_action:
                     if not isinstance(payload, dict):
                         raise ReviewError("中控请求须为 JSON 对象")
-                    allowed = {'catalog':{'owner'},'connect':{'full_name','local_project_id'},'disconnect':{'id'},'refresh':{'id'},'plan':{'id','next_step','priority'},'discovery-save':{'id','keywords','enabled','interval_hours'},'discovery-run':{'id','keywords'}}[control_action]
+                    allowed = {'catalog':{'owner'},'connect':{'full_name','local_project_id'},'disconnect':{'id'},'refresh':{'id'},'plan':{'id','next_step','priority'},'discovery-save':{'id','keywords','enabled','interval_hours','project_focus'},'discovery-run':{'id','keywords','project_focus'}}[control_action]
                     if set(payload)-allowed:
                         raise ReviewError("中控参数无效")
                     try:
@@ -599,9 +599,9 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None,
                         elif control_action=='refresh':
                             result=control.refresh(payload.get('id'))
                         elif control_action=='discovery-save':
-                            result=control.discovery.configure(payload.get('id'),payload.get('keywords'),payload.get('enabled',False),payload.get('interval_hours',24))
+                            result=control.discovery.configure(payload.get('id'),payload.get('keywords'),payload.get('enabled',False),payload.get('interval_hours',24),payload.get('project_focus'))
                         elif control_action=='discovery-run':
-                            result=control.discovery.run(payload.get('id'),payload.get('keywords'))
+                            result=control.discovery.run(payload.get('id'),payload.get('keywords'),project_focus=payload.get('project_focus'))
                         else:
                             result=control.plan(payload.get('id'),payload.get('next_step'),payload.get('priority',2))
                         self.json_response(202 if control_action in ('refresh','discovery-run') and result.get('accepted') else 200,result)

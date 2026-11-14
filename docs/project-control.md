@@ -41,9 +41,21 @@
 
 检索只提供参考，不克隆、安装、运行外部项目，也不自动把它加入中控。保存的查询、计划和快照都在 Workhub 本机数据库中。
 
+### 借鉴、差别与下一步
+
+结果仍在项目详情内，默认仅展示候选名称与一个切入点。展开候选可看 **值得借鉴 / 与本项目的差别 / 下一步验证**；更多切入点与来源证据再按需展开。点击“填入下一步”只修改草稿，保存后才成为个人计划，不会自动执行。
+
+- 每轮最多深入读取前 **3** 个候选及本项目的公开 README，其他候选使用公开描述；README 最大 64 KiB，分析文本最多 32,000 字符。结果保留文档 SHA、读取时间、原文短句和来源链接，不存全文副本；匿名限流、资料缺失或体积限制时降级。
+- 本项目须手动关联 GitHub 仓库才能读取其公开 README；也可填写“本项目定位”，只在本机比较，不加入外部检索词。没有基线时明确保留未知；私有仓库不作为公开比较材料，也不读取本地代码或聊天。
+- 比较使用可检查的文档规则，识别会话衔接、事件状态、工作区、审批、搜索、调度、扩展、多项目组织等线索。它总结文档声明及验证动作，不是模型深审或运行验证；没有材料支持时不编造优点，也不依据 star 数判断功能质量。
+- 双方都提到的能力标为共同声明；本项目材料未提及的只标“本次材料未见说明”，不推断没有实现。README 代码块、明确否定和计划条目不当作已实现能力。规则仍可能漏识别或误识别，须核对原文与实际实现。
+- 公开资料用匿名 GitHub API 读取，每轮最多追加 8 次普通请求。外部材料只当文本展示，凭据形态、邮箱、个人目录及带账号密码的 URL 会脱敏；明显含敏感信息的检索词被拒绝。错误信息不包含上游响应正文。项目定位更改后旧比较标为过期。
+
+相关已有实践：[GitRec](https://github.com/gorse-io/gitrec) 提供相关项目推荐，[OSSInsight](https://github.com/pingcap/ossinsight) 提供仓库比较；本实现采用 [GitHub README API](https://docs.github.com/en/rest/repos/contents#get-a-repository-readme) 的公开材料与来源留存，不把仓库指标当成能力评测。
+
 ## 实现与验证
 
-核心实现为 `project_control.py`、`project_discovery.py`、`project_catalog.py`，HTTP 接口为 `/api/control` 与受保护的 `/api/control/*`。前端复用原项目空间及共享设计变量；`static/project-control.js` 只使用文本节点显示外部内容。
+核心实现为 `project_control.py`、`project_discovery.py`、`project_comparison.py`、`project_catalog.py`，HTTP 接口为 `/api/control` 与受保护的 `/api/control/*`。前端复用原项目空间及共享设计变量；`static/project-control.js` 只使用文本节点显示外部内容。
 
 开发验证使用发布目录外的合成目录、临时数据库和假 GitHub：覆盖准入、移除、关联、草稿保留、相同 SHA 的 CI、陈旧快照、调度租约、去重与配置竞争。浏览器验证中英文、明暗主题、320–1440px 视口以及 iframe 输入保留。公开截图仅包含虚构项目。发布前仍执行 `python scripts/audit_release.py`。
 

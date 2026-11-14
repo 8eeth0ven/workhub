@@ -32,10 +32,22 @@ Expand **Discover related projects**, enter keywords, and search immediately or 
 
 Nothing automatically clones, installs, executes or admits a reference project. Plans, queries and snapshots stay in the local Workhub database.
 
+### Lessons, differences and next steps
+
+Results stay in project details. Each candidate initially shows its name and one topic. Expand it for **Worth studying / Differences from this project / Next validation step**. Additional topics and source evidence remain collapsed. **Use as next-step draft** only fills the draft; save it to keep the plan. Nothing executes automatically.
+
+- Each search reads public READMEs for at most the first **3** candidates and the current project. Other candidates use public descriptions. README files are limited to 64 KiB and analyzed text to 32,000 characters. Notes retain the document SHA, retrieval time, short excerpts and source links, not full README copies. Anonymous rate limits, unavailable or oversized documents cause fallback.
+- A manually linked GitHub repository supplies the current public README. Optional **Project focus** stays local and is not appended to external search keywords. Without a baseline, differences remain unknown. Private repositories, local code and chats are not comparison inputs.
+- Inspectable rules identify documentation leads for session continuity, events, workspaces, approvals, search, schedules, extensions and project organization. Notes describe claims and experiments, not model reviews or verified runtime capabilities. Insufficient evidence produces no invented advantage. Stars are not feature-quality evidence.
+- Shared capabilities are labeled as shared claims. Undocumented capabilities are not declared unimplemented. Fenced code, explicitly negative statements and roadmap entries are excluded from capability matches. Rules can still miss or misidentify claims: check the source and implementation.
+- Public profiles use anonymous GitHub requests, at most 8 additional ordinary API calls per search. External material is rendered as text. Credential patterns, emails, personal paths and credential-bearing URLs are redacted; clearly sensitive search keywords are rejected. Errors omit upstream bodies. A changed project focus marks earlier comparisons stale.
+
+Existing references include [GitRec](https://github.com/gorse-io/gitrec) for related repositories and [OSSInsight](https://github.com/pingcap/ossinsight) for repository comparison. This implementation retains public evidence from the [GitHub README API](https://docs.github.com/en/rest/repos/contents#get-a-repository-readme); repository metrics are not capability evaluations.
+
 ## References and compatibility
 
 [DeepSeek Harness](https://www.deepseek.com/harness/zh/), [dsh-worktable](https://github.com/Aisland-SJL/dsh-worktable/blob/main/README.zh.md) and [dsh-superagent-prototype](https://github.com/deepseek-ai/dsh-superagent-prototype) provide established architectural and interaction references. This release borrows selected patterns; it is not a DSH host plugin, native session bridge or copy of its layout engine.
 
 The compact list and on-demand detail follow [GitHub Projects](https://docs.github.com/en/issues/planning-and-tracking-with-projects/customizing-views-in-your-project/changing-the-layout-of-a-view), [Linear display options](https://linear.app/docs/display-options) and [Apple disclosure controls](https://developer.apple.com/design/human-interface-guidelines/disclosure-controls). Discovery uses the existing [GitHub repository search API](https://docs.github.com/en/rest/search/search#search-repositories).
 
-Implementation: `project_control.py`, `project_discovery.py`, `project_catalog.py` and the existing local HTTP guards. Verification uses synthetic directories/databases and a fake GitHub outside the publishing tree, including race conditions, stale data, 320–1440px layouts, themes, languages and iframe input retention. Public screenshots contain fictitious projects only.
+Implementation: `project_control.py`, `project_discovery.py`, `project_comparison.py`, `project_catalog.py` and the existing local HTTP guards. Verification uses synthetic directories/databases and a fake GitHub outside the publishing tree, including race conditions, stale data, 320–1440px layouts, themes, languages and iframe input retention. Public screenshots contain fictitious projects only.

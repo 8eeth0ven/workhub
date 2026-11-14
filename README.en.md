@@ -8,7 +8,7 @@ Switch projects in one place, see what different agents actually did, and connec
 
 [Quick start](#quick-start) · [Screenshots](#screenshots) · [Connect projects](#connect-projects-and-agents) · [Documentation](#documentation)
 
-The project space combines a compact progress overview and original project websites. Add a repository with **Connect GitHub**, review read-only evidence, and save a next step. Per-project related-project search is optional: manual, every 6 hours, daily or weekly, while the local service runs. [Usage and boundaries](docs/project-control.en.md).
+The project space combines a compact progress overview and original project websites. Add a repository with **Connect GitHub**, review read-only evidence, and save a next step. Related-project search is optional: manual, every 6 hours, daily or weekly, while the service runs. Expand a result for **lessons, differences and next validation steps**, inspect source evidence, or fill a next-step draft. Insufficient evidence remains unknown. [Usage and boundaries](docs/project-control.en.md).
 
 ## Quick start
 

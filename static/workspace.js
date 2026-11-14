@@ -32,7 +32,7 @@
     const placeholder = text('option', t(catalogLoading?'正在读取已有项目…':'选择已有项目，或在下方手动填写'));
     placeholder.value = '';
     select.replaceChildren(placeholder, ...projects.map(project => {
-      const option = text('option', `${project.agents.map(agentName).join(' · ')} | ${project.name} — ${project.path}`);
+      const option = text('option', `${project.agents.map(agentName).join(' · ')} | ${project.name}${project.last_active_at ? " · " + new Date(project.last_active_at*1000).toLocaleString(I.getLocale()) : ""} — ${project.path}`);
       option.value = project.id;
       return option;
     }));

@@ -32,6 +32,7 @@
   }
 
   function enter(options = {}) {
+    if (document.documentElement.dataset.workhubSpaceMode === "control") return;
     if (active) return;
     previousScroll = {x: window.scrollX || 0, y: window.scrollY || 0};
     active = true;

@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import re
 import sqlite3
+from datetime import datetime, timezone
 
 
 MAX_JSON_BYTES = 16 * 1024 * 1024
@@ -166,4 +167,61 @@ class ProjectCatalog:
             except (OSError, ValueError, sqlite3.Error, RuntimeError):
                 # Do not return client file contents, SQL details or credential fields.
                 statuses.append({"agent":agent, "count":0, "status":"unavailable"})
-        return {"projects":sorted(combined.values(), key=lambda p:(p["name"].casefold(), p["path"].casefold())), "sources":statuses}
+        recent = self._recent_activity()
+        for key, project in combined.items():
+            project.update(recent.get(key, {"last_active_at":None,"activity_source":None}))
+        return {"projects":sorted(combined.values(), key=lambda p:(not bool(p['last_active_at']), -(p['last_active_at'] or 0), p["name"].casefold(), p["path"].casefold())), "sources":statuses}
+
+    def _recent_activity(self):
+        """Read directory/timestamp columns only; never task text, titles or messages."""
+        result = {}
+        def keep(value, timestamp, source):
+            path = self._canonical(value)
+            if path is None:
+                return
+            try:
+                if isinstance(timestamp, (int,float)) or str(timestamp).replace('.','',1).isdigit():
+                    seconds = float(timestamp)
+                    if seconds > 100000000000:
+                        seconds /= 1000
+                else:
+                    parsed = datetime.fromisoformat(str(timestamp).replace('Z','+00:00'))
+                    seconds = parsed.replace(tzinfo=timezone.utc).timestamp() if parsed.tzinfo is None else parsed.timestamp()
+                if not 0 < seconds <= datetime.now(timezone.utc).timestamp()+86400:
+                    return
+            except (ValueError,TypeError,OverflowError):
+                return
+            key = os.path.normcase(path)
+            if seconds > result.get(key,{}).get('last_active_at',0):
+                result[key] = {'last_active_at':seconds,'activity_source':source}
+        databases = [p for p in self.codex.glob('state_*.sqlite') if re.fullmatch(r'state_\d+\.sqlite',p.name)]
+        if databases:
+            db = None
+            try:
+                db = self._database(max(databases,key=lambda p:int(p.stem.split('_')[1])))
+                columns = self._columns(db,'threads')
+                field = 'updated_at_ms' if 'updated_at_ms' in columns else 'updated_at' if 'updated_at' in columns else None
+                if field and 'cwd' in columns:
+                    for row in db.execute('SELECT cwd,MAX('+field+') AS activity FROM threads WHERE cwd IS NOT NULL GROUP BY cwd ORDER BY activity DESC LIMIT ?', (MAX_PROJECTS,)):
+                        keep(row['cwd'],row['activity'],'codex')
+                if field and 'project_id' in columns and {'project_id','path'} <= self._columns(db,'project_roots'):
+                    for row in db.execute('SELECT r.path,MAX(t.'+field+') AS activity FROM threads t JOIN project_roots r ON r.project_id=t.project_id GROUP BY r.path LIMIT ?', (MAX_PROJECTS,)):
+                        keep(row['path'],row['activity'],'codex')
+            except (sqlite3.Error,OSError):
+                pass
+            finally:
+                if db: db.close()
+        db = None
+        try:
+            path=self.zcode/'v2/tasks-index.sqlite'
+            if path.is_file():
+                db=self._database(path)
+                if {'project_id','updated_at'} <= self._columns(db,'tasks') and {'project_id','root_path'} <= self._columns(db,'project_roots') and {'host_id','kind'} <= self._columns(db,'hosts'):
+                    deleted=' AND COALESCE(t.deleted,0)=0' if 'deleted' in self._columns(db,'tasks') else ''
+                    for row in db.execute("SELECT r.root_path,MAX(t.updated_at) AS activity FROM tasks t JOIN projects p ON p.project_id=t.project_id JOIN hosts h ON h.host_id=p.host_id JOIN project_roots r ON r.project_id=p.project_id WHERE h.kind='local'"+deleted+' GROUP BY r.root_path LIMIT ?', (MAX_PROJECTS,)):
+                        keep(row['root_path'],row['activity'],'zcode')
+        except (sqlite3.Error,OSError):
+            pass
+        finally:
+            if db: db.close()
+        return result

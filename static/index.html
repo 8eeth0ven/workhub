@@ -18,6 +18,8 @@
   <script defer src="/focus.js"></script>
   <script defer src="/app.js"></script>
   <script defer src="/workspace.js"></script>
+  <script defer src="/project-control.js"></script>
+  <link rel="stylesheet" href="/project-control.css">
   <link rel="stylesheet" href="/workspace.css">
   <script defer src="/reviews.js"></script>
   <script defer src="/archives.js"></script>
@@ -43,8 +45,23 @@
     <header class="topbar"><div class="topbar-left"><button id="sidebar-toggle" class="icon-button sidebar-toggle" type="button" aria-controls="workspace-sidebar" aria-expanded="true" aria-label="收起侧边栏" title="收起侧边栏" data-i18n-aria-label="收起侧边栏" data-i18n-title="收起侧边栏"><span class="panel-toggle-icon" aria-hidden="true"></span></button><div class="breadcrumb"><span data-i18n="个人工作空间">个人工作空间</span><span>/</span><strong id="breadcrumb-page"><span data-i18n="项目空间">项目空间</span></strong></div></div><div class="topbar-right"><span id="connection-status" class="connection-status loading"><i></i><span><span data-i18n="正在连接">正在连接</span></span></span><label class="language-control"><span class="sr-only" data-i18n="界面语言"><span data-i18n="界面语言">界面语言</span></span><select id="workhub-language" aria-label="界面语言" data-i18n-aria-label="界面语言"><option value="zh-CN" data-i18n="中文">中文</option><option value="en">English</option></select></label><label class="theme-control"><span class="sr-only" data-i18n="配色">配色</span><select id="workhub-theme" aria-label="配色" data-i18n-aria-label="配色" title="配色" data-i18n-title="配色"><option value="codex-light" data-i18n="Codex 明亮">Codex 明亮</option><option value="codex-dark" data-i18n="Codex 深色">Codex 深色</option><option value="moss" data-i18n="苔绿">苔绿</option><option value="fog" data-i18n="雾蓝">雾蓝</option><option value="graphite" data-i18n="石墨">石墨</option><option value="sand" data-i18n="暖沙">暖沙</option><option value="orange" data-i18n="橙白">橙白</option><option value="teal" data-i18n="青瓷">青瓷</option><option value="rose" data-i18n="玫瑰">玫瑰</option><option value="indigo" data-i18n="靛蓝">靛蓝</option></select></label><span class="topbar-divider"></span><span class="profile" aria-label="工作空间" data-i18n-aria-label="工作空间">W</span></div></header>
     <div id="demo-banner" class="demo-banner" role="note" hidden><strong><span data-i18n="演示模式">演示模式</span></strong><span><span data-i18n="全部项目与评议均为虚构示例 · 只读 · 未调用模型">全部项目与评议均为虚构示例 · 只读 · 未调用模型</span></span></div>
     <section id="spaces-page" class="page-content portal-page">
+      <div class="space-modebar" role="group" aria-label="项目空间视图" data-i18n-aria-label="项目空间视图">
+        <button id="control-mode" type="button" aria-pressed="true" data-i18n="推进概览">推进概览</button>
+        <button id="website-mode" type="button" aria-pressed="false" data-i18n="项目网页">项目网页</button>
+      </div>
+      <section id="control-panel" class="project-control" aria-label="推进概览" data-i18n-aria-label="推进概览">
+        <div class="control-toolbar">
+          <label class="control-search"><span class="sr-only" data-i18n="查找项目">查找项目</span><input id="control-search" type="search" placeholder="查找项目或仓库…" data-i18n-placeholder="查找项目或仓库…"></label>
+          <label><span class="sr-only" data-i18n="关注状态">关注状态</span><select id="control-filter" aria-label="关注状态" data-i18n-aria-label="关注状态"><option value="all" data-i18n="全部项目">全部项目</option><option value="attention" data-i18n="需要关注">需要关注</option><option value="waiting" data-i18n="等待检查">等待检查</option><option value="unplanned" data-i18n="待安排下一步">待安排下一步</option></select></label>
+          <button type="button" class="button button-outline" data-workspace-add data-i18n="添加已有项目">添加已有项目</button>
+          <button type="button" class="button button-dark" id="control-add-github" data-i18n="连接 GitHub">连接 GitHub</button>
+        </div>
+        <p id="control-feedback" class="control-feedback" role="status" hidden></p>
+        <div id="control-grid" class="control-grid"></div>
+      </section>
 
-      <div class="portal-shell">
+
+      <div id="site-workspace" class="portal-shell">
         <aside id="project-site-navigator" class="site-navigator" aria-label="项目网站列表" data-i18n-aria-label="项目网站列表"><div class="site-navigator-heading"><span><span data-i18n="项目与网站">项目与网站</span></span><div class="site-navigator-actions"><span id="site-count">—</span><button class="icon-button site-add-button" data-workspace-add aria-label="接入网站" title="接入网站" data-i18n-aria-label="添加已有项目" data-i18n-title="添加已有项目"><span data-icon="plus"></span></button></div></div><label class="search-field site-search"><span data-icon="search"></span><input id="site-search" type="search" placeholder="查找项目或网站…" aria-label="查找项目或网站" data-i18n-placeholder="查找项目或网站…" data-i18n-aria-label="查找项目或网站"></label><div id="site-list" class="site-list"><div class="site-list-empty"><span data-i18n="正在读取网站…">正在读取网站…</span></div></div><button class="new-site-button" id="go-templates"><span data-icon="plus"></span><span data-i18n="从版式创建新网站">从版式创建新网站</span></button></aside>
         <section class="site-canvas" aria-label="网站内容" data-i18n-aria-label="网站内容"><div class="site-toolbar"><div class="site-toolbar-leading"><button id="site-navigator-toggle" class="site-navigator-toggle" type="button" aria-controls="project-site-navigator" aria-expanded="true" aria-label="收起网站列表" title="收起网站列表" data-i18n-aria-label="收起网站列表" data-i18n-title="收起网站列表"><span class="panel-toggle-icon" aria-hidden="true"></span><span data-i18n="网站列表">网站列表</span></button><div class="site-toolbar-name"><span class="mini-dot gray" id="site-live-dot"></span><strong id="current-site-name"><span data-i18n="选择一个项目网站">选择一个项目网站</span></strong><span id="current-site-url"></span></div></div><div class="site-toolbar-actions"><button id="site-review-button" class="site-review-button" disabled><span data-i18n="项目评议 ↗">项目评议 ↗</span></button><button id="reload-site" class="icon-button" aria-label="刷新当前项目网站" disabled data-i18n-aria-label="刷新当前项目网站"><span data-icon="refresh"></span></button></div></div><div class="frame-notice" id="frame-notice" role="status" hidden></div><div id="site-empty" class="site-empty"><div class="portal-symbol"><span data-icon="layout"></span><span class="portal-symbol-small">↗</span></div><div class="eyebrow">YOUR PROJECTS, CONNECTED</div><h2><span data-i18n="把各处的项目，">把各处的项目，</span><br><span data-i18n="汇成一处工作空间。">汇成一处工作空间。</span></h2><p id="site-empty-text"><span data-i18n="选择左侧项目，网站会直接在这里展开。">选择左侧项目，网站会直接在这里展开。</span><br><span data-i18n="还没有网站？从一套喜欢的版式开始。">还没有网站？从一套喜欢的版式开始。</span></p><button class="button button-dark" id="empty-go-templates" data-workspace-add><span data-icon="layers"></span><span data-i18n="添加已有项目">添加已有项目</span></button><div class="portal-benefits"><span><span data-i18n="同页切换">同页切换</span></span><i></i><span><span data-i18n="保留项目独立性">保留项目独立性</span></span><i></i><span><span data-i18n="统一工作记录">统一工作记录</span></span></div></div><iframe id="site-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-downloads allow-popups" class="site-frame" title="当前项目网站" referrerpolicy="no-referrer" hidden data-i18n-title="当前项目网站"></iframe><div id="frame-help" class="frame-help" role="note" hidden></div></section>
       </div><div class="portal-footnote"><span><span class="mini-dot green"></span> <span data-i18n="网站在本机读取，项目内容保留在原目录">网站在本机读取，项目内容保留在原目录</span></span><span id="sites-sync"><span data-i18n="等待同步">等待同步</span></span></div>
@@ -107,7 +124,21 @@
       </div>
       <footer class="page-footer"><span class="footer-logo">w↗</span><span><span data-i18n="把时间留给创造，把进展交给 Workhub。">把时间留给创造，把进展交给 Workhub。</span></span><span class="footer-local">LOCAL WORKSPACE <span class="mini-dot green"></span></span></footer>
     </div>
-  </main>
+
+    <dialog id="control-github-dialog" class="workspace-dialog">
+      <div class="workspace-heading"><h2 data-i18n="连接 GitHub 仓库">连接 GitHub 仓库</h2><button id="control-close-github" class="icon-button" type="button" aria-label="关闭" data-i18n-aria-label="关闭">×</button></div>
+      <p class="workspace-muted" data-i18n="选择仓库后加入中控；不会克隆或修改仓库。">选择仓库后加入中控；不会克隆或修改仓库。</p>
+      <div class="control-owner-row"><label><span data-i18n="GitHub 用户或组织">GitHub 用户或组织</span><input id="control-owner" autocomplete="off" placeholder="owner"></label><button id="control-load-repositories" type="button" class="button button-outline" data-i18n="读取公开仓库">读取公开仓库</button></div>
+      <label class="control-field"><span data-i18n="仓库候选">仓库候选</span><select id="control-repositories"><option value="" data-i18n="先读取仓库，或直接填写下方地址">先读取仓库，或直接填写下方地址</option></select></label>
+      <p id="control-catalog-note" class="workspace-muted"></p>
+      <form id="control-github-form">
+        <label class="control-field"><span data-i18n="仓库名称或地址">仓库名称或地址</span><input id="control-repository" required maxlength="200" placeholder="owner/repository"></label>
+        <label class="control-field"><span data-i18n="关联已有本地项目（可选）">关联已有本地项目（可选）</span><select id="control-local-link"><option value="" data-i18n="作为独立 GitHub 项目">作为独立 GitHub 项目</option></select></label>
+        <p class="workspace-muted" data-i18n="关联会替换该本地项目的现有仓库连接。">关联会替换该本地项目的现有仓库连接。</p>
+        <p id="control-github-message" role="status"></p><button class="button button-dark" id="control-connect-submit" data-i18n="加入中控">加入中控</button>
+      </form>
+    </dialog>
+</main>
   <dialog id="model-access-dialog" class="model-access-dialog" aria-labelledby="model-access-title">
     <div class="model-access-heading"><h2 id="model-access-title" data-i18n="模型接入">模型接入</h2><button id="model-access-close" class="icon-button" type="button" aria-label="关闭模型接入" data-i18n-aria-label="关闭模型接入">×</button></div>
     <form id="model-access-form" autocomplete="off" novalidate>

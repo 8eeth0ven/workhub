@@ -260,5 +260,7 @@ window.WorkhubDashboard = {
     await sync(); await syncSites();
   },
   projects: () => state.projects,
+  openProject: id => { switchPage("records"); openProject(id); },
+  openProjectSite: id => { const site=siteState.sites.find(s=>String(s.project_id)===String(id)); switchPage("spaces"); if(site)selectSite(site.id); return Boolean(site); },
 };
 window.addEventListener('workhub:workspace-updated',()=>window.WorkhubDashboard.refresh());

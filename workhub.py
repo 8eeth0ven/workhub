@@ -30,6 +30,7 @@ from archives import ArchiveStore
 from learning import LearningStore
 from model_access import ModelAccess
 from project_catalog import ProjectCatalog
+from project_control import ControlCenter
 
 
 ROOT = Path(__file__).resolve().parent
@@ -394,6 +395,8 @@ class Workspace:
             raise ValueError("项目 ID 无效")
         with self.store.connection() as db:
             cursor = db.execute("DELETE FROM workspace_projects WHERE project_id=?", (identifier,))
+            if db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='control_discovery'").fetchone():
+                db.execute("UPDATE control_discovery SET enabled=0,next_run_at=NULL,generation=generation+1,lease=NULL,lease_until=0 WHERE id=?",(identifier,))
             return {"ok": True, "removed": cursor.rowcount > 0, "id": identifier}
 
     def sites(self):
@@ -475,18 +478,23 @@ class WorkhubServer(ThreadingHTTPServer):
         previews = getattr(self.RequestHandlerClass, "archive_previews", None)
         if previews is not None:
             previews.close()
+        control = getattr(self.RequestHandlerClass, "control_center", None)
+        if control is not None:
+            control.close()
 
 
-def handler_for(store, manager=None, reviews=None, archives=None, learning=None):
+def handler_for(store, manager=None, reviews=None, archives=None, learning=None, control=None):
     dashboard_store = DashboardStore(store) if store is not None else None
     manager = manager or (SiteManager(store) if store is not None else None)
     reviews = reviews or (AssessmentManager(dashboard_store) if store is not None else None)
     archives = archives or (ArchiveStore(dashboard_store) if store is not None else None)
     learning = learning or (LearningStore(dashboard_store) if store is not None else None)
     workspace = Workspace(store) if store is not None else None
+    control = control or (ControlCenter(store, workspace) if store is not None else None)
     model_access = ModelAccess(store, reviews) if store is not None else None
     previews = ArchivePreviews(archives) if archives is not None else None
     class Handler(BaseHTTPRequestHandler):
+        control_center = control
         server_version = "AgentWorkhub/1"
         sys_version = ""
         site_manager = manager
@@ -550,10 +558,11 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None)
                 self.json_response(405, {"error": "项目静态网站只允许读取"})
                 return
             workspace_action = self.path.removeprefix("/api/workspace/") if self.path.startswith("/api/workspace/") else None
+            control_action = self.path.removeprefix("/api/control/") if self.path.startswith("/api/control/") else None
             archive_kind = self.path.removeprefix("/api/archives/") if self.path.startswith("/api/archives/") else None
             learning_ack = self.path == "/api/learning/ack"
             model_action = self.path.removeprefix("/api/model-access/") if self.path.startswith("/api/model-access/") else None
-            if self.path != "/api/reviews" and not learning_ack and archive_kind not in ("session", "prompt", "artifact") and model_action not in ("save", "test") and workspace_action not in ("add", "remove"):
+            if self.path != "/api/reviews" and not learning_ack and archive_kind not in ("session", "prompt", "artifact") and model_action not in ("save", "test") and workspace_action not in ("add", "remove") and control_action not in ("catalog", "connect", "disconnect", "refresh", "plan", "discovery-save", "discovery-run"):
                 self.json_response(404, {"error": "接口不存在"})
                 return
             if self.headers.get("X-Workhub-Request") != "1":
@@ -574,6 +583,31 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None)
                 if len(raw) != length:
                     raise ReviewError("请求体不完整")
                 payload = json.loads(raw)
+                if control_action:
+                    if not isinstance(payload, dict):
+                        raise ReviewError("中控请求须为 JSON 对象")
+                    allowed = {'catalog':{'owner'},'connect':{'full_name','local_project_id'},'disconnect':{'id'},'refresh':{'id'},'plan':{'id','next_step','priority'},'discovery-save':{'id','keywords','enabled','interval_hours'},'discovery-run':{'id','keywords'}}[control_action]
+                    if set(payload)-allowed:
+                        raise ReviewError("中控参数无效")
+                    try:
+                        if control_action=='catalog':
+                            result=control.github.catalog(payload.get('owner'))
+                        elif control_action=='connect':
+                            result=control.connect(payload.get('full_name'),payload.get('local_project_id'))
+                        elif control_action=='disconnect':
+                            result=control.disconnect(payload.get('id'))
+                        elif control_action=='refresh':
+                            result=control.refresh(payload.get('id'))
+                        elif control_action=='discovery-save':
+                            result=control.discovery.configure(payload.get('id'),payload.get('keywords'),payload.get('enabled',False),payload.get('interval_hours',24))
+                        elif control_action=='discovery-run':
+                            result=control.discovery.run(payload.get('id'),payload.get('keywords'))
+                        else:
+                            result=control.plan(payload.get('id'),payload.get('next_step'),payload.get('priority',2))
+                        self.json_response(202 if control_action in ('refresh','discovery-run') and result.get('accepted') else 200,result)
+                        return
+                    except (ValueError,TypeError) as error:
+                        raise ReviewError(str(error))
                 if workspace_action:
                     try:
                         if not isinstance(payload, dict):
@@ -687,6 +721,8 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None)
                     self.json_response(200, workspace.state())
                 elif route == "/api/workspace/catalog":
                     self.json_response(200, ProjectCatalog().list())
+                elif route == "/api/control":
+                    self.json_response(200, control.state())
                 elif route == "/api/integrations":
                     self.json_response(200, integrations())
                 elif route == "/api/sites":

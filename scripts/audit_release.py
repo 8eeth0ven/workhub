@@ -89,6 +89,9 @@ def text_findings(text: str, relative: Path) -> list[dict]:
             add("personal-home-path", match.start())
     for match in EMAIL.finditer(text):
         domain = match.group(1).lower()
+        # GitHub's fixed SSH transport user is protocol syntax, not an email address.
+        if text[match.start():match.end()+1] == 'git@github.com:':
+            continue
         if (relative.parts[:1] == ("tests",) and match.group(0).lower().startswith("password@") and
                 text[max(0, match.start() - 5):match.start()] == "user:"):
             continue

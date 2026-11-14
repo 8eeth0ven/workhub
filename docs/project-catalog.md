@@ -17,6 +17,8 @@ The normal client location is the current user's home. `CODEX_HOME`, `CLAUDE_CON
 
 Client metadata formats can change. One unavailable source does not disable the others, and manual directory input remains available. The public demo and development fixtures use synthetic metadata rather than a contributor's client files.
 
+Recent-project ordering uses only additional path/time metadata: Codex `threads.cwd` / `project_roots.path` with `MAX(updated_at_ms)` (or `updated_at`); Z Code joins local project roots to task `updated_at`, excluding deleted tasks. No thread titles, bodies, previews, search text or model output are selected. Claude still reads project keys only and does not infer recency when it has no timestamp. Missing metadata stays unknown; activity time is not proof of a currently running or completed task. See [project control](project-control.md) for GitHub candidates and the shared overview.
+
 ## Primary references
 
 - [Codex project schema](https://github.com/openai/codex/blob/main/codex-rs/state/migrations/0049_projects.sql), [project runtime](https://github.com/openai/codex/blob/main/codex-rs/state/src/runtime/projects.rs), [legacy cwd schema](https://github.com/openai/codex/blob/main/codex-rs/state/migrations/0001_threads.sql).

@@ -1,0 +1,33 @@
+/* Shared Codex tokens; a compact list, with details disclosed per project. */
+.space-modebar{display:flex;gap:2px;flex:0 0 auto;padding:2px 4px;border-bottom:1px solid var(--wh-border)}
+.space-modebar button{font:inherit;font-size:12px;padding:7px 12px;background:transparent;color:var(--wh-muted);border:0;border-bottom:2px solid transparent;cursor:pointer}
+.space-modebar button[aria-pressed=true]{color:var(--wh-ink);border-bottom-color:var(--wh-ink)}
+.project-control{min-height:0;overflow:auto;padding:12px 12px 24px;flex:1;color:var(--wh-ink)}
+.control-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}.control-search{flex:1;min-width:180px}
+.project-control :is(input,select,textarea),.control-field :is(input,select),.control-owner-row input{font:inherit;font-size:13px;box-sizing:border-box;border:1px solid var(--wh-border);border-radius:var(--wh-radius);background:var(--wh-surface);color:var(--wh-ink);padding:8px 10px;min-width:0}
+.control-search input{width:100%}.control-feedback{font-size:12px;margin:0 0 12px;color:var(--wh-muted)}.control-feedback.error,.control-error{color:var(--wh-danger)}
+.control-grid{border-top:1px solid var(--wh-border)}.control-row{border-bottom:1px solid var(--wh-border)}
+.control-row>summary{display:grid;grid-template-columns:minmax(140px,1.2fr) 112px minmax(140px,1.5fr) 145px;gap:16px;align-items:center;padding:16px 8px;cursor:pointer;list-style:none;font-size:13px}
+.control-row>summary::-webkit-details-marker{display:none}.control-row>summary:hover{background:var(--wh-bg)}
+.control-project-name{display:grid;gap:5px;min-width:0}.control-project-name strong{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.control-project-name small,.control-time{font-size:11px;color:var(--wh-muted)}
+.control-signal{font-size:12px}.control-next-preview{color:var(--wh-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.control-time{text-align:right}
+.control-row-body{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(220px,1fr);gap:24px;padding:8px 12px 22px;font-size:12px;line-height:1.7}
+.control-facts{min-width:0}.control-facts p{margin:4px 0;overflow-wrap:anywhere}.control-path{color:var(--wh-muted)}
+.control-row-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0}.control-row-actions a,.control-suggestion a{color:var(--wh-ink);text-underline-offset:3px}
+.control-plan{display:grid;grid-template-columns:1fr auto;gap:10px;align-content:start}.control-plan>label:first-child{grid-column:1/-1}.control-plan label{display:grid;gap:5px}.control-plan textarea{width:100%;resize:vertical}.control-plan>button{align-self:end}
+.control-evidence{border-top:1px solid var(--wh-border);padding-top:10px}.control-evidence>summary{cursor:pointer;color:var(--wh-muted)}.control-suggestion{padding:10px 0}.control-suggestion p{color:var(--wh-muted)}
+.control-empty{font-size:13px;color:var(--wh-muted);padding:20px 8px}.control-owner-row{display:flex;align-items:end;gap:8px;margin:14px 0}.control-owner-row label{display:grid;gap:6px;flex:1;font-size:13px}.control-owner-row input{width:100%}.control-field{display:grid;gap:6px;font-size:13px;margin:12px 0}.control-field :is(input,select){width:100%}
+#control-catalog-note,#control-github-message{font-size:12px;line-height:1.7}#control-github-form>button{float:right}
+.project-control :is(button,a,input,select,textarea,summary):focus-visible,.space-modebar button:focus-visible{outline:2px solid var(--wh-focus);outline-offset:2px}
+html[data-workhub-space-mode=control] .focus-toggle{display:none}
+html.workhub-focus-mode .space-modebar{display:none}
+#control-panel[hidden],#site-workspace[hidden]{display:none!important}
+@media(max-width:1050px){.control-row>summary{grid-template-columns:minmax(120px,1fr) 100px minmax(120px,1fr)}.control-time{display:none}}
+@media(max-width:650px){.project-control{padding:8px}.control-row>summary{grid-template-columns:minmax(0,1fr) 104px;gap:8px;padding:13px 4px}.control-next-preview{grid-column:1/-1}.control-row-body{grid-template-columns:minmax(0,1fr);gap:16px;padding:6px 4px 18px}.control-toolbar>.button{flex:1}.control-toolbar>.control-search{flex-basis:100%}.control-owner-row{flex-wrap:wrap}.control-owner-row>label{min-width:160px}.control-plan{grid-template-columns:1fr 1fr}}
+
+/* Reference discovery is one collapsed section, never a second dashboard. */
++.control-discovery{border-top:1px solid var(--wh-border);padding-top:10px;margin-top:12px}.control-discovery>summary{color:var(--wh-muted);cursor:pointer}.control-discovery>p{font-size:12px}.control-discovery form{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.control-discovery form>label{display:grid;gap:5px;width:100%}.control-discovery form input:not([type=checkbox]){width:100%}.control-discovery-options{display:flex;align-items:center;gap:10px;flex:1}.control-discovery-options label{display:flex;align-items:center;gap:6px}.control-discovery input[type=checkbox]{accent-color:var(--wh-ink)}.control-related article{padding:10px 0;border-top:1px solid var(--wh-border)}.control-related article p{color:var(--wh-muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.control-related small{color:var(--wh-muted)}.sidebar-note{display:none}
+
+html[data-workhub-space-mode=control] #site-workspace,html[data-workhub-space-mode=website] #control-panel{display:none!important}
+.control-project-name{position:relative;padding-left:14px}.control-project-name::before{content:'›';position:absolute;left:0;top:0;color:var(--wh-muted);font-size:16px}.control-row[open] .control-project-name::before{transform:rotate(90deg)}
+.control-project-name strong{font-size:14px}.control-project-name small,.control-time{font-size:12px}.control-next-preview{font-size:13px}.control-row-body{font-size:13px}.control-related a{overflow-wrap:anywhere}

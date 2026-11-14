@@ -2,11 +2,13 @@
 
 ![Workhub: your projects, agents and progress in one workspace](docs/images/cover.en.svg)
 
-**A local-first workspace for project websites, agent activity and next steps.**
+**A local-first control center for GitHub repositories, local projects, agent activity and next steps.**
 
 Switch projects in one place, see what different agents actually did, and connect prompts with deliverables. When needed, use Socratic reviews to examine evidence, assumptions and gaps. The core server uses the Python standard library; the frontend is plain HTML, CSS and JavaScript.
 
 [Quick start](#quick-start) · [Screenshots](#screenshots) · [Connect projects](#connect-projects-and-agents) · [Documentation](#documentation)
+
+The project space combines a compact progress overview and original project websites. Add a repository with **Connect GitHub**, review read-only evidence, and save a next step. Per-project related-project search is optional: manual, every 6 hours, daily or weekly, while the local service runs. [Usage and boundaries](docs/project-control.en.md).
 
 ## Quick start
 
@@ -43,6 +45,8 @@ Open [http://127.0.0.1:8899](http://127.0.0.1:8899). The demo uses a temporary d
 | **Project reviews** | Check goals, assumptions, gaps and next actions against evidence; add answers and review again. |
 
 ## Screenshots
+
+![Compact project overview with synthetic data](docs/images/project-control-light.en.png)
 
 Every interface screenshot uses **Codex Light**: white surfaces, neutral text and fine gray borders. Screenshots come from an isolated demo with fictional projects and reviews. Images use landscape composition. Covers and workflow diagrams are SVG illustrations. Project content keeps its original language when the interface changes.
 

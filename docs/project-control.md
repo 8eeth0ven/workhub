@@ -53,6 +53,8 @@
 
 相关已有实践：[GitRec](https://github.com/gorse-io/gitrec) 提供相关项目推荐，[OSSInsight](https://github.com/pingcap/ossinsight) 提供仓库比较；本实现采用 [GitHub README API](https://docs.github.com/en/rest/repos/contents#get-a-repository-readme) 的公开材料与来源留存，不把仓库指标当成能力评测。
 
+本地结果还可带独立的 `document_review` 补充复核层：只针对当前查询与该次读取时间绑定的候选，展示者、时间与来源须明确。复核候选优先显示，其他原始命中收起；原查询、原顺序和自动比较保留。再次检索不会自动继承旧复核。当前没有通用复核编辑器或自动复核任务，本次由 Codex 在用户要求试跑时补充本机记录；不是每次检索都会自动生成这层内容。已有结果的检索设置也默认收起。
+
 ## 实现与验证
 
 核心实现为 `project_control.py`、`project_discovery.py`、`project_comparison.py`、`project_catalog.py`，HTTP 接口为 `/api/control` 与受保护的 `/api/control/*`。前端复用原项目空间及共享设计变量；`static/project-control.js` 只使用文本节点显示外部内容。

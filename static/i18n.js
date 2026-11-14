@@ -1313,6 +1313,12 @@
  Object.assign(dictionaries.en, {
    '待核对具体功能':'Check specific capabilities',
    '更多借鉴点':'More ideas to study','来源依据':'Source evidence',
+   '本次由 Codex 补充复核公开文档，未运行外部项目。':'Public documentation reviewed by Codex for this run; external projects were not executed.',
+   '检索设置':'Discovery settings',
+   '自动检索结果保留；以下优先展示本次文档复核，未经运行验证。':'Raw search results are retained. This run’s documentation reviews appear first; no runtime validation was performed.',
+   '本次文档复核 · {count} 项 · {time}':'Documentation review · {count} items · {time}',
+   '其他原始命中（{count}）':'Other raw matches ({count})',
+   '保留原始命中，关键词共现不代表功能相似。':'Raw matches are retained. Keyword co-occurrence does not establish functional similarity.',
    '打开来源项目':'Open reference project',
    '旧结果尚无比较，重新检索后生成。':'These older results have no comparison. Search again to generate one.',
    '依据公开 README 的规则归纳，未经运行验证。':'Rule-based notes from public READMEs; not verified by execution.',

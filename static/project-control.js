@@ -12,7 +12,7 @@
     const summary=el('summary');summary.append(el('strong',repo.full_name),el('small',data?.notes?.length?localized(data.notes[0].title):t('待核对具体功能')));box.append(summary,link(t('打开来源项目'),repo.url));
     box.append(el('p',repo.description,'workspace-muted'));
     if(!data){box.append(el('p',t('旧结果尚无比较，重新检索后生成。'),'workspace-muted'));return box;}
-    box.append(el('p',t(data.coverage==='readme'?'依据公开 README 的规则归纳，未经运行验证。':'仅依据公开描述，未深入读取 README。'),'workspace-muted'));
+    box.append(el('p',t(data.method==='agent_document_review_v1'?'本次由 Codex 补充复核公开文档，未运行外部项目。':data.coverage==='readme'?'依据公开 README 的规则归纳，未经运行验证。':'仅依据公开描述，未深入读取 README。'),'workspace-muted'));
     if(data.observed_at)box.append(el('small',t('资料读取：{time}',{time:date(data.observed_at)})));
     if(data.license)box.append(el('small',t('许可证：{license}',{license:data.license})));
     if(!data.notes.length)box.append(el('p',t('现有材料不足以提出具体借鉴点，先查看来源；不据此生成优化结论。'),'workspace-muted'));
@@ -42,20 +42,28 @@
     const run=button(config.running?'检索中…':'立即检索',async()=>{
       run.disabled=true;try{const answer=await post('discovery-run',{id:row.id,keywords:keywords.value.trim(),project_focus:focus.value.trim()});if(answer.retry_after)feedback(t('请在 {seconds} 秒后重试。',{seconds:answer.retry_after}));else{discoveryDrafts.delete(row.id);await load(true);}}catch(error){feedback(error.message,true);}finally{run.disabled=false;}
     });run.disabled=Boolean(config.running);
-    form.append(field,focusField,options,save,run);form.addEventListener('submit',async event=>{event.preventDefault();save.disabled=true;try{await post('discovery-save',{id:row.id,keywords:keywords.value.trim(),project_focus:focus.value.trim(),enabled:enabled.checked,interval_hours:Number(interval.value)});discoveryDrafts.delete(row.id);feedback(t('已保存检索设置。'));await load(true);}catch(error){feedback(error.message,true);}finally{save.disabled=false;}});box.append(form);
+    form.append(field,focusField,options,save,run);form.addEventListener('submit',async event=>{event.preventDefault();save.disabled=true;try{await post('discovery-save',{id:row.id,keywords:keywords.value.trim(),project_focus:focus.value.trim(),enabled:enabled.checked,interval_hours:Number(interval.value)});discoveryDrafts.delete(row.id);feedback(t('已保存检索设置。'));await load(true);}catch(error){feedback(error.message,true);}finally{save.disabled=false;}});
+    if(data){const settings=el('details','','control-discovery-settings');settings.append(el('summary',t('检索设置')+' · '+config.keywords),form);box.append(settings);}else box.append(form);
     if(config.last_run_at)box.append(el('p',t('上次检索：{time}',{time:date(config.last_run_at)}),'workspace-muted'));
     if(config.enabled&&config.next_run_at)box.append(el('p',t('下次检索：{time}',{time:date(config.next_run_at)}),'workspace-muted'));
     if(config.last_error)box.append(el('p',I.translateKnown(config.last_error),'control-error'));
     if(data){
       if(config.stale)box.append(el('p',t('结果对应旧设置或上次读取失败，重新检索可更新。'),'control-error'));
-      box.append(el('p',t('最多深入读取前 3 个项目的 README，其余仅参考描述；材料未提及不代表没有实现。'),'workspace-muted'));
+      const review=data.document_review,validReview=review&&review.keywords===data.keywords&&review.source_observed_at===data.observed_at;
+      const reviewed=validReview?(review.repositories||[]).filter(item=>item.comparison?.method==='agent_document_review_v1'&&data.repositories.some(original=>original.github_id===item.github_id)):[];
+      box.append(el('p',t(reviewed.length?'自动检索结果保留；以下优先展示本次文档复核，未经运行验证。':'最多深入读取前 3 个项目的 README，其余仅参考描述；材料未提及不代表没有实现。'),'workspace-muted'));
+      if(reviewed.length)box.append(el('small',t('本次文档复核 · {count} 项 · {time}',{count:reviewed.length,time:date(review.reviewed_at)})));
       if(data.baseline?.readme_sha)box.append(el('small',t('本项目公开 README：{sha}',{sha:data.baseline.readme_sha.slice(0,12)})));
       else box.append(el('p',t('本项目公开 README 不可用，比较将保留未知；可补充项目定位。'),'workspace-muted'));
       if(data.keywords!==config.keywords)box.append(el('p',t('上次结果的关键词：{keywords}',{keywords:data.keywords}),'workspace-muted'));
       box.append(el('p',t('本次新增 {count} 条线索',{count:data.new_count||0}),'workspace-muted'));
       if(data.incomplete)box.append(el('p',t('结果未完整返回，可缩小关键词范围。'),'workspace-muted'));
       if(!data.repositories.length)box.append(el('p',t('本次未找到匹配项目。'),'workspace-muted'));
-      const list=el('div','','control-related');for(const repo of data.repositories){const entry=el('article');entry.append(comparisonNode(row,repo));list.append(entry);}box.append(list,link(t('查询来源'),data.source_url));
+      const list=el('div','','control-related'),selected=new Set(reviewed.map(item=>item.github_id));
+      const append=(target,repositories)=>{for(const repo of repositories){const entry=el('article');entry.append(comparisonNode(row,repo));target.append(entry);}};
+      append(list,reviewed.length?reviewed:data.repositories);box.append(list);
+      if(reviewed.length){const rest=data.repositories.filter(item=>!selected.has(item.github_id));if(rest.length){const other=el('details','','control-related-other'),otherList=el('div','','control-related');other.append(el('summary',t('其他原始命中（{count}）',{count:rest.length})),el('p',t('保留原始命中，关键词共现不代表功能相似。'),'workspace-muted'));append(otherList,rest);other.append(otherList);box.append(other);}}
+      box.append(link(t('查询来源'),data.source_url));
     }
     return box;
   }

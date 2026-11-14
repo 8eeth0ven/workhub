@@ -44,6 +44,8 @@ Results stay in project details. Each candidate initially shows its name and one
 
 Existing references include [GitRec](https://github.com/gorse-io/gitrec) for related repositories and [OSSInsight](https://github.com/pingcap/ossinsight) for repository comparison. This implementation retains public evidence from the [GitHub README API](https://docs.github.com/en/rest/repos/contents#get-a-repository-readme); repository metrics are not capability evaluations.
 
+Local results may also contain a separate `document_review` annotation layer bound to the current query and source observation time. Reviewer, time and sources must be explicit. Reviewed candidates appear first, with other raw matches collapsed; original order, query and automatic comparisons remain intact. A new search does not inherit the previous annotations. There is no general review editor or automatic review job: Codex added this local layer for a user-requested trial, not for every search. Discovery settings also collapse once results exist.
+
 ## References and compatibility
 
 [DeepSeek Harness](https://www.deepseek.com/harness/zh/), [dsh-worktable](https://github.com/Aisland-SJL/dsh-worktable/blob/main/README.zh.md) and [dsh-superagent-prototype](https://github.com/deepseek-ai/dsh-superagent-prototype) provide established architectural and interaction references. This release borrows selected patterns; it is not a DSH host plugin, native session bridge or copy of its layout engine.

@@ -2,10 +2,10 @@
 (() => {
   'use strict';
   const key = 'workhub-theme';
-  const themes = Object.freeze(['moss', 'fog', 'graphite', 'sand', 'orange', 'teal', 'rose', 'indigo']);
-  const normalize = value => themes.includes(value) ? value : 'moss';
+  const themes = Object.freeze(['light', 'moss', 'fog', 'graphite', 'sand', 'orange', 'teal', 'rose', 'indigo']);
+  const normalize = value => themes.includes(value) ? value : 'light';
   const root = document.documentElement;
-  let theme = 'moss';
+  let theme = 'light';
   try { theme = normalize(localStorage.getItem(key)); } catch {}
   // This script runs synchronously before the stylesheets and first paint.
   root.setAttribute('data-workhub-theme', theme);

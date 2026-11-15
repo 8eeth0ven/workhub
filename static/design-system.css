@@ -1,13 +1,13 @@
 /* Workhub design system v1. Canonical source for the portal and project layouts. */
 :root {
-  --wh-bg: #f7f8f4;
+  --wh-bg: #f7f7f8;
   --wh-surface: #fff;
-  --wh-ink: #252b26;
-  --wh-muted: #687267;
-  --wh-accent: #53634d;
-  --wh-accent-hover: #3f503a;
-  --wh-accent-soft: #edf1e9;
-  --wh-border: #e1e5dc;
+  --wh-ink: #1f2328;
+  --wh-muted: #62676f;
+  --wh-accent: #34373d;
+  --wh-accent-hover: #1e2024;
+  --wh-accent-soft: #f0f1f3;
+  --wh-border: #e3e5e8;
   --wh-radius: 10px;
   --wh-font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", system-ui, sans-serif;
   --wh-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -30,7 +30,15 @@
 }
 
 /* Global light palettes change color tokens only, never layout or typography. */
-:root, :root[data-workhub-theme="moss"] {
+:root, :root[data-workhub-theme="light"] {
+  --wh-bg: #f7f7f8; --wh-surface: #ffffff; --wh-ink: #1f2328; --wh-muted: #62676f;
+  --wh-accent: #34373d; --wh-accent-hover: #1e2024; --wh-accent-soft: #f0f1f3;
+  --wh-accent-tint: #41464f; --wh-on-accent: #ffffff;
+  --wh-border: #e3e5e8; --wh-border-strong: #b4bbc6; --wh-focus: #7b8594;
+  --wh-sidebar-bg: #f3f4f6; --wh-sidebar-active: #e5e7eb;
+  --wh-sidebar-ink: #25282e; --wh-sidebar-muted: #666d77; --wh-sidebar-border: #d8dde4;
+}
+:root[data-workhub-theme="moss"] {
   --wh-bg: #f7f8f4; --wh-surface: #ffffff; --wh-ink: #252b26; --wh-muted: #687267;
   --wh-accent: #53634d; --wh-accent-hover: #3f503a; --wh-accent-soft: #edf1e9;
   --wh-accent-tint: #d9edac; --wh-on-accent: #ffffff;

@@ -45,9 +45,9 @@
     }
   };
   const themeStorageKey = 'workhub-theme';
-  const themes = Object.freeze(['moss', 'fog', 'graphite', 'sand', 'orange', 'teal', 'rose', 'indigo']);
+  const themes = Object.freeze(['light', 'moss', 'fog', 'graphite', 'sand', 'orange', 'teal', 'rose', 'indigo']);
   const supportedTheme = value => themes.includes(value);
-  let theme = 'moss';
+  let theme = 'light';
   try { const saved = localStorage.getItem(themeStorageKey); if (supportedTheme(saved)) theme = saved; } catch {}
   function applyTheme(value, persist = true) {
     if (!supportedTheme(value)) return false;
@@ -248,8 +248,9 @@
   }
   window.addEventListener('message', trustedParentMessage);
   window.addEventListener('storage', event => {
-    if (event.key === storageKey && supported(event.newValue)) applyLanguage(event.newValue, false);
-    else if (event.key === themeStorageKey && (event.newValue === null || supportedTheme(event.newValue))) applyTheme(event.newValue || 'moss', false);
+    if (event.key === null) applyTheme('light', false);
+    else if (event.key === storageKey && supported(event.newValue)) applyLanguage(event.newValue, false);
+    else if (event.key === themeStorageKey) applyTheme(supportedTheme(event.newValue) ? event.newValue : 'light', false);
   });
   $('language-select').onchange = () => applyLanguage($('language-select').value);
   $(mode === 'library' ? 'dClose' : 'close').onclick = () => dialog.close();

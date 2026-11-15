@@ -43,13 +43,17 @@ Open [http://127.0.0.1:8899](http://127.0.0.1:8899). The demo uses a temporary S
 
 See [Installation](docs/installation.en.md) for setup, optional background services and moving a checkout.
 
+## Optional feature modules
+
+[Workhub Model](https://github.com/8eeth0ven/workhub-model) distributes independently downloadable feature modules. The first is automotive opinion monitoring, with a collector, a light dashboard and sanitized brief prompts. Installation only copies source. Collection, portal integration and scheduling are separate explicit actions; live data stays on your computer. See the [module repository](https://github.com/8eeth0ven/workhub-model#readme) for downloads and setup.
+
 ## Switch between English and Simplified Chinese
 
 Use the **简体中文 / English** selector in the top toolbar. Your choice is saved locally in the browser for the current Workhub origin and restored after a refresh. It changes navigation, controls, status labels and interface messages while keeping the current page, selected site, filters and unfinished input.
 
 Project names, work records, website content and existing model reviews stay in their original language. Supported template iframes receive the portal's language choice; third-party websites keep their own language behavior. Documentation has matching language links at the top of each translated page. CLI commands, API paths and stored data are unchanged by the interface setting.
 
-The **Color theme** selector offers eight light palettes: Moss, Mist blue, Graphite, Warm sand, Orange, Celadon, Rose and Indigo. The preference is saved locally. Palettes change colors while keeping the same layout, typography, controls and project state; text and primary buttons remain readable. Switching never reloads project frames, rewrites records or invokes a model.
+The default **Light** palette uses white content, a light-gray sidebar and dark text in the same compact layout. Eight alternatives remain available: Moss, Mist blue, Graphite, Warm sand, Orange, Celadon, Rose and Indigo. Existing valid preferences are preserved; clearing the preference restores Light. All nine palettes keep the same layout, typography, controls and project state. Switching never reloads project frames, rewrites records or invokes a model.
 
 The local directory server injects the restricted palette runtime and shared CSS; compatible templates follow the portal too. Generic embedded styles are color-only: they do not alter font sizes, layout, images, PDFs, video or charts. Native applications can set `body[data-workhub-native]` to skip generic overrides and map their own exact color variables.
 

@@ -2,7 +2,7 @@
 (() => {
   'use strict';
   if (window.WorkhubEmbeddedTheme) return;
-  const themes = Object.freeze(['moss', 'fog', 'graphite', 'sand', 'orange', 'teal', 'rose', 'indigo']);
+  const themes = Object.freeze(['light', 'moss', 'fog', 'graphite', 'sand', 'orange', 'teal', 'rose', 'indigo']);
   const supported = value => themes.includes(value);
   const key = 'workhub-theme';
   const allowedParents = new Set(['http://127.0.0.1:8787']);
@@ -16,7 +16,7 @@
       if (['http:', 'https:'].includes(url.protocol) && ['127.0.0.1', 'localhost', '[::1]', '::1'].includes(url.hostname) && !url.username && !url.password && !url.search && !url.hash && url.pathname === '/' && (url.origin === value || url.origin + '/' === value)) allowedParents.add(url.origin);
     } catch {}
   }
-  let theme = 'moss';
+  let theme = 'light';
   try { const saved = localStorage.getItem(key); if (supported(saved)) theme = saved; } catch {}
   function apply(value, persist = true) {
     if (!supported(value)) return false;
@@ -34,7 +34,8 @@
     apply(event.data.theme);
   });
   window.addEventListener('storage', event => {
-    if (event.key === key && (event.newValue === null || supported(event.newValue))) apply(event.newValue || 'moss', false);
+    if (event.key === null) apply('light', false);
+    else if (event.key === key) apply(supported(event.newValue) ? event.newValue : 'light', false);
   });
   window.addEventListener('pageshow', () => request());
   window.WorkhubEmbeddedTheme = {themes, getTheme: () => theme, requestTheme: request};

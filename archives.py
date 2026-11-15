@@ -143,6 +143,8 @@ class ArchiveStore:
         if not isinstance(identifier, str) or not identifier:
             raise ReviewError("缺少项目 ID")
         with self.store.connection() as db:
+            if getattr(self.store, "workspace_only", False) and db.execute("SELECT 1 FROM workspace_projects WHERE project_id=?", (identifier,)).fetchone() is None:
+                raise ReviewError("项目未加入中控", 404)
             if db.execute("SELECT 1 FROM projects WHERE id=?", (identifier,)).fetchone() is None:
                 raise ReviewError("归档项目尚未登记，请先 register", 404)
 
@@ -433,6 +435,8 @@ class ArchiveStore:
         with self.store.connection() as db:
             for kind, plural in (("session", "sessions"), ("prompt", "prompts"), ("artifact", "artifacts")):
                 where = "e.record_kind=? AND NOT EXISTS (SELECT 1 FROM archive_entries n WHERE n.project_id=e.project_id AND n.record_kind=e.record_kind AND n.logical_key=e.logical_key AND n.revision>e.revision)"
+                if getattr(self.store, "workspace_only", False):
+                    where += " AND e.project_id IN (SELECT project_id FROM workspace_projects)"
                 parameters = [kind]
                 if identifier:
                     where += " AND e.project_id=?"
@@ -457,6 +461,8 @@ class ArchiveStore:
     def agent_usage(self, identifier=None):
         where = " WHERE project_id=?" if identifier else ""
         parameters = [identifier] if identifier else []
+        if getattr(self.store, "workspace_only", False):
+            where += (" AND " if where else " WHERE ") + "project_id IN (SELECT project_id FROM workspace_projects)"
         with self.store.connection() as db:
             rows = db.execute("SELECT project_id,agent,COUNT(*) AS event_count,COUNT(DISTINCT run_id) AS run_count,MAX(created_at) AS last_seen FROM events" + where + " GROUP BY project_id,agent", parameters).fetchall()
         return [dict(row, source="worklog", session_id=None) for row in rows]

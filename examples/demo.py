@@ -45,10 +45,12 @@ def prepare_site(mode, destination):
     source = ROOT / "templates" / mode
     destination.mkdir(parents=True)
     page = (source / "index.html").read_text(encoding="utf-8")
+    page = page.replace('src="/theme.js"', 'src="theme.js"')
     page = page.replace('href="/design-system.css"', 'href="design-system.css"')
     page = page.replace('src="/templates/runtime.js"', 'src="runtime.js"')
     page = page.replace('href="/templates/template-shell.css"', 'href="template-shell.css"')
     (destination / "index.html").write_text(page, encoding="utf-8")
+    shutil.copyfile(ROOT / "static" / "theme.js", destination / "theme.js")
     shutil.copyfile(ROOT / "static" / "design-system.css", destination / "design-system.css")
     shutil.copyfile(ROOT / "templates" / "runtime.js", destination / "runtime.js")
     shutil.copyfile(ROOT / "templates" / "template-shell.css", destination / "template-shell.css")
@@ -121,6 +123,7 @@ def seed(store, directory):
         project_path = directory / "projects" / mode
         project_path.mkdir(parents=True)
         project = store.register(str(project_path), name, description)
+        workhub.Workspace(store).add(str(project_path), agents=[{"radar":"codex", "library":"claude", "brief":"zcode", "plan":"other"}[mode]], theme_mode="shared")
         fixtures[mode] = project
         public_paths[str(project_path)] = "examples/" + mode
         if site_name:

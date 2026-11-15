@@ -97,3 +97,17 @@ chmod 600 "$WORKHUB_DATA_DIR/llm.json"
 CLI 提供者的 `command` 是可信本机用户明确保存的参数数组，可选配置 `cwd` 和输出格式。界面原生适配器会包装已检测到的客户端；高级自定义命令仍需遵循 JSON 输入输出协议，不能使用 shell 字符串或把密钥放在参数中。API 仅在显式允许并使用字面回环地址时接受 OpenAI-compatible 明文 HTTP；公网端点使用 HTTPS。
 
 用户启用评议后，命令 `python3 workhub.py review --project "$PROJECT_DIR"` 会将有限的已登记项目资料发送给所选模型。未配置或调用失败时如实显示状态，不生成冒充模型的本地评分。数据范围与发布前检查见 [隐私说明](privacy.md)。
+
+
+## 手动加入中控
+
+运行门户后，在项目空间点击“添加已有项目”，填写实际目录，选择 Codex、Z Code、Claude CLI 等来源，并可选连接已有网站。项目空间和工作记录只显示手动加入的项目；既有数据库升级后也不会自动把所有登记项加入中控，原记录仍保留。
+
+显式 CLI 等价入口（供用户选择，不由 Agent 自动执行）：
+
+```sh
+python3 workhub.py workspace-add --path /path/to/project --agent codex --agent claude
+python3 workhub.py workspace-remove --id PROJECT_ID
+```
+
+`register`、`record` 与 `site-add` 继续保存登记和历史资料；不会替代手动加入。移除不删除源目录、工作记录或站点。项目网站默认原样展示，`workspace-add --shared-theme` 或 UI 对应选项才启用配色适配。

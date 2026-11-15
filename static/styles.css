@@ -153,3 +153,31 @@ input::placeholder,textarea::placeholder{color:var(--wh-muted)!important;opacity
 .status-pill.running,.status-pill.completed{color:var(--wh-success)}.status-pill.blocked{color:var(--wh-warning)}.status-pill.paused{color:var(--wh-muted)}
 .agent-chip,.agent-chip.codex,.agent-chip.claude,.agent-chip.zcode,.activity-avatar,.activity-avatar.codex,.activity-avatar.claude,.activity-avatar.zcode{background:var(--wh-accent-soft);color:var(--wh-accent);border-color:var(--wh-border)}
 .archive-badge{background:var(--wh-accent-soft);color:var(--wh-accent);border-color:var(--wh-border)}.archive-badge.publication{color:var(--wh-warning)}
+
+/* Appearance tokens also cover native form surfaces and focus mode. */
+.sidebar .nav-item.active svg { color: var(--wh-sidebar-ink); }
+:is(input,textarea,select), #archive-form :is(input,textarea,select) {
+  color: var(--wh-ink); background-color: var(--wh-surface); border-color: var(--wh-border);
+}
+body.site-focus, .site-focus .site-canvas { background: var(--wh-bg); }
+:root[data-workhub-theme="codex-dark"] :is(.review-verdict,.review-job-status,.review-stale,.review-provider-hint,.review-dimension-empty) {
+  background: var(--wh-accent-soft); color: var(--wh-ink); border-color: var(--wh-border);
+}
+
+.search-field,.select-wrap select,.detail-fields,.empty-state,.stat-card,.project-card,.activity-section,
+.view-toggle button.selected,.review-provider,.review-project-card,.review-detail,.review-job,
+.review-job-completion,.review-demo-note,.demo-banner,.demo-banner strong {
+  background:var(--wh-surface); color:var(--wh-ink); border-color:var(--wh-border);
+}
+.demo-banner,.demo-banner strong,.review-demo-note { color:var(--wh-muted); }
+.search-field svg { color:var(--wh-muted); }
+.review-answer-panel textarea,#archive-form :is(input:not([type="checkbox"]),select,textarea) {
+  background:var(--wh-surface); border-color:var(--wh-border); color:var(--wh-ink);
+}
+.sidebar-toggle:hover,.site-navigator-toggle:hover,.focus-toggle:hover { background:var(--wh-accent-soft); }
+html.workhub-focus-mode,html.workhub-focus-mode body { background:var(--wh-bg); }
+:root[data-workhub-theme="codex-dark"] :is(.review-unresolved,.review-job-completion.latest.has-failures,.archive-redacted-note,.archive-form-error,.error-banner,.review-job.failed) {
+  background:var(--wh-accent-soft); color:var(--wh-warning); border-color:var(--wh-border);
+}
+
+.frame-notice { background:var(--wh-surface); color:var(--wh-muted); border-color:var(--wh-border); }

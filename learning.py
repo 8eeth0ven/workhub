@@ -286,6 +286,8 @@ class LearningStore:
                 project_id = self._project(db, {"project_id": project_id})
                 where = " WHERE c.project_id=?"
                 params.append(project_id)
+            if getattr(self.store, "workspace_only", False):
+                where += (" AND " if where else " WHERE ") + "c.project_id IN (SELECT project_id FROM workspace_projects)"
             rows = db.execute("""SELECT c.*,v.payload_hash,v.payload_json,v.created_at AS version_created_at,
                 p.name AS project_name FROM learning_cards c
                 JOIN learning_versions v ON v.card_id=c.id AND v.revision=c.revision

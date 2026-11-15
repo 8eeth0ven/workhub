@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+<title id="title">Workhub learning workflow</title><desc id="desc">Source-backed explanation, user acknowledgement and review of updated content.</desc>
+<rect width="1280" height="720" fill="#ffffff"/>
+<g font-family="-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif"><text x="64" y="80" font-size="36" fill="#171717" font-weight="600" >From a real change to your own understanding.</text>
+<text x="64" y="128" font-size="22" fill="#666666" font-weight="400" >Agent explains the work. You decide what you understand.</text>
+<rect x="64" y="184" width="560" height="194" rx="12" fill="#ffffff" stroke="#e8e8e8"/>
+<circle cx="100" cy="227" r="18" fill="#171717"/><text x="100" y="233" font-size="18" fill="#ffffff" font-weight="600" text-anchor="middle">1</text>
+<text x="136" y="236" font-size="27" fill="#171717" font-weight="600" >Explain the change</text>
+<text x="92" y="292" font-size="22" fill="#666666" font-weight="400" >Concepts, terms, steps and examples</text>
+<text x="92" y="334" font-size="22" fill="#666666" font-weight="400" >Link back to actual source</text>
+<rect x="656" y="184" width="560" height="194" rx="12" fill="#ffffff" stroke="#e8e8e8"/>
+<circle cx="692" cy="227" r="18" fill="#171717"/><text x="692" y="233" font-size="18" fill="#ffffff" font-weight="600" text-anchor="middle">2</text>
+<text x="728" y="236" font-size="27" fill="#171717" font-weight="600" >Read and self-check</text>
+<text x="684" y="292" font-size="22" fill="#666666" font-weight="400" >Read alongside the implementation</text>
+<text x="684" y="334" font-size="22" fill="#666666" font-weight="400" >Try explaining it in your own words</text>
+<rect x="64" y="406" width="560" height="194" rx="12" fill="#ffffff" stroke="#e8e8e8"/>
+<circle cx="100" cy="449" r="18" fill="#171717"/><text x="100" y="455" font-size="18" fill="#ffffff" font-weight="600" text-anchor="middle">3</text>
+<text x="136" y="458" font-size="27" fill="#171717" font-weight="600" >You acknowledge</text>
+<text x="92" y="514" font-size="22" fill="#666666" font-weight="400" >Check it yourself; undo anytime</text>
+<text x="92" y="556" font-size="22" fill="#666666" font-weight="400" >A self-report, not a certificate</text>
+<rect x="656" y="406" width="560" height="194" rx="12" fill="#ffffff" stroke="#e8e8e8"/>
+<circle cx="692" cy="449" r="18" fill="#171717"/><text x="692" y="455" font-size="18" fill="#ffffff" font-weight="600" text-anchor="middle">4</text>
+<text x="728" y="458" font-size="27" fill="#171717" font-weight="600" >Review the update</text>
+<text x="684" y="514" font-size="22" fill="#666666" font-weight="400" >Preserve past acknowledgements</text>
+<text x="684" y="556" font-size="22" fill="#666666" font-weight="400" >Read and confirm the new revision</text>
+<text x="64" y="655" font-size="18" fill="#666666" font-weight="400" >Workflow illustration, not a screenshot.</text>
+<text x="64" y="688" font-size="18" fill="#666666" font-weight="400" >Reading and acknowledgement do not trigger model calls.</text>
+</g></svg>

@@ -8,10 +8,10 @@
 
 | 要素 | 统一值 |
 | --- | --- |
-| 页面背景 / 内容表面 | `--wh-bg: #f7f7f8` / `--wh-surface: #fff` |
-| 正文 / 辅助文字 | `--wh-ink: #1f2328` / `--wh-muted: #62676f` |
-| 强调色 | `--wh-accent: #34373d` |
-| 边框 / 圆角 | `--wh-border: #e3e5e8` / `--wh-radius: 10px` |
+| 页面背景 / 内容表面 | `--wh-bg: #ffffff` / `--wh-surface: #fff` |
+| 正文 / 辅助文字 | `--wh-ink: #171717` / `--wh-muted: #666666` |
+| 强调色 | `--wh-accent: #171717` |
+| 边框 / 圆角 | `--wh-border: #e8e8e8` / `--wh-radius: 10px` |
 | 字体 | `--wh-font`：系统无衬线，包括 PingFang SC |
 | 字号 | 12px 元信息、13px 辅助正文、14px 正文、16px 内容标题；中控台无重复页面大标题 |
 | 间距 | 4 / 8 / 12 / 16 / 24 / 32 / 48px |
@@ -19,8 +19,6 @@
 正文和辅助文字对浅色背景、白字对主按钮色满足至少 4.5:1 对比。禁止为了轻盈而把主要内容降为难读的浅灰绿。不要为某项目另选字体、紫色/砖红主题、独立圆角或控件尺寸。
 
 门户加载这份 canonical CSS。三个预览模板直接通过门户 `/design-system.css` 和 `/templates/runtime.js` 读取共享资源；生成器会复制当前 canonical CSS 与 JS 到正式站点，并改为相对路径，因此正式网站无需门户端口也能独立显示。`workhub-site.json` 记录 `design_system: workhub-v1` 和主题文件哈希，以便知道网站采用了哪个版本。
-
-默认使用明亮 `light` 配色：白色内容、浅灰侧栏和深色文字；原有八种配色保留为可选项。没有保存偏好、偏好无效或被清空时使用明亮；合法已保存偏好继续沿用。默认配色和所有可复用模板以同一份 canonical token 与运行时为准，不另建项目皮肤。
 
 ## 紧凑中控台标题规则
 
@@ -55,7 +53,7 @@
 
 配色是整个工作空间的选择，不能只改变门户边框。可用颜色以 canonical CSS、`static/theme.js` 的枚举为准；扩充配色时同步模板与嵌入运行时，保留同一套布局和字号。门户收起时，项目画布使用实际剩余窗口空间，不锁住收起前的像素宽高。
 
-目录网站由门户注入固定的 `/__workhub/theme.css` 和 `/__workhub/theme.js`，保留 `workhub_theme=original` 的原样预览入口。独立后端站点在自己的 HTML 中引入门户的 `/design-system.css`、`/embedded-theme.css` 和 `/embedded-theme.js`；有严格 CSP 的站点可发布同源资源快照，不能靠通用代理或跨域读取 DOM 改色。
+项目网站默认原样展示；用户选择跟随中控配色后，目录网站才由门户注入固定的 `/__workhub/theme.css` 和 `/__workhub/theme.js`，保留 `workhub_theme=original` 的原样预览入口。独立后端站点在自己的 HTML 中引入门户的 `/design-system.css`、`/embedded-theme.css` 和 `/embedded-theme.js`；有严格 CSP 的站点可发布同源资源快照，不能靠通用代理或跨域读取 DOM 改色。
 
 已有复杂应用使用 `body[data-workhub-native]`，由本地适配 CSS 把原有颜色变量映射到 `--wh-*`；通用嵌入样式跳过原生应用的强覆盖。只改界面颜色，保留布局、字体大小、滚动、表单草稿、PDF/视频图像及风险/成功等语义状态色。
 
@@ -72,3 +70,22 @@
 - 检查英文长标签、窄屏、键盘焦点和表单标签。左侧已显示页面标题时，两种语言均不增加重复大页头或顶部占位。
 
 Both languages share the same visual system. Save the language preference without losing navigation or input state. Translate UI chrome, not stored project content, and keep the sidebar-first title rule in both languages. Documentation must provide reciprocal language links and describe the same technical and privacy boundaries.
+
+
+## Codex 外观与文章阅读
+
+默认 codex-light 为纯白界面，codex-dark 为中性深色；原有八种浅色配色继续兼容。主题枚举由 static/theme.js 提供，模板在首屏 CSS 前加载同一脚本；生成器需同时复制 theme.js。
+文章用 meta[name="workhub-reading-theme"][content="light"] 或 html[data-workhub-reading-theme="light"] 显式固定明亮。嵌入运行时尊重这一局部声明且不改写保存的工作空间偏好。通用主题注入不改变字体、排版、内容或媒体。
+复用示例：examples/reading-light/index.html 与 markdown-light.css。公众号粘贴版仍使用全内联白名单 HTML，不能把本地预览的 style/class 当作微信兼容产物。
+
+
+## README 配图
+
+README 使用 Codex 明亮风格：封面和示意图为白底、黑灰文字、浅灰细线，截图从隔离演示实际采集并选用 codex-light；不对截图滤色，不将示意图标为真实界面。中英文入口与图片含义对应；技术接入细节见 docs/appearance.md 及其英文版。
+
+配图采用横向构图，高度小于宽度；不强制固定长宽比。避免窄横条和纵向长图，流程图按内容重新布局，截图保留实际界面。
+
+
+## 中控边界
+
+项目与工作记录按 workspace_projects 的手动入选范围展示；CLI 登记或上报不加入中控。项目内容默认 original，不注入通用主题，也不发送主题/语言写入消息；用户选择 shared 后才接入同步。外围导航收起与成员列表刷新不重载当前项目，不冻结画布宽高、不覆盖原站正文。

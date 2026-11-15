@@ -1,0 +1,16 @@
+/* Codex light article preview; attach to a Markdown renderer, not its source text. */
+:root { color-scheme: light; }
+html, body, .markdown-body { background:#FFFFFF; color:#171717; }
+.markdown-body, body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Segoe UI",sans-serif; line-height:1.85; }
+.markdown-body { box-sizing:border-box; max-width:720px; padding:24px 20px; margin:auto; }
+h1,h2,h3,h4,strong { color:#171717; }
+h1,h2 { border-bottom:1px solid #E8E8E8; padding-bottom:.4em; }
+a { color:#171717; text-decoration:underline; text-underline-offset:3px; overflow-wrap:anywhere; }
+blockquote { margin:1em 0; padding:0 1em; color:#666666; border-left:3px solid #D4D4D4; }
+pre,code { color:#171717; background:#FAFAFA; font-family:ui-monospace,Consolas,monospace; }
+pre { padding:16px; border:1px solid #E8E8E8; border-radius:8px; white-space:pre-wrap; overflow-wrap:anywhere; }
+table { width:100%; border-collapse:collapse; }
+th,td { padding:10px 12px; border:1px solid #E8E8E8; text-align:left; }
+th { background:#FAFAFA; color:#171717; }
+img { max-width:100%; height:auto; background:#FFFFFF; }
+hr { border:0; border-top:1px solid #E8E8E8; }

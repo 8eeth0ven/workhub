@@ -39,38 +39,38 @@
   --sidebar-muted: var(--wh-sidebar-muted) !important;
   --sidebar-border: var(--wh-sidebar-border) !important;
 }
-body:not([data-template]):not([data-workhub-native]) {
+:root:not([data-workhub-reading-theme=light]) body:not([data-template]):not([data-workhub-native]) {
   color: var(--wh-ink) !important;
   background-color: var(--wh-bg) !important;
-  color-scheme: light !important;
+  color-scheme: var(--wh-color-scheme, light) !important;
   scrollbar-color: var(--wh-muted) var(--wh-bg);
 }
-body:not([data-template]):not([data-workhub-native]) :is(header,main,section,article,aside,footer,nav,dialog,.card,.panel,.item,.toolbar,.topbar,.sidebar,.filters,.content,.container,.wrap,.wrapper,.app,.layout,.section-nav,.day-picker,.sidebar-card,.feed-block,.feed-head,.empty,.stat-card,.data-panel,.search-field,.group-card,.run-metadata,.dialog-top,.comparison-glass):not(:where(.status,.status *,.status-pill,.status-pill *,.badge,.badge *,.success,.success *,.warning,.warning *,.danger,.danger *,.error,.error *,.alert,.alert *,[role="status"],[role="status"] *,[data-status],[data-status] *,[data-workhub-keep-color],[data-workhub-keep-color] *)) {
+:root:not([data-workhub-reading-theme=light]) body:not([data-template]):not([data-workhub-native]) :is(header,main,section,article,aside,footer,nav,dialog,.card,.panel,.item,.toolbar,.topbar,.sidebar,.filters,.content,.container,.wrap,.wrapper,.app,.layout,.section-nav,.day-picker,.sidebar-card,.feed-block,.feed-head,.empty,.stat-card,.data-panel,.search-field,.group-card,.run-metadata,.dialog-top,.comparison-glass):not(:where(.status,.status *,.status-pill,.status-pill *,.badge,.badge *,.success,.success *,.warning,.warning *,.danger,.danger *,.error,.error *,.alert,.alert *,[role="status"],[role="status"] *,[data-status],[data-status] *,[data-workhub-keep-color],[data-workhub-keep-color] *)) {
   color: var(--wh-ink) !important;
   background-color: var(--wh-surface) !important;
   border-color: var(--wh-border) !important;
 }
-body:not([data-template]):not([data-workhub-native]) :is(h1,h2,h3,h4,h5,h6,.wordmark,.footer-brand,.nav-feed-name,.item-text,.empty-title,.stat-card strong):not(:where(.status *,.status-pill *,.badge *,.success *,.warning *,.danger *,.error *,.alert *,[role="status"] *,[data-status] *,[data-workhub-keep-color],[data-workhub-keep-color] *)) {
+:root:not([data-workhub-reading-theme=light]) body:not([data-template]):not([data-workhub-native]) :is(h1,h2,h3,h4,h5,h6,.wordmark,.footer-brand,.nav-feed-name,.item-text,.empty-title,.stat-card strong):not(:where(.status *,.status-pill *,.badge *,.success *,.warning *,.danger *,.error *,.alert *,[role="status"] *,[data-status] *,[data-workhub-keep-color],[data-workhub-keep-color] *)) {
   color: var(--wh-ink) !important;
 }
-body:not([data-template]):not([data-workhub-native]) :is(p,.subtitle,.description,.summary,.meta,.caption,.muted,.lead,.eyebrow,.row-label,.date-sub,.sidebar-title,.sidebar-total,.nav-feed-count,.nav-count,.board-weekday,.feed-total,.section-count,.item-time,.item-src,.link-arrow,.search-icon,.lane-label,.heading-note,.metadata-line,.results-toolbar):not(:where(.status,.status *,.status-pill,.status-pill *,.badge,.badge *,.success,.success *,.warning,.warning *,.danger,.danger *,.error,.error *,.alert,.alert *,[role="status"],[role="status"] *,[data-status],[data-status] *,[data-workhub-keep-color],[data-workhub-keep-color] *)) {
+:root:not([data-workhub-reading-theme=light]) body:not([data-template]):not([data-workhub-native]) :is(p,.subtitle,.description,.summary,.meta,.caption,.muted,.lead,.eyebrow,.row-label,.date-sub,.sidebar-title,.sidebar-total,.nav-feed-count,.nav-count,.board-weekday,.feed-total,.section-count,.item-time,.item-src,.link-arrow,.search-icon,.lane-label,.heading-note,.metadata-line,.results-toolbar):not(:where(.status,.status *,.status-pill,.status-pill *,.badge,.badge *,.success,.success *,.warning,.warning *,.danger,.danger *,.error,.error *,.alert,.alert *,[role="status"],[role="status"] *,[data-status],[data-status] *,[data-workhub-keep-color],[data-workhub-keep-color] *)) {
   color: var(--wh-muted) !important;
 }
-body:not([data-template]):not([data-workhub-native]) :is(a,button,input,select,textarea,[role="button"]):not(:where(.status,.status *,.success,.success *,.warning,.warning *,.danger,.danger *,.error,.error *,.alert,.alert *,[data-status],[data-status] *,[data-workhub-keep-color],[data-workhub-keep-color] *)) {
+:root:not([data-workhub-reading-theme=light]) body:not([data-template]):not([data-workhub-native]) :is(a,button,input,select,textarea,[role="button"]):not(:where(.status,.status *,.success,.success *,.warning,.warning *,.danger,.danger *,.error,.error *,.alert,.alert *,[data-status],[data-status] *,[data-workhub-keep-color],[data-workhub-keep-color] *)) {
   color: var(--wh-ink) !important;
   border-color: var(--wh-border) !important;
 }
-body:not([data-template]):not([data-workhub-native]) :is(button,input,select,textarea,[role="button"]):not(:where(.success,.success *,.warning,.warning *,.danger,.danger *,.error,.error *,.alert,.alert *,[data-status],[data-status] *,[data-workhub-keep-color],[data-workhub-keep-color] *)) {background-color: var(--wh-surface) !important;}
-body:not([data-template]):not([data-workhub-native]) a:not(:where(.status *,.success *,.warning *,.danger *,.error *,.alert *,[data-status] *,[data-workhub-keep-color],[data-workhub-keep-color] *)) {color: var(--wh-accent) !important;}
-body:not([data-template]):not([data-workhub-native]) :is(input,textarea)::placeholder {color: var(--wh-muted) !important;}
-body:not([data-template]):not([data-workhub-native]) :is(button,[role="button"]):hover:not(:where(.success,.warning,.danger,.error,.alert,[data-status],[data-workhub-keep-color])) {background-color: var(--wh-accent-soft) !important;}
-body:not([data-template]):not([data-workhub-native]) :is(.button.primary,.btn-primary,button.primary,[aria-pressed="true"],[aria-selected="true"],button.active,button.selected,button.on,.tab.active,.tab.on):not(:where(.success,.warning,.danger,.error,.alert,[data-status],[data-workhub-keep-color])) {
+:root:not([data-workhub-reading-theme=light]) body:not([data-template]):not([data-workhub-native]) :is(button,input,select,textarea,[role="button"]):not(:where(.success,.success *,.warning,.warning *,.danger,.danger *,.error,.error *,.alert,.alert *,[data-status],[data-status] *,[data-workhub-keep-color],[data-workhub-keep-color] *)) {background-color: var(--wh-surface) !important;}
+:root:not([data-workhub-reading-theme=light]) body:not([data-template]):not([data-workhub-native]) a:not(:where(.status *,.success *,.warning *,.danger *,.error *,.alert *,[data-status] *,[data-workhub-keep-color],[data-workhub-keep-color] *)) {color: var(--wh-accent) !important;}
+:root:not([data-workhub-reading-theme=light]) body:not([data-template]):not([data-workhub-native]) :is(input,textarea)::placeholder {color: var(--wh-muted) !important;}
+:root:not([data-workhub-reading-theme=light]) body:not([data-template]):not([data-workhub-native]) :is(button,[role="button"]):hover:not(:where(.success,.warning,.danger,.error,.alert,[data-status],[data-workhub-keep-color])) {background-color: var(--wh-accent-soft) !important;}
+:root:not([data-workhub-reading-theme=light]) body:not([data-template]):not([data-workhub-native]) :is(.button.primary,.btn-primary,button.primary,[aria-pressed="true"],[aria-selected="true"],button.active,button.selected,button.on,.tab.active,.tab.on):not(:where(.success,.warning,.danger,.error,.alert,[data-status],[data-workhub-keep-color])) {
   color: var(--wh-on-accent) !important;
   background-color: var(--wh-accent) !important;
   border-color: var(--wh-accent) !important;
 }
-body:not([data-template]):not([data-workhub-native]) :is(.button.primary,.btn-primary,button.primary,[aria-pressed="true"],[aria-selected="true"],button.active,button.selected,button.on,.tab.active,.tab.on):not(:where(.success,.warning,.danger,.error,.alert,[data-status],[data-workhub-keep-color])) :is(span,strong,small,b) {color: inherit !important;}
-body:not([data-template]):not([data-workhub-native]) :is(th,td):not(:where([data-workhub-keep-color],[data-workhub-keep-color] *)) {color: var(--wh-ink) !important; border-color: var(--wh-border) !important;}
-body:not([data-template]):not([data-workhub-native]) th:not(:where([data-workhub-keep-color],[data-workhub-keep-color] *)) {background-color: var(--wh-accent-soft) !important;}
-body:not([data-template]):not([data-workhub-native]) :focus-visible {outline-color: var(--wh-focus) !important;}
-body:not([data-template]):not([data-workhub-native]) ::selection {background-color: var(--wh-accent-tint); color: var(--wh-ink);}
+:root:not([data-workhub-reading-theme=light]) body:not([data-template]):not([data-workhub-native]) :is(.button.primary,.btn-primary,button.primary,[aria-pressed="true"],[aria-selected="true"],button.active,button.selected,button.on,.tab.active,.tab.on):not(:where(.success,.warning,.danger,.error,.alert,[data-status],[data-workhub-keep-color])) :is(span,strong,small,b) {color: inherit !important;}
+:root:not([data-workhub-reading-theme=light]) body:not([data-template]):not([data-workhub-native]) :is(th,td):not(:where([data-workhub-keep-color],[data-workhub-keep-color] *)) {color: var(--wh-ink) !important; border-color: var(--wh-border) !important;}
+:root:not([data-workhub-reading-theme=light]) body:not([data-template]):not([data-workhub-native]) th:not(:where([data-workhub-keep-color],[data-workhub-keep-color] *)) {background-color: var(--wh-accent-soft) !important;}
+:root:not([data-workhub-reading-theme=light]) body:not([data-template]):not([data-workhub-native]) :focus-visible {outline-color: var(--wh-focus) !important;}
+:root:not([data-workhub-reading-theme=light]) body:not([data-template]):not([data-workhub-native]) ::selection {background-color: var(--wh-accent-tint); color: var(--wh-ink);}

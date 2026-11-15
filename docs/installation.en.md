@@ -99,3 +99,17 @@ When `llm.json` exists, it takes precedence. Legacy `glm.json` is read only when
 A CLI provider's `command` is an argument array explicitly saved by a trusted local user, with optional `cwd` and output format. Native adapters wrap detected clients; advanced custom commands still follow the JSON input/output contract. Shell command strings and credentials in arguments are rejected. OpenAI-compatible HTTP is accepted only with explicit local-HTTP permission and a literal loopback address; public endpoints use HTTPS.
 
 After the user enables reviews, `python3 workhub.py review --project "$PROJECT_DIR"` sends limited registered project material to the selected reviewer. Missing configuration and failed calls are reported as such; Workhub does not invent local scores and present them as model output. Switching the interface language does not start another review or translate an existing one. See [Privacy](privacy.en.md) for the data scope and release checks.
+
+
+## Manually add a workspace project
+
+Choose **Add existing project** in Project spaces, enter its actual directory, select Codex, Z Code or Claude CLI, and optionally connect a website. Only manually added projects and their records appear. Existing database registrations are not automatically admitted after upgrading; their records remain intact.
+
+Explicit CLI alternatives, selected by the user rather than run automatically by an agent:
+
+```sh
+python3 workhub.py workspace-add --path /path/to/project --agent codex --agent claude
+python3 workhub.py workspace-remove --id PROJECT_ID
+```
+
+`register`, `record` and `site-add` still preserve project metadata and history without admitting projects. Removing an entry does not delete source directories, records or sites. Websites keep their original appearance unless the user opts into theme adaptation through the UI or `workspace-add --shared-theme`.

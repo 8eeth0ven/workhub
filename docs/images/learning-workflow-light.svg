@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+<title id="title">Workhub 学习流程</title><desc id="desc">有来源的讲解、用户本人确认及内容更新后的复习。</desc>
+<rect width="1280" height="720" fill="#ffffff"/>
+<g font-family="-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif"><text x="64" y="80" font-size="36" fill="#171717" font-weight="600" >从一次改动，到一次理解。</text>
+<text x="64" y="128" font-size="22" fill="#666666" font-weight="400" >讲解有来源，理解由本人确认。</text>
+<rect x="64" y="184" width="560" height="194" rx="12" fill="#ffffff" stroke="#e8e8e8"/>
+<circle cx="100" cy="227" r="18" fill="#171717"/><text x="100" y="233" font-size="18" fill="#ffffff" font-weight="600" text-anchor="middle">1</text>
+<text x="136" y="236" font-size="27" fill="#171717" font-weight="600" >整理真实改动</text>
+<text x="92" y="292" font-size="22" fill="#666666" font-weight="400" >整理概念、术语、步骤与例子</text>
+<text x="92" y="334" font-size="22" fill="#666666" font-weight="400" >关联实际源码位置</text>
+<rect x="656" y="184" width="560" height="194" rx="12" fill="#ffffff" stroke="#e8e8e8"/>
+<circle cx="692" cy="227" r="18" fill="#171717"/><text x="692" y="233" font-size="18" fill="#ffffff" font-weight="600" text-anchor="middle">2</text>
+<text x="728" y="236" font-size="27" fill="#171717" font-weight="600" >阅读并自检</text>
+<text x="684" y="292" font-size="22" fill="#666666" font-weight="400" >对照实现阅读学习卡</text>
+<text x="684" y="334" font-size="22" fill="#666666" font-weight="400" >试着复述，并回答自检问题</text>
+<rect x="64" y="406" width="560" height="194" rx="12" fill="#ffffff" stroke="#e8e8e8"/>
+<circle cx="100" cy="449" r="18" fill="#171717"/><text x="100" y="455" font-size="18" fill="#ffffff" font-weight="600" text-anchor="middle">3</text>
+<text x="136" y="458" font-size="27" fill="#171717" font-weight="600" >本人确认理解</text>
+<text x="92" y="514" font-size="22" fill="#666666" font-weight="400" >亲自勾选，可随时取消</text>
+<text x="92" y="556" font-size="22" fill="#666666" font-weight="400" >记录初步理解，不等于精通</text>
+<rect x="656" y="406" width="560" height="194" rx="12" fill="#ffffff" stroke="#e8e8e8"/>
+<circle cx="692" cy="449" r="18" fill="#171717"/><text x="692" y="455" font-size="18" fill="#ffffff" font-weight="600" text-anchor="middle">4</text>
+<text x="728" y="458" font-size="27" fill="#171717" font-weight="600" >更新后再复习</text>
+<text x="684" y="514" font-size="22" fill="#666666" font-weight="400" >保留旧版确认记录</text>
+<text x="684" y="556" font-size="22" fill="#666666" font-weight="400" >重新阅读并确认新内容</text>
+<text x="64" y="655" font-size="18" fill="#666666" font-weight="400" >工作流程示意，非界面截图。</text>
+<text x="64" y="688" font-size="18" fill="#666666" font-weight="400" >学习卡与确认保存在本机；阅读和勾选不会自动调用模型。</text>
+</g></svg>

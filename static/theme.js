@@ -2,16 +2,17 @@
 (() => {
   'use strict';
   const key = 'workhub-theme';
-  const themes = Object.freeze(['light', 'moss', 'fog', 'graphite', 'sand', 'orange', 'teal', 'rose', 'indigo']);
-  const normalize = value => themes.includes(value) ? value : 'light';
+  const themes = Object.freeze(['codex-light', 'codex-dark', 'moss', 'fog', 'graphite', 'sand', 'orange', 'teal', 'rose', 'indigo']);
+  const normalize = value => themes.includes(value) ? value : 'codex-light';
   const root = document.documentElement;
-  let theme = 'light';
+  let theme = 'codex-light';
   try { theme = normalize(localStorage.getItem(key)); } catch {}
   // This script runs synchronously before the stylesheets and first paint.
   root.setAttribute('data-workhub-theme', theme);
   const callbacks = new Set();
 
   function broadcastFrame(frame) {
+    if (frame.dataset.workhubTheme === 'original') return;
     try {
       const url = new URL(frame.src, location.href);
       if (!['http:', 'https:'].includes(url.protocol) || !frame.contentWindow) return;

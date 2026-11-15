@@ -4,6 +4,9 @@
   const workspaceKey = 'workhub-sidebar-collapsed';
   const sitesKey = 'workhub-site-navigator-collapsed';
   const root = document.documentElement;
+  try { root.dataset.workhubSpaceMode = localStorage.getItem('workhub-space-mode') || (localStorage.getItem('workhub-current-site') ? 'website' : 'control'); }
+  catch { root.dataset.workhubSpaceMode = 'control'; }
+
   let collapsed = false;
   let sitesCollapsed = false;
   let hasSitesPreference = false;

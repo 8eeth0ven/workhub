@@ -770,6 +770,9 @@ class AssessmentManager:
                 reviews.append(latest)
         with self.store.connection() as db:
             jobs = [self._decode_job(row) for row in db.execute("SELECT * FROM review_jobs ORDER BY created_at DESC,rowid DESC LIMIT 20")]
+        if getattr(self.store, "workspace_only", False):
+            allowed = {p["id"] for p in self.store.projects()}
+            jobs = [job for job in jobs if job.get("project_ids") and all(pid in allowed for pid in job["project_ids"])]
         return {"reviews": reviews, "jobs": jobs, "provider": provider.public(), "rubric": RUBRIC}
 
     @staticmethod

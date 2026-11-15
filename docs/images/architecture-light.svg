@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+<title id="title">Workhub 数据流</title><desc id="desc">Agent 写入本机记录；主动发起评议时将选定摘要交给所配置评议器。</desc>
+<rect width="1280" height="720" fill="#ffffff"/>
+<g font-family="-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif"><text x="64" y="80" font-size="36" fill="#171717" font-weight="600" >工作记录留在本机，评议按需启用。</text>
+<text x="64" y="128" font-size="22" fill="#666666" font-weight="400" >记录真实工作，查看依据，再决定下一步。</text>
+<rect x="64" y="194" width="368" height="210" rx="12" fill="#ffffff" stroke="#e8e8e8"/>
+<text x="88" y="247" font-size="26" fill="#171717" font-weight="600" >Agent / CLI</text>
+<text x="88" y="303" font-size="20" fill="#666666" font-weight="400" >Codex · Z Code · Claude</text>
+<text x="88" y="344" font-size="20" fill="#666666" font-weight="400" >任务、产物与验证摘要</text>
+<path d="M437 299H451m-7-6 7 6-7 6" fill="none" stroke="#666666" stroke-width="1.5"/><rect x="456" y="194" width="368" height="210" rx="12" fill="#ffffff" stroke="#e8e8e8"/>
+<text x="480" y="247" font-size="26" fill="#171717" font-weight="600" >本机工作记录</text>
+<text x="480" y="303" font-size="20" fill="#666666" font-weight="400" >SQLite 本机持久化</text>
+<text x="480" y="344" font-size="20" fill="#666666" font-weight="400" >项目、事件、站点与来源</text>
+<path d="M829 299H843m-7-6 7 6-7 6" fill="none" stroke="#666666" stroke-width="1.5"/><rect x="848" y="194" width="368" height="210" rx="12" fill="#ffffff" stroke="#171717"/>
+<text x="872" y="247" font-size="26" fill="#171717" font-weight="600" >Workhub 门户</text>
+<text x="872" y="303" font-size="20" fill="#666666" font-weight="400" >项目网站同页切换</text>
+<text x="872" y="344" font-size="20" fill="#666666" font-weight="400" >模板、学习卡与项目评议</text>
+<path d="M1032 416V474m-6-7 6 7 6-7" fill="none" stroke="#666666" stroke-width="1.5" stroke-dasharray="5 5"/><text x="1050" y="452" font-size="17" fill="#666666" font-weight="400" >按需评议</text>
+<rect x="64" y="486" width="760" height="182" rx="10" fill="#fafafa" stroke="#e8e8e8"/>
+<text x="88" y="531" font-size="25" fill="#171717" font-weight="600" >数据边界</text>
+<text x="88" y="577" font-size="20" fill="#666666" font-weight="400" >密钥与命令配置留在本机后端。</text>
+<text x="88" y="620" font-size="20" fill="#666666" font-weight="400" >不会自动上传完整仓库、完整聊天或网站文件。</text>
+<rect x="848" y="486" width="368" height="182" rx="12" fill="#ffffff" stroke="#e8e8e8"/>
+<text x="872" y="531" font-size="26" fill="#171717" font-weight="600" >所选评议器</text>
+<text x="872" y="577" font-size="20" fill="#666666" font-weight="400" >API · 本地模型 · CLI</text>
+<text x="872" y="620" font-size="20" fill="#666666" font-weight="400" >仅接收选定项目摘要</text>
+</g></svg>

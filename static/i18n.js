@@ -1340,6 +1340,27 @@
    '项目定位最多 1000 字':'Project focus must be at most 1,000 characters',
    '检索词含敏感信息，请移除后重试':'Remove sensitive information from search keywords and try again',
  });
+ Object.assign(dictionaries.en,{
+  '取消':'Cancel','编辑项目':'Edit projects','完成编辑':'Done editing','选择项目 {name}':'Select project {name}',
+  '快照状态：{state}':'Snapshot status: {state}','快照读取':'Snapshot observed','项目记录更新':'Project record updated',
+  '快照读取时间：{time}':'Snapshot observation time: {time}',
+  '项目记录更新时间：{time}；不代表工作发生或 Git 快照读取时间。':'Project record updated: {time}; this is not the work event time or Git snapshot observation time.',
+  '每次最多选择 100 个项目。':'Select at most 100 projects at a time.',
+  '已选择 {count} 个项目':'{count} projects selected','选择当前可见':'Select visible','取消选择':'Clear selection',
+  '从中控移除所选':'Remove selected from workspace','正在移除…':'Removing…',
+  '每次最多选择 100 个项目，请缩小筛选范围。':'At most 100 projects per batch. Narrow the filter before selecting all.',
+  '筛选变化会取消不可见项目的选择。只从中控移除，保留文件、记录与远端仓库。':'Changing filters clears hidden selections. Removal preserves files, records and remote repositories.',
+  '返回项目列表':'Back to projects','项目详情':'Project details','从中控移除所选项目？':'Remove the selected projects from the workspace?',
+  '确认从中控移除这 {count} 个项目？':'Remove these {count} projects from the workspace?',
+  '另有 {count} 个所选项目':'And {count} other selected projects','确认从中控移除':'Confirm removal',
+  '只从中控移除，保留本地文件、网站、工作记录与远端仓库。':'Remove workspace entries only. Local files, websites, work records and remote repositories are preserved.',
+  '移除结果未能核对，保留当前选择并刷新后再确认。':'The removal response could not be verified. Keep the selection and refresh before retrying.',
+  '移除结果未确认，当前选择已保留。':'Removal was not confirmed. The selection has been retained.',
+  '已从中控移除 {count} 个项目，文件、工作记录与远端仓库保留。':'Removed {count} projects from the workspace. Files, work records and remote repositories are preserved.',
+  '已从中控移除 {count} 个项目；列表刷新暂未完成，请稍后刷新。':'Removed {count} projects from the workspace; the list could not refresh yet. Refresh again shortly.',
+  '已取消 {count} 个不可见项目的选择。':'Cleared {count} hidden selections.',
+  '演示模式只读，无法修改项目。':'Demo mode is read-only. Projects cannot be changed.'
+ });
  Object.values(dictionaries).forEach(Object.freeze);Object.freeze(dictionaries);
  const normalize=value=>value==='en'||value==='en-US'||value==='en-GB'?'en':'zh-CN';
  let locale='zh-CN';try{locale=normalize(localStorage.getItem('workhub-language'));}catch{}

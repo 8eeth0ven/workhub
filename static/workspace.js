@@ -5,6 +5,7 @@
   const I = window.WorkhubI18n, t = (key, params) => I.t(key, params);
   const dialog = $('workspace-dialog'), form = $('workspace-form');
   const message = $('workspace-message');
+  const isDemo = () => document.body.dataset.demo === 'true';
   let busy = false;
   let catalog = [], catalogLoaded = false, catalogLoading = false, catalogFailed = false;
   const agentName = agent => ({codex:'Codex',zcode:'Z Code',claude:'Claude CLI',other:t('其他')})[agent] || agent;
@@ -37,8 +38,8 @@
       return option;
     }));
     if (projects.some(project => project.id === chosen)) select.value = chosen;
-    select.disabled = catalogLoading;
-    $('workspace-catalog-refresh').disabled = catalogLoading;
+    select.disabled = catalogLoading || isDemo();
+    $('workspace-catalog-refresh').disabled = catalogLoading || isDemo();
     $('workspace-catalog-hint').textContent = catalogLoading?t('正在读取客户端保存的项目目录…')
       :catalogFailed?t('目录列表暂不可用，仍可手动填写。')
       :projects.length?t('找到 {count} 个现有项目；选中后点击“加入中控”。',{count:projects.length})
@@ -68,6 +69,7 @@
   $('workspace-catalog-source').addEventListener('change', renderCatalog);
   $('workspace-catalog-refresh').addEventListener('click', loadCatalog);
   async function request(action, payload) {
+    if (isDemo()) throw new Error(t('演示模式只读，无法修改项目。'));
     const response = await fetch('/api/workspace/' + action, {
       method: 'POST', headers: {'Content-Type':'application/json', 'X-Workhub-Request':'1'},
       body: JSON.stringify(payload), signal: AbortSignal.timeout(8000),
@@ -81,6 +83,7 @@
     renderProjects();
   }
   function renderProjects() {
+    if (isDemo()) form.querySelectorAll('input,select,textarea,button').forEach(node => { node.disabled = true; });
     const box = $('workspace-projects');
     const projects = window.WorkhubDashboard.projects();
     if (!projects.length) {
@@ -93,13 +96,14 @@
       info.append(text('strong', project.name), text('span', project.path), text('small', (project.source_agents || []).map(agentName).join(' · ')));
       const remove = text('button', t('从中控移除'), 'button button-outline button-compact');
       remove.type = 'button';
-      remove.disabled = busy;
+      remove.disabled = busy || isDemo();
       remove.onclick = async () => {
-        if (busy) return;
+        if (busy || isDemo()) return;
         busy = true; remove.disabled = true;
         try {
           await request('remove', {id:project.id});
           await refresh();
+          window.dispatchEvent(new CustomEvent('workhub:workspace-removed', {detail:{ids:[project.id]}}));
           feedback(t('已从中控移除，项目文件与历史记录保留。'));
         } catch (error) { feedback(error.message || t('项目操作未成功。'), true); }
         finally { busy = false; renderProjects(); }
@@ -116,7 +120,7 @@
   }
   form.addEventListener('submit', async event => {
     event.preventDefault();
-    if (busy || !form.reportValidity()) return;
+    if (busy || isDemo() || !form.reportValidity()) return;
     const agents = [...form.querySelectorAll('input[name="workspace-agent"]:checked')].map(el => el.value);
     if (!agents.length) { feedback(t('至少选择一个项目来源。'), true); return; }
     const payload = {path:$('workspace-path').value.trim(), agents, theme_mode:$('workspace-shared-theme').checked?'shared':'original'};
@@ -130,11 +134,11 @@
       form.reset(); updateSiteFields(); renderCatalog();
       feedback(t('已加入中控；只有手动添加的项目会显示。'));
     } catch (error) { feedback(error.message || t('项目操作未成功。'), true); }
-    finally { busy = false; $('workspace-submit').disabled = false; renderProjects(); }
+    finally { busy = false; $('workspace-submit').disabled = isDemo(); renderProjects(); }
   });
   document.querySelectorAll('[data-workspace-add]').forEach(button => button.addEventListener('click', show));
   $('workspace-site-kind').addEventListener('change', updateSiteFields);
-  window.addEventListener('workhub:state', () => { if (dialog.open) renderProjects(); });
+  window.addEventListener('workhub:state', () => { if (dialog.open || isDemo()) renderProjects(); });
   I.onChange(() => { renderProjects(); updateSiteFields(); if (catalogLoaded || dialog.open) renderCatalog(); if (!message.hidden) message.textContent = I.translateKnown(message.textContent); });
   window.WorkhubWorkspace = {open:show};
   updateSiteFields();

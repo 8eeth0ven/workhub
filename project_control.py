@@ -304,6 +304,10 @@ class ControlCenter:
         if item['kind']=='github':self.discovery.disable(identifier)
         return {'ok':True}
 
+    def remove_batch(self,items):
+        """Local and independent GitHub membership share one SQLite transaction."""
+        return self.workspace.remove_items(items)
+
     def plan(self,identifier,next_step,priority=2):
         if identifier not in self.members():
             raise ValueError('项目尚未手动加入中控')
@@ -371,8 +375,12 @@ class ControlCenter:
         members=self.members()
         discovery=self.discovery.configs()
         with self.store.connection() as db:
+            db.execute('BEGIN')
             snapshots={r['id']:dict(r) for r in db.execute('SELECT * FROM control_snapshots')}
             plans={r['id']:dict(r) for r in db.execute('SELECT * FROM control_plans')}
+            latest={r['project_id']:dict(r) for r in db.execute(
+                'SELECT e.project_id,e.summary,e.created_at FROM events e JOIN workspace_projects w ON w.project_id=e.project_id '
+                'WHERE e.id IN (SELECT MAX(id) FROM events GROUP BY project_id)')}
         rows=[]
         for identifier,item in members.items():
             raw=snapshots.get(identifier)
@@ -394,6 +402,13 @@ class ControlCenter:
             row={'id':identifier,'name':item['name'],'kind':item['kind'],'path':item.get('path'),
                  'work_status':item.get('status'),'repository':item.get('repository'),
                  'snapshot':snapshot,'plan':plans.get(identifier),'refreshing':identifier in self.jobs}
+            work = latest.get(identifier) if item['kind'] == 'local' else None
+            summary = work.get('summary') if work else None
+            row['latest_work'] = None
+            if isinstance(summary, str) and summary.strip():
+                row['latest_work'] = {'summary': summary[:2000],
+                                      'updated_at': work.get('created_at') if isinstance(work.get('created_at'), str) else None,
+                                      'status': item.get('status') if isinstance(item.get('status'), str) and item['status'] in {'running','completed','blocked','paused','registered'} else None}
             row['discovery']=discovery.get(identifier,{'keywords':'','enabled':False,'interval_hours':24,'results':None,'running':False,'stale':False})
             row['recommendations']=recommendations((snapshot or {}).get('local'),(snapshot or {}).get('github'),row['work_status'])
             rows.append(row)

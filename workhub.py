@@ -326,6 +326,7 @@ class Workspace:
     """Explicit dashboard membership; recording work never opts a project in."""
 
     AGENTS = {"codex", "zcode", "claude", "other"}
+    MAX_REMOVE_BATCH = 100
 
     def __init__(self, store):
         self.store = store
@@ -398,6 +399,62 @@ class Workspace:
             if db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='control_discovery'").fetchone():
                 db.execute("UPDATE control_discovery SET enabled=0,next_run_at=NULL,generation=generation+1,lease=NULL,lease_until=0 WHERE id=?",(identifier,))
             return {"ok": True, "removed": cursor.rowcount > 0, "id": identifier}
+
+    def remove_items(self, items):
+        """Remove only dashboard membership in one transaction, never project data."""
+        if not isinstance(items, list) or not 1 <= len(items) <= self.MAX_REMOVE_BATCH:
+            raise ValueError("批量移除须选择 1 至 100 个项目")
+        identifiers, selected = set(), []
+        for item in items:
+            if not isinstance(item, dict) or set(item) != {"id", "kind"}:
+                raise ValueError("批量移除项目参数无效")
+            identifier, kind = item["id"], item["kind"]
+            if not isinstance(identifier, str) or not re.fullmatch(r"[0-9a-f]{24}", identifier):
+                raise ValueError("批量移除项目 ID 无效")
+            if not isinstance(kind, str) or kind not in {"local", "github"}:
+                raise ValueError("批量移除项目类型无效")
+            if identifier in identifiers:
+                raise ValueError("批量移除项目 ID 不得重复")
+            identifiers.add(identifier)
+            selected.append({"id": identifier, "kind": kind})
+        removed, unchanged = [], []
+        with self.store.connection() as db:
+            db.execute("BEGIN IMMEDIATE")
+            tables = {r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+            for item in selected:
+                identifier = item["id"]
+                if item["kind"] == "local":
+                    if db.execute("SELECT 1 FROM projects WHERE id=?", (identifier,)).fetchone() is None:
+                        raise ValueError("项目不存在，未移除任何项目")
+                    member = db.execute("SELECT 1 FROM workspace_projects WHERE project_id=?", (identifier,)).fetchone() is not None
+                else:
+                    row = db.execute("SELECT connected,local_project_id FROM control_repositories WHERE id=?", (identifier,)).fetchone() if "control_repositories" in tables else None
+                    if row is None:
+                        raise ValueError("项目不存在，未移除任何项目")
+                    if row["local_project_id"]:
+                        raise ValueError("关联本地项目的仓库不能作为独立项目移除")
+                    member = bool(row["connected"])
+                (removed if member else unchanged).append(item)
+            for item in removed:
+                if item["kind"] == "local":
+                    db.execute("DELETE FROM workspace_projects WHERE project_id=?", (item["id"],))
+                else:
+                    db.execute("UPDATE control_repositories SET connected=0 WHERE id=?", (item["id"],))
+            if removed and "control_discovery" in tables:
+                # Invalidate only Workhub's own future discovery and in-flight
+                # discovery writes. This does not stop an Agent or external job.
+                db.executemany("UPDATE control_discovery SET enabled=0,next_run_at=NULL,generation=generation+1,lease=NULL,lease_until=0 WHERE id=?",
+                               [(item["id"],) for item in removed])
+        return {"ok": True, "items": selected, "removed_items": removed,
+                "unchanged_items": unchanged, "removed_count": len(removed)}
+
+    def remove_batch(self, identifiers):
+        """Local-only batch compatibility; registered nonmembers are idempotent."""
+        if not isinstance(identifiers, list) or not 1 <= len(identifiers) <= self.MAX_REMOVE_BATCH:
+            raise ValueError("批量移除须选择 1 至 100 个项目")
+        result = self.remove_items([{"id": identifier, "kind": "local"} for identifier in identifiers])
+        return {"ok": True, "ids": identifiers[:], "removed_ids": [i["id"] for i in result["removed_items"]],
+                "unchanged_ids": [i["id"] for i in result["unchanged_items"]], "removed_count": result["removed_count"]}
 
     def sites(self):
         with self.store.connection() as db:
@@ -562,7 +619,7 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None,
             archive_kind = self.path.removeprefix("/api/archives/") if self.path.startswith("/api/archives/") else None
             learning_ack = self.path == "/api/learning/ack"
             model_action = self.path.removeprefix("/api/model-access/") if self.path.startswith("/api/model-access/") else None
-            if self.path != "/api/reviews" and not learning_ack and archive_kind not in ("session", "prompt", "artifact") and model_action not in ("save", "test") and workspace_action not in ("add", "remove") and control_action not in ("catalog", "connect", "disconnect", "refresh", "plan", "discovery-save", "discovery-run"):
+            if self.path != "/api/reviews" and not learning_ack and archive_kind not in ("session", "prompt", "artifact") and model_action not in ("save", "test") and workspace_action not in ("add", "remove", "remove-batch") and control_action not in ("catalog", "connect", "disconnect", "refresh", "plan", "discovery-save", "discovery-run", "remove-batch"):
                 self.json_response(404, {"error": "接口不存在"})
                 return
             if self.headers.get("X-Workhub-Request") != "1":
@@ -586,7 +643,7 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None,
                 if control_action:
                     if not isinstance(payload, dict):
                         raise ReviewError("中控请求须为 JSON 对象")
-                    allowed = {'catalog':{'owner'},'connect':{'full_name','local_project_id'},'disconnect':{'id'},'refresh':{'id'},'plan':{'id','next_step','priority'},'discovery-save':{'id','keywords','enabled','interval_hours','project_focus'},'discovery-run':{'id','keywords','project_focus'}}[control_action]
+                    allowed = {'catalog':{'owner'},'connect':{'full_name','local_project_id'},'disconnect':{'id'},'refresh':{'id'},'plan':{'id','next_step','priority'},'discovery-save':{'id','keywords','enabled','interval_hours','project_focus'},'discovery-run':{'id','keywords','project_focus'},'remove-batch':{'items'}}[control_action]
                     if set(payload)-allowed:
                         raise ReviewError("中控参数无效")
                     try:
@@ -596,6 +653,8 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None,
                             result=control.connect(payload.get('full_name'),payload.get('local_project_id'))
                         elif control_action=='disconnect':
                             result=control.disconnect(payload.get('id'))
+                        elif control_action=='remove-batch':
+                            result=control.remove_batch(payload.get('items'))
                         elif control_action=='refresh':
                             result=control.refresh(payload.get('id'))
                         elif control_action=='discovery-save':
@@ -617,6 +676,10 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None,
                                 raise ValueError("项目参数无效")
                             result = workspace.add(**payload)
                             self.json_response(201, {"project": result})
+                        elif workspace_action == "remove-batch":
+                            if set(payload) != {"ids"}:
+                                raise ValueError("批量移除项目参数无效")
+                            self.json_response(200, workspace.remove_batch(payload["ids"]))
                         else:
                             if set(payload) != {"id"}:
                                 raise ValueError("项目移除参数无效")

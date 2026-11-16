@@ -41,7 +41,7 @@
     const save=button('保存检索设置',()=>form.requestSubmit());
     const run=button(config.running?'检索中…':'立即检索',async()=>{
       run.disabled=true;try{const answer=await post('discovery-run',{id:row.id,keywords:keywords.value.trim(),project_focus:focus.value.trim()});if(answer.retry_after)feedback(t('请在 {seconds} 秒后重试。',{seconds:answer.retry_after}));else{discoveryDrafts.delete(row.id);await load(true);}}catch(error){feedback(error.message,true);}finally{run.disabled=false;}
-    });run.disabled=Boolean(config.running);
+    });run.disabled=Boolean(config.running)||isDemo();
     form.append(field,focusField,options,save,run);form.addEventListener('submit',async event=>{event.preventDefault();save.disabled=true;try{await post('discovery-save',{id:row.id,keywords:keywords.value.trim(),project_focus:focus.value.trim(),enabled:enabled.checked,interval_hours:Number(interval.value)});discoveryDrafts.delete(row.id);feedback(t('已保存检索设置。'));await load(true);}catch(error){feedback(error.message,true);}finally{save.disabled=false;}});
     if(data){const settings=el('details','','control-discovery-settings');settings.append(el('summary',t('检索设置')+' · '+config.keywords),form);box.append(settings);}else box.append(form);
     if(config.last_run_at)box.append(el('p',t('上次检索：{time}',{time:date(config.last_run_at)}),'workspace-muted'));
@@ -67,7 +67,8 @@
     }
     return box;
   }
-  let projects=[],expanded=null,loading=false,mode='control',busy=false,feedbackTimer;
+  let projects=[],expanded=null,loading=false,mode='control',busy=false,feedbackTimer,editing=false,batchPending=false,loadVersion=0,listScroll=0;
+  const selected=new Set();let removeDraft=[];const projectKey=row=>row.kind+':'+row.id;const isDemo=()=>document.body.dataset.demo==='true';
   const drafts=new Map(),panel=$('control-panel'),dialog=$('control-github-dialog');
   const el=(tag,value='',cls='')=>{const node=document.createElement(tag);node.textContent=value;if(cls)node.className=cls;return node;};
   const date=value=>value?new Date(value).toLocaleString(I.getLocale()):'—';
@@ -77,10 +78,11 @@
     node.target='_blank';node.rel='noopener noreferrer';return node;
   }
   function button(label,action,cls='button button-outline'){
-    const node=el('button',t(label),cls);node.type='button';node.addEventListener('click',action);return node;
+    const node=el('button',t(label),cls);node.type='button';if(isDemo()&&!['工作记录','项目评议','项目网页','复制继续任务','填入下一步'].includes(label))node.disabled=true;node.addEventListener('click',action);return node;
   }
   function feedback(value,error=false){clearTimeout(feedbackTimer);$('control-feedback').textContent=value;$('control-feedback').hidden=!value;$('control-feedback').classList.toggle('error',error);if(value&&!error)feedbackTimer=setTimeout(()=>{$('control-feedback').hidden=true;},5000);}
   async function post(action,payload){
+    if(isDemo())throw new Error(t('演示模式只读，无法修改项目。'));
     const response=await fetch('/api/control/'+action,{method:'POST',headers:{'Content-Type':'application/json','X-Workhub-Request':'1'},body:JSON.stringify(payload),signal:AbortSignal.timeout(30000)});
     const data=await response.json();if(!response.ok)throw new Error(I.translateKnown(data.error||'读取失败，请重试。'));return data;
   }
@@ -103,12 +105,8 @@
     if(row.plan?.next_step)return t('已有下一步');
     return row.discovery?.results?.new_count>0&&!row.discovery.stale?t('有新参考'):t('待安排下一步');
   }
-  function rowNode(row){
-    const details=el('details','','control-row');details.name='workhub-control-project';details.open=expanded===row.id;
-    const summary=el('summary');const name=el('span','','control-project-name');name.append(el('strong',row.name),el('small',row.kind==='github'?'GitHub':t('本地项目')));
-    const next=row.plan?.next_step||t(row.recommendations[0]?.title||'待安排下一步');
-    summary.append(name,el('span',signal(row),'control-signal'),el('span',next,'control-next-preview'),el('time',date(row.snapshot?.observed_at),'control-time'));
-    details.append(summary);details.addEventListener('toggle',()=>{if(details.open)expanded=row.id;else if(expanded===row.id)expanded=null;});
+  function detailNode(row){
+    const details=el('article','','control-detail-project');
     const body=el('div','','control-row-body'),facts=el('div','','control-facts');
     const snapshot=row.snapshot,local=snapshot?.local,github=snapshot?.github;
     if(!snapshot)facts.append(el('p',t('尚未读取快照'),'workspace-muted'));
@@ -122,7 +120,7 @@
       if(github.errors?.length)facts.append(el('p',t('快照未完整读取，保留上次可用数据。'),'control-error'));
     }
     for(const error of snapshot?.errors||[])facts.append(el('p',I.translateKnown(error),'control-error'));
-    const actions=el('div','','control-row-actions');const refresh=button(row.refreshing?'正在刷新…':'刷新快照',async()=>{refresh.disabled=true;try{await post('refresh',{id:row.id});await load(true);}catch(error){feedback(error.message,true);}finally{refresh.disabled=false;}});refresh.disabled=row.refreshing;actions.append(refresh);
+    const actions=el('div','','control-row-actions');const refresh=button(row.refreshing?'正在刷新…':'刷新快照',async()=>{refresh.disabled=true;try{await post('refresh',{id:row.id});await load(true);}catch(error){feedback(error.message,true);}finally{refresh.disabled=false;}});refresh.disabled=row.refreshing||isDemo();actions.append(refresh);
     if(row.repository){actions.append(link(t('打开 GitHub'),row.repository.url));actions.append(button('取消仓库连接',async()=>{try{await post('disconnect',{id:row.id});feedback(t('已取消连接，源仓库与本地文件保留。'));await load(true);}catch(error){feedback(error.message,true);}}));}
     if(row.kind==='local'){actions.append(button('工作记录',()=>window.WorkhubDashboard.openProject(row.id)));actions.append(button('项目评议',()=>window.WorkhubReviews?.openProject(row.id)));actions.append(button('项目网页',()=>{if(!window.WorkhubDashboard.openProjectSite(row.id))setMode('website',{focus:false});}));}
     facts.append(actions);
@@ -140,22 +138,69 @@
       try{await navigator.clipboard.writeText(text);feedback(t('已复制项目事实与下一步。'));}catch{feedback(t('无法复制，请手动选择下一步文本。'),true);}
     });
     form.append(label,priorityLabel,save,copy);form.addEventListener('submit',async event=>{event.preventDefault();save.disabled=true;try{await post('plan',{id:row.id,next_step:input.value,priority:Number(priority.value)});drafts.delete(row.id);feedback(t('已保存下一步。'));await load(true);}catch(error){feedback(error.message,true);}finally{save.disabled=false;}});
-    body.append(facts,form);details.append(body);return details;
+    body.append(facts,form);details.append(body);if(isDemo())details.querySelectorAll('input,textarea,select').forEach(n=>n.disabled=true);return details;
+  }
+  function visibleProjects(){
+    const query=$('control-search').value.trim().normalize('NFKC').toLowerCase(),filter=$('control-filter').value;
+    return projects.filter(row=>(!query||[row.name,row.path,row.repository?.full_name].join(' ').normalize('NFKC').toLowerCase().includes(query))&&(filter==='all'||filter==='attention'&&row.recommendations.some(x=>x.priority<2)||filter==='waiting'&&row.recommendations.some(x=>x.kind==='waiting')||filter==='unplanned'&&!row.plan?.next_step));
+  }
+  function cardContent(row){
+    const box=el('span','','control-card-content'),head=el('span','','control-card-heading');head.append(el('strong',row.name),el('small',row.kind==='github'?'GitHub':t('本地项目')));
+    const planned=typeof row.plan?.next_step==='string'&&row.plan.next_step.trim()?row.plan.next_step:'',work=typeof row.latest_work?.summary==='string'&&row.latest_work.summary.trim()?row.latest_work.summary:'',status=el('span',signal(row),'control-signal');status.title=t('快照状态：{state}',{state:signal(row)});status.setAttribute('aria-label',status.title);
+    box.append(head,status,el('span',planned||work||t(row.recommendations[0]?.title||'待安排下一步'),'control-next-preview'));
+    const observed=row.snapshot?.observed_at,workTime=row.latest_work?.updated_at,stamp=observed||workTime;if(stamp&&!Number.isNaN(new Date(stamp).getTime())){const time=el('time',`${t(observed?'快照读取':'项目记录更新')} · ${date(stamp)}`,'control-time');time.dateTime=stamp;time.title=observed?t('快照读取时间：{time}',{time:date(stamp)}):t('项目记录更新时间：{time}；不代表工作发生或 Git 快照读取时间。',{time:date(stamp)});time.setAttribute('aria-label',time.title);box.append(time);}return box;
+  }
+  let lastOpened='';
+  function openDetail(row){if(editing||batchPending)return;lastOpened=projectKey(row);listScroll=panel.scrollTop;expanded=lastOpened;render(true);panel.scrollTop=0;$('control-back').focus({preventScroll:true});}
+  function returnToList(){expanded=null;render(true);panel.scrollTop=listScroll;Array.from($('control-grid').querySelectorAll('[data-project-key]')).find(n=>n.dataset.projectKey===lastOpened)?.focus({preventScroll:true});}
+  function cardNode(row){
+    const card=el('article','','control-card'),key=projectKey(row);
+    if(editing){const label=el('label','','control-card-select'),check=el('input');check.type='checkbox';check.checked=selected.has(key);check.disabled=batchPending||isDemo();check.setAttribute('aria-label',t('选择项目 {name}',{name:row.name}));check.dataset.projectKey=key;
+      check.addEventListener('change',()=>{if(batchPending||isDemo())return;if(check.checked){if(selected.size>=100){check.checked=false;feedback(t('每次最多选择 100 个项目。'),true);return;}selected.add(key);}else selected.delete(key);card.classList.toggle('selected',check.checked);renderSelection();});label.append(check,cardContent(row));card.append(label);card.classList.toggle('selected',selected.has(key));
+    }else{const open=el('button','','control-card-open');open.type='button';open.dataset.projectKey=key;open.setAttribute('aria-label',t('查看项目 {name} 的详情',{name:row.name}));open.append(cardContent(row));open.addEventListener('click',()=>openDetail(row));card.append(open);}return card;
+  }
+  function pruneSelection(rows=visibleProjects()){const allowed=new Set(rows.map(projectKey));let removed=0;for(const key of selected)if(!allowed.has(key)){selected.delete(key);removed++;}return removed;}
+  function renderSelection(){
+    const rows=visibleProjects(),count=selected.size;$('control-edit').textContent=t(editing?'完成编辑':'编辑项目');$('control-edit').setAttribute('aria-pressed',String(editing));$('control-edit').disabled=isDemo()||batchPending;
+    $('control-bulk-toolbar').hidden=!editing;$('control-selected-count').textContent=t('已选择 {count} 个项目',{count});$('control-select-visible').disabled=batchPending||!rows.length||rows.length>100;$('control-select-clear').disabled=batchPending||!count;$('control-remove-selected').disabled=batchPending||!count;$('control-remove-selected').textContent=t(batchPending?'正在移除…':'从中控移除所选');
+    $('control-selection-note').textContent=t(rows.length>100?'每次最多选择 100 个项目，请缩小筛选范围。':'筛选变化会取消不可见项目的选择。只从中控移除，保留文件、记录与远端仓库。');
+    for(const id of ['control-search','control-filter','control-add-github'])$(id).disabled=batchPending||(id==='control-add-github'&&isDemo());
+    $('control-grid').querySelectorAll('input').forEach(n=>n.disabled=batchPending||isDemo());document.querySelectorAll('[data-workspace-add]').forEach(n=>n.disabled=batchPending||isDemo());
+    $('control-remove-confirm').disabled=batchPending;$('control-remove-cancel').disabled=batchPending;
   }
   function render(force=false){
     if(!force&&panel.contains(document.activeElement)&&document.activeElement.matches('input,textarea,select'))return;
-    const query=$('control-search').value.trim().toLowerCase(),filter=$('control-filter').value;
-    const rows=projects.filter(row=>(!query||[row.name,row.path,row.repository?.full_name].join(' ').toLowerCase().includes(query))&&(filter==='all'||filter==='attention'&&row.recommendations.some(x=>x.priority<2)||filter==='waiting'&&row.recommendations.some(x=>x.kind==='waiting')||filter==='unplanned'&&!row.plan?.next_step));
-    $('control-grid').replaceChildren(...rows.map(rowNode));
-    if(!rows.length)$('control-grid').append(el('p',t(projects.length?'没有匹配的项目。':'先添加已有项目或连接 GitHub 仓库。'),'control-empty'));
+    if(expanded&&!projects.some(row=>projectKey(row)===expanded))expanded=null;
+    $('control-list-view').hidden=Boolean(expanded);$('control-detail-view').hidden=!expanded;
+    if(expanded){const row=projects.find(row=>projectKey(row)===expanded);$('control-detail-name').textContent=row.name;$('control-detail').replaceChildren(detailNode(row));}
+    else{const rows=visibleProjects();pruneSelection(rows);$('control-grid').replaceChildren(...rows.map(cardNode));if(!rows.length)$('control-grid').append(el('p',t(projects.length?'没有匹配的项目。':'先添加已有项目或连接 GitHub 仓库。'),'control-empty'));}
+    renderSelection();
   }
   async function load(force=false){
-    if(loading)return;loading=true;
-    try{const response=await fetch('/api/control',{cache:'no-store',signal:AbortSignal.timeout(6000)});if(!response.ok)throw new Error();const data=await response.json();if(!Array.isArray(data.projects))throw new Error();projects=data.projects;render(force);}
-    catch{feedback(t('读取失败，请重试。'),true);}finally{loading=false;}
+    if(batchPending)return;const version=++loadVersion;loading=true;
+    try{const response=await fetch('/api/control',{cache:'no-store',signal:AbortSignal.timeout(6000)});if(!response.ok)throw new Error();const data=await response.json();if(!Array.isArray(data.projects))throw new Error();if(version!==loadVersion)return;projects=data.projects;if(expanded&&!projects.some(row=>projectKey(row)===expanded)){expanded=null;force=true;}render(force);return true;}
+    catch{if(version===loadVersion)feedback(t('读取失败，请重试。'),true);return false;}finally{if(version===loadVersion)loading=false;}
   }
+  function cancelRemoval(){if(batchPending)return;removeDraft=[];$('control-remove-dialog').close();$('control-remove-selected').focus({preventScroll:true});}
+  function prepareRemoval(){
+    if(batchPending||isDemo())return;pruneSelection();removeDraft=visibleProjects().filter(row=>selected.has(projectKey(row))).map(row=>({id:row.id,kind:row.kind}));if(!removeDraft.length||removeDraft.length>100)return;
+    $('control-remove-summary').textContent=t('确认从中控移除这 {count} 个项目？',{count:removeDraft.length});$('control-remove-names').replaceChildren(...removeDraft.slice(0,10).map(item=>el('li',projects.find(row=>projectKey(row)===projectKey(item))?.name||item.id)));if(removeDraft.length>10)$('control-remove-names').append(el('li',t('另有 {count} 个所选项目',{count:removeDraft.length-10})));$('control-remove-error').hidden=true;I.apply($('control-remove-dialog'));$('control-remove-dialog').showModal();$('control-remove-cancel').focus();
+  }
+  async function removeSelection(){
+    if(batchPending||isDemo()||!removeDraft.length)return;batchPending=true;++loadVersion;renderSelection();$('control-remove-error').hidden=true;const items=removeDraft.map(item=>({...item}));let succeeded=false;
+    try{const data=await post('remove-batch',{items});const expected=items.map(projectKey).sort(),actual=Array.isArray(data.items)?data.items.map(projectKey).sort():[];if(data.ok!==true||JSON.stringify(expected)!==JSON.stringify(actual))throw new Error(t('移除结果未能核对，保留当前选择并刷新后再确认。'));
+      const removed=new Set(expected);projects=projects.filter(row=>!removed.has(projectKey(row)));for(const key of removed)selected.delete(key);for(const item of items){drafts.delete(item.id);discoveryDrafts.delete(item.id);}if(removed.has(expanded))expanded=null;removeDraft=[];succeeded=true;$('control-remove-dialog').close();
+    }catch(error){$('control-remove-error').textContent=error.message||t('项目操作未成功。');$('control-remove-error').hidden=false;feedback(t('移除结果未确认，当前选择已保留。'),true);}
+    finally{batchPending=false;render(true);}
+    if(succeeded){try{await window.WorkhubDashboard.refresh();}catch{}const refreshed=await load(true);feedback(t(refreshed?'已从中控移除 {count} 个项目，文件、工作记录与远端仓库保留。':'已从中控移除 {count} 个项目；列表刷新暂未完成，请稍后刷新。',{count:items.length}),!refreshed);$('control-edit').focus({preventScroll:true});}
+  }
+  $('control-back').addEventListener('click',returnToList);
+  $('control-edit').addEventListener('click',()=>{if(batchPending||isDemo())return;editing=!editing;selected.clear();render(true);$('control-edit').focus({preventScroll:true});});
+  $('control-select-visible').addEventListener('click',()=>{if(batchPending||isDemo())return;const rows=visibleProjects();if(rows.length>100)return;rows.forEach(row=>selected.add(projectKey(row)));render(true);$('control-select-visible').focus({preventScroll:true});});
+  $('control-select-clear').addEventListener('click',()=>{if(batchPending)return;selected.clear();render(true);$('control-edit').focus({preventScroll:true});});
+  $('control-remove-selected').addEventListener('click',prepareRemoval);$('control-remove-cancel').addEventListener('click',cancelRemoval);$('control-remove-confirm').addEventListener('click',removeSelection);$('control-remove-dialog').addEventListener('cancel',event=>{event.preventDefault();cancelRemoval();});
   $('control-mode').addEventListener('click',()=>setMode('control'));$('website-mode').addEventListener('click',()=>setMode('website'));
-  $('control-search').addEventListener('input',()=>render(true));$('control-filter').addEventListener('change',()=>render(true));
+  const filterChanged=()=>{if(batchPending)return;const count=pruneSelection();render(true);if(count)feedback(t('已取消 {count} 个不可见项目的选择。',{count}));};$('control-search').addEventListener('input',filterChanged);$('control-filter').addEventListener('change',filterChanged);
   $('control-add-github').addEventListener('click',()=>{
     const select=$('control-local-link'),chosen=select.value;select.replaceChildren(el('option',t('作为独立 GitHub 项目')));select.firstChild.value='';
     for(const project of window.WorkhubDashboard.projects()){const option=el('option',project.name);option.value=project.id;select.append(option);}select.value=chosen;
@@ -172,13 +217,14 @@
   $('control-repositories').addEventListener('change',()=>{if($('control-repositories').value)$('control-repository').value=$('control-repositories').value;});
   $('control-github-form').addEventListener('submit',async event=>{
     event.preventDefault();if(busy||!event.target.reportValidity())return;busy=true;$('control-connect-submit').disabled=true;
-    try{const payload={full_name:$('control-repository').value.trim()};if($('control-local-link').value)payload.local_project_id=$('control-local-link').value;const data=await post('connect',payload);dialog.close();feedback(t('已连接仓库，正在读取快照。'));await post('refresh',{id:data.id});expanded=data.id;await load(true);}
+    try{const payload={full_name:$('control-repository').value.trim()};if($('control-local-link').value)payload.local_project_id=$('control-local-link').value;const data=await post('connect',payload);dialog.close();feedback(t('已连接仓库，正在读取快照。'));await post('refresh',{id:data.id});expanded=null;await load(true);const row=projects.find(row=>row.id===data.id);if(row)openDetail(row);}
     catch(error){$('control-github-message').textContent=error.message;}finally{busy=false;$('control-connect-submit').disabled=false;}
   });
-  window.addEventListener('workhub:state',()=>{if(!$('spaces-page').hidden&&mode==='control')load();});
+  window.addEventListener('workhub:state',event=>{if(event.detail?.is_demo){document.body.dataset.demo='true';editing=false;selected.clear();removeDraft=[];}renderSelection();if(!$('spaces-page').hidden&&mode==='control')load();});
   window.addEventListener('workhub:page',event=>{if(event.detail.page==='spaces'&&mode==='control'){window.WorkhubFocus?.exit({restoreScroll:false});load();}});
-  window.addEventListener('workhub:site',event=>{if(event.detail.reason==='select'||event.detail.reason==='restore'&&mode==='website')setMode('website');});
-  I.onChange(()=>{I.apply(panel);I.apply(dialog);I.apply(document.querySelector('.space-modebar'));render(true);});
+  window.addEventListener('workhub:site',event=>{if(event.detail.reason==='clear'&&mode==='website'){expanded=null;editing=false;selected.clear();setMode('control',{focus:false});}else if(event.detail.reason==='select'||event.detail.reason==='restore'&&mode==='website')setMode('website');});
+  window.addEventListener('workhub:workspace-removed',event=>{const ids=new Set(event.detail?.ids||[]);for(const id of ids)selected.delete('local:'+id);if(expanded&&ids.has(expanded.slice(6))&&expanded.startsWith('local:'))expanded=null;load(true);});
+  I.onChange(()=>{I.apply(panel);I.apply(dialog);I.apply($('control-remove-dialog'));I.apply(document.querySelector('.space-modebar'));render(true);});
   let saved;try{saved=localStorage.getItem('workhub-space-mode');if(!saved&&localStorage.getItem('workhub-current-site'))saved='website';}catch{}
   I.apply(panel);I.apply(dialog);I.apply(document.querySelector('.space-modebar'));setMode(saved||'control',{focus:false});
   setInterval(()=>{if(!document.hidden&&!$('spaces-page').hidden&&mode==='control'&&projects.some(row=>row.refreshing||row.discovery?.running))load();},1800);

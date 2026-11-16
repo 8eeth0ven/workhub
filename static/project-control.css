@@ -1,4 +1,4 @@
-/* Shared Codex tokens; a compact list, with details disclosed per project. */
+/* Shared Codex tokens; a compact card grid opens one full-width project. */
 .space-modebar{display:flex;gap:2px;flex:0 0 auto;padding:2px 4px;border-bottom:1px solid var(--wh-border)}
 .space-modebar button{font:inherit;font-size:12px;padding:7px 12px;background:transparent;color:var(--wh-muted);border:0;border-bottom:2px solid transparent;cursor:pointer}
 .space-modebar button[aria-pressed=true]{color:var(--wh-ink);border-bottom-color:var(--wh-ink)}
@@ -33,6 +33,21 @@ html[data-workhub-space-mode=control] #site-workspace,html[data-workhub-space-mo
 .control-project-name{position:relative;padding-left:14px}.control-project-name::before{content:'›';position:absolute;left:0;top:0;color:var(--wh-muted);font-size:16px}.control-row[open] .control-project-name::before{transform:rotate(90deg)}
 .control-project-name strong{font-size:14px}.control-project-name small,.control-time{font-size:12px}.control-next-preview{font-size:13px}.control-row-body{font-size:13px}.control-related a{overflow-wrap:anywhere}
 @media(max-width:1050px){.control-row-body{grid-template-columns:minmax(0,1fr)}}
+
+/* No preview pane occupies the card overview. */
+.control-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;border:0}
+.control-card{min-width:0;border:1px solid var(--wh-border);border-radius:10px;background:var(--wh-surface);box-shadow:0 2px 12px rgba(0,0,0,.025);overflow:hidden}
+.control-card-open,.control-card-select{display:flex;align-items:flex-start;gap:10px;width:100%;height:100%;padding:15px;text-align:left;background:transparent;color:inherit;font:inherit;border:0;border-radius:9px;cursor:pointer;box-sizing:border-box}
+.control-card-open:hover,.control-card-select:hover{background:var(--wh-bg)}.control-card.selected{border-color:var(--wh-ink);box-shadow:inset 0 0 0 1px var(--wh-ink)}
+.control-card-select input[type=checkbox]{width:18px;height:18px;min-width:18px;flex:0 0 18px;margin:2px 0 0;padding:0;accent-color:var(--wh-ink)}
+.control-card-content{display:grid;gap:9px;min-width:0;width:100%}.control-card-heading{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.control-card-heading strong{font-size:14px;font-weight:600;overflow-wrap:anywhere}.control-card-heading small{font-size:12px;flex:0 0 auto;color:var(--wh-muted)}
+.control-card .control-next-preview{font-size:14px;line-height:1.65;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:46px}
+.control-card .control-time{text-align:left;font-size:12px;display:block}.control-card .control-signal{font-size:12px;color:var(--wh-muted)}
+.control-detail-toolbar{display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--wh-border);padding-bottom:12px;margin-bottom:8px}.control-detail-toolbar h2{font-size:16px;font-weight:600;margin:0;overflow-wrap:anywhere}
+.control-detail-project .control-row-body{padding:8px 0 18px}.control-bulk-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-2px 0 14px;padding:10px 0;border-top:1px solid var(--wh-border);border-bottom:1px solid var(--wh-border)}.control-bulk-toolbar>span{font-size:13px;margin-right:auto}.control-bulk-toolbar>p{font-size:12px;line-height:1.7;flex-basis:100%;margin:0}
+#control-remove-dialog{border:1px solid var(--wh-border);border-radius:12px;background:var(--wh-surface);color:var(--wh-ink);max-width:520px;width:calc(100% - 32px);padding:22px;box-sizing:border-box}#control-remove-dialog::backdrop{background:rgba(0,0,0,.25)}#control-remove-dialog h2{font-size:16px;margin:0 0 10px}#control-remove-dialog p{font-size:14px;line-height:1.8;margin:0 0 12px}#control-remove-dialog ul{max-height:210px;overflow:auto;padding-left:20px;font-size:13px;overflow-wrap:anywhere}.control-remove-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:16px}
+#control-list-view[hidden],#control-detail-view[hidden],#control-bulk-toolbar[hidden]{display:none!important}.control-grid>.control-empty{grid-column:1/-1}
+@media(max-width:1100px){.control-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:700px){.control-grid{grid-template-columns:minmax(0,1fr);gap:10px}.control-card-open,.control-card-select{padding:13px}.control-toolbar>.button{flex:0 1 auto}.control-detail-toolbar{align-items:flex-start;gap:10px}.control-detail-toolbar button{flex:0 0 auto}.control-bulk-toolbar .button{font-size:13px;padding:7px 10px}.control-bulk-toolbar>span{flex-basis:100%}.control-plan{grid-template-columns:minmax(0,1fr)}.control-row-body{grid-template-columns:minmax(0,1fr);gap:16px}}
 
 /* Keep action labels horizontal when the filter toolbar wraps on phones. */
 @media(max-width:650px) {

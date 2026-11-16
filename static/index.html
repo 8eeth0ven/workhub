@@ -51,16 +51,20 @@
         <button id="website-mode" type="button" aria-pressed="false" data-i18n="项目网页">项目网页</button>
       </div>
       <section id="control-panel" class="project-control" aria-label="推进概览" data-i18n-aria-label="推进概览">
+        <p id="control-feedback" class="control-feedback" role="status" hidden></p>
+        <div id="control-list-view">
         <div class="control-toolbar">
           <label class="control-search"><span class="sr-only" data-i18n="查找项目">查找项目</span><input id="control-search" type="search" placeholder="查找项目或仓库…" data-i18n-placeholder="查找项目或仓库…"></label>
           <label><span class="sr-only" data-i18n="关注状态">关注状态</span><select id="control-filter" aria-label="关注状态" data-i18n-aria-label="关注状态"><option value="all" data-i18n="全部项目">全部项目</option><option value="attention" data-i18n="需要关注">需要关注</option><option value="waiting" data-i18n="等待检查">等待检查</option><option value="unplanned" data-i18n="待安排下一步">待安排下一步</option></select></label>
           <button type="button" class="button button-outline" data-workspace-add data-i18n="添加已有项目">添加已有项目</button>
           <button type="button" class="button button-dark" id="control-add-github" data-i18n="连接 GitHub">连接 GitHub</button>
+          <button type="button" class="button button-outline" id="control-edit" aria-pressed="false" data-i18n="编辑项目">编辑项目</button>
         </div>
-        <p id="control-feedback" class="control-feedback" role="status" hidden></p>
-        <div id="control-grid" class="control-grid"></div>
+        <div id="control-bulk-toolbar" class="control-bulk-toolbar" hidden><span id="control-selected-count" role="status" aria-live="polite"></span><button type="button" id="control-select-visible" class="button button-outline" data-i18n="选择当前可见">选择当前可见</button><button type="button" id="control-select-clear" class="button button-outline" data-i18n="取消选择">取消选择</button><button type="button" id="control-remove-selected" class="button button-outline" data-i18n="从中控移除所选">从中控移除所选</button><p id="control-selection-note" class="workspace-muted"></p></div>
+        <div id="control-grid" class="control-grid"></div></div>
+        <section id="control-detail-view" hidden aria-label="项目详情" data-i18n-aria-label="项目详情"><div class="control-detail-toolbar"><button type="button" id="control-back" class="button button-outline" data-i18n="返回项目列表">返回项目列表</button><h2 id="control-detail-name"></h2></div><div id="control-detail"></div></section>
       </section>
-
+      <dialog id="control-remove-dialog" aria-labelledby="control-remove-title"><h2 id="control-remove-title" data-i18n="从中控移除所选项目？">从中控移除所选项目？</h2><p data-i18n="只从中控移除，保留本地文件、网站、工作记录与远端仓库。">只从中控移除，保留本地文件、网站、工作记录与远端仓库。</p><p id="control-remove-summary"></p><ul id="control-remove-names"></ul><p id="control-remove-error" class="control-error" role="alert" hidden></p><div class="control-remove-actions"><button id="control-remove-cancel" type="button" class="button button-outline" data-i18n="取消">取消</button><button id="control-remove-confirm" type="button" class="button button-dark" data-i18n="确认从中控移除">确认从中控移除</button></div></dialog>
 
       <div id="site-workspace" class="portal-shell">
         <aside id="project-site-navigator" class="site-navigator" aria-label="项目网站列表" data-i18n-aria-label="项目网站列表"><div class="site-navigator-heading"><span><span data-i18n="项目与网站">项目与网站</span></span><div class="site-navigator-actions"><span id="site-count">—</span><button class="icon-button site-add-button" data-workspace-add aria-label="接入网站" title="接入网站" data-i18n-aria-label="添加已有项目" data-i18n-title="添加已有项目"><span data-icon="plus"></span></button></div></div><label class="search-field site-search"><span data-icon="search"></span><input id="site-search" type="search" placeholder="查找项目或网站…" aria-label="查找项目或网站" data-i18n-placeholder="查找项目或网站…" data-i18n-aria-label="查找项目或网站"></label><div id="site-list" class="site-list"><div class="site-list-empty"><span data-i18n="正在读取网站…">正在读取网站…</span></div></div><button class="new-site-button" id="go-templates"><span data-icon="plus"></span><span data-i18n="从版式创建新网站">从版式创建新网站</span></button></aside>

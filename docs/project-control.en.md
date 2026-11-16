@@ -1,6 +1,14 @@
 # Project control and related-project discovery
 
-The existing project space has two views: **Overview** and **Project websites**. Navigation still has six destinations. The overview is a compact list; expanding one project reveals evidence, its personal next step and reference search. Changing views keeps the original iframe and its inputs mounted.
+The existing project space has two views: **Overview** and **Project websites**. Navigation still has six destinations. Cards open full details with evidence, personal plans and references; returning preserves filters and scroll position. Changing views keeps the original iframe and its inputs mounted.
+
+## Batch project organization
+
+Choose **Edit projects**, select cards or **Select visible**, then **Remove selected from workspace**. The confirmation lists exact entries. Cancel writes nothing; changing filters clears hidden selections. Batches contain at most 100 entries and repeated submissions are blocked while pending.
+
+Local entries lose workspace membership only; standalone GitHub entries are disconnected. Files, website registrations, work history, archives, learning records and remote repositories remain intact. Restore entries with Add existing project or Connect GitHub. Only internal Workhub discovery is disabled; running agents and user-managed automations are not terminated.
+
+Both kinds are validated and handled in one SQLite transaction. Invalid, unknown, duplicate, wrong-kind or oversized batches change nothing. Failures preserve the selection. The route is `POST /api/control/remove-batch`, using `items` with `id` and `kind` (`local` or `github`). Repeated removal of registered entries is idempotent.
 
 ## Add projects
 

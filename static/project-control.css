@@ -33,3 +33,10 @@ html[data-workhub-space-mode=control] #site-workspace,html[data-workhub-space-mo
 .control-project-name{position:relative;padding-left:14px}.control-project-name::before{content:'›';position:absolute;left:0;top:0;color:var(--wh-muted);font-size:16px}.control-row[open] .control-project-name::before{transform:rotate(90deg)}
 .control-project-name strong{font-size:14px}.control-project-name small,.control-time{font-size:12px}.control-next-preview{font-size:13px}.control-row-body{font-size:13px}.control-related a{overflow-wrap:anywhere}
 @media(max-width:1050px){.control-row-body{grid-template-columns:minmax(0,1fr)}}
+
+/* Keep action labels horizontal when the filter toolbar wraps on phones. */
+@media(max-width:650px) {
+ .control-toolbar>.button { flex:1 1 125px; white-space:nowrap; min-width:max-content; }
+ .control-toolbar>label:not(.control-search) { flex:1 1 100%; }
+ .control-toolbar>label:not(.control-search)>select { width:100%; }
+}

@@ -283,3 +283,17 @@ html.workhub-focus-mode .focus-toggle:focus-visible { outline-offset:-3px; }
 @media(max-width:540px) { .model-access-dialog { padding:16px; } .review-provider-actions { gap:6px; } }
 
 .review-session-reference { display:block; margin-top:4px; color:var(--wh-muted); font:12px/1.6 var(--wh-mono); overflow-wrap:anywhere; }
+
+/* Keyboard users can bypass persistent navigation. */
+.skip-link { position:fixed; top:8px; left:8px; z-index:1000; padding:10px 14px; background:var(--wh-surface); color:var(--wh-ink); border:2px solid var(--wh-focus); border-radius:var(--wh-radius); transform:translateY(-160%); }
+.skip-link:focus { transform:translateY(0); }
+/* Keep desktop density while improving controls on touch devices. */
+@media(pointer:coarse) {
+ .topbar :is(button,select), .site-toolbar button, .nav-item,
+ .model-access-dialog :is(button,input:not([type=checkbox]),select) { min-height:44px; }
+ .topbar .icon-button, .site-toolbar .icon-button { min-width:44px; }
+}
+@media(forced-colors:active) {
+ .button, .icon-button, .nav-item { border:1px solid ButtonText; }
+ .mini-dot, .connection-status i { border:1px solid CanvasText; }
+}

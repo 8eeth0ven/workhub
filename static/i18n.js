@@ -3,6 +3,7 @@
  'use strict';
  const dictionaries={
   "zh-CN": {
+    "跳到主要内容": "跳到主要内容",
     "收起侧边栏": "收起侧边栏",
     "展开侧边栏": "展开侧边栏",
     " · 更多记录保存在本机": " · 更多记录保存在本机",
@@ -602,6 +603,7 @@
     "会话摘要是原始陈述，不代表独立验证。": "会话摘要是原始陈述，不代表独立验证。"
   },
   "en": {
+    "跳到主要内容": "Skip to main content",
     "收起侧边栏": "Collapse sidebar",
     "展开侧边栏": "Expand sidebar",
     " · 更多记录保存在本机": " · More history is stored locally",

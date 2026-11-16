@@ -1,133 +1,19 @@
-[简体中文](README.md) | [English](README.en.md)
+[简体中文](README.md) · [English](README.en.md)
 
-![Workhub: your projects, agents and progress in one workspace](docs/images/cover.en.svg)
+# Workhub
 
-**A local-first control center for GitHub repositories, local projects, agent activity and next steps.**
+Switch between project sites, see the latest Git and agent activity, and save the next action for each project in one local workspace.
 
-Switch projects in one place, see what different agents actually did, and connect prompts with deliverables. When needed, use Socratic reviews to examine evidence, assumptions and gaps. The core server uses the Python standard library; the frontend is plain HTML, CSS and JavaScript.
+![The demo project list shows progress, items needing attention and next actions](docs/images/project-control-light.en.png)
 
-[Quick start](#quick-start) · [Screenshots](#screenshots) · [Connect projects](#connect-projects-and-agents) · [Documentation](#documentation)
-
-The project space combines a compact progress overview and original project websites. Add a repository with **Connect GitHub**, review read-only evidence, and save a next step. Related-project search is optional: manual, every 6 hours, daily or weekly, while the service runs. Expand a result for **lessons, differences and next validation steps**, inspect source evidence, or fill a next-step draft. Insufficient evidence remains unknown. [Usage and boundaries](docs/project-control.en.md).
-
-## Quick start
-
-Use **Python 3.10+**. Node.js and frontend dependencies are not required to run Workhub.
+Use Python 3.10 or later to start the service from the repository root.
 
 ```sh
-git clone https://github.com/8eeth0ven/workhub.git
-cd workhub
 python3 workhub.py serve --port 8787
 ```
 
-Open [http://127.0.0.1:8787](http://127.0.0.1:8787), choose **Add existing project**, choose a directory from the Codex, Z Code or Claude CLI project dropdown, or enter one manually. Only manually added projects and their records appear. CLI reports do not add directories to the workspace automatically. **Recording work, viewing sites and using templates do not require a model key.** Project reviews need a separately configured reviewer. On Windows, use `python` if `python3` is unavailable.
+Open the address printed in the terminal, choose **Add existing project**, then select a local folder. To try it with fictional projects first, run `python3 examples/demo.py --port 8899`.
 
-<details>
-<summary>Explore a populated interface with the isolated demo</summary>
+Work records live in a local SQLite database. Browsing needs no model key. When you request a project review, the configured API, model or CLI receives the selected summary and context.
 
-```sh
-python3 examples/demo.py --port 8899
-```
-
-Open [http://127.0.0.1:8899](http://127.0.0.1:8899). The demo uses a temporary database, four fictional projects, three example sites and preset reviews. It does not read real projects, user configuration or credentials, and makes no model calls. Temporary data is removed on exit.
-
-</details>
-
-## Six areas, one workspace
-
-| Area | What you can do |
-| --- | --- |
-| **Project spaces** | Switch existing sites in one workspace and give project content the main canvas. |
-| **Work records** | Track projects, agents, task states, artifacts and checks; distinguish concurrent tasks with `run-id`. |
-| **Project archives** | Link agents, verifiable sessions, original prompt versions and deliverables. |
-| **Learning** | Revisit concepts, terminology and actual source; acknowledge understanding yourself and review updates. |
-| **Layout studio** | Start with Radar, Library or Brief while keeping one design system. |
-| **Project reviews** | Check goals, assumptions, gaps and next actions against evidence; add answers and review again. |
-
-## Screenshots
-
-![Compact project overview with synthetic data](docs/images/project-control-light.en.png)
-
-Every interface screenshot uses **Codex Light**: white surfaces, neutral text and fine gray borders. Screenshots come from an isolated demo with fictional projects and reviews. Images use landscape composition. Covers and workflow diagrams are SVG illustrations. Project content keeps its original language when the interface changes.
-
-![Project spaces: switch project websites in Codex Light](docs/images/project-spaces.en.jpg)
-
-<details>
-<summary>View work records, layouts and project reviews</summary>
-
-**Work records** — inspect recorded activity by project and agent.
-
-![Work records and agent activity in Codex Light](docs/images/work-records.en.jpg)
-
-**Layout studio** — one design system, three ways to organize information.
-
-![Radar, Library and Brief layouts in Codex Light](docs/images/layouts.en.jpg)
-
-**Project reviews** — connect existing evidence, open questions and suggested checks.
-
-![Project reviews and next actions in Codex Light](docs/images/project-review.en.jpg)
-
-![Follow-up questions, reasons and suggested checks in Codex Light](docs/images/socratic-questions.en.jpg)
-
-</details>
-
-![Learning: explain a change, read, acknowledge and revisit updates](docs/images/learning-workflow-light.en.svg)
-
-Only you check “I have a basic understanding,” and you can undo it. Updated content asks for another review while preserving earlier acknowledgements. Reading and acknowledging do not trigger model calls.
-
-## Connect projects and agents
-
-The add-project dialog reads known local project directories from Codex, Z Code and Claude CLI. Filter by client, select a project to fill its directory and source tags, then click **Add to workspace**. Listing or selecting a candidate does not add it. See [project directory sources](docs/project-catalog.md) for read-only metadata boundaries.
-
-Manually add a project in the local UI, optionally connecting its existing local URL or static website directory. Adding does not move files, rewrite client project registries or import chat history. Removing only detaches the workspace entry; re-adding restores access to existing work records.
-
-![Manually add an existing Codex, Z Code or Claude CLI project; interface shown in Chinese](docs/images/manual-projects.jpg)
-
-To enable continuing CLI work reports, run this in the Workhub checkout to add required-reading entries and register a project. The installer preserves existing rules and backs up changes.
-
-```sh
-python3 scripts/install.py --project /path/to/your-project
-```
-
-For a static site, add `--site-dir /path/to/your-project/site`. For a running development server, use `--site-url http://127.0.0.1:3000` instead. These options are mutually exclusive, and the URL must refer to a running service. If a site forbids iframe embedding, adjust the configuration of a site you control.
-
-For a new site, generate a template first, then connect it using the command above. Generated sites contain no demo data by default.
-
-```sh
-python3 scripts/site_templates.py create --template radar \
-  --output /path/to/your-project/site --name "Project radar"
-```
-
-Agents that actually load the project rules—including Codex, Z Code and Claude Code—can record starts, progress and completion through the same protocol. Existing sessions may need to reload; other machines need their own setup. See [Installation](docs/installation.en.md) and the [shared skill](skill/agent-workhub/SKILL.md) for commands.
-
-## Appearance and reading
-
-**Codex Light** is the default. The toolbar also offers **Codex Dark** and the existing palettes. English and Simplified Chinese share the same interface. Language and appearance changes preserve the selected site, filters and draft input without reloading project pages or rewriting content.
-
-Workhub handles navigation while project websites retain their own colors, typography, layout and interactions by default. Selecting a site hides the surrounding controls. Theme adaptation is enabled only when you choose to follow workspace colors. Long-form articles can stay light independently of the workspace. See [Appearance and embedded reading](docs/appearance.en.md) for theme integration, allowed parent origins and Markdown reading styles.
-
-## Data and models
-
-![Workhub data flow: local records, one workspace and reviews on request](docs/images/architecture-light.en.svg)
-
-- Work records use local SQLite by default; set `AGENT_WORKHUB_HOME` to change the location. Credentials and command configuration stay in the backend.
-- A requested review sends selected project summaries and additional context to the configured reviewer. It does not automatically upload the full repository, complete conversations or website files.
-- Choose an API, local model or explicitly configured CLI adapter. Network use depends on its configuration. Cloning or serving the interface does not install global rules, start background services or call a model automatically.
-- Review suggestions and learning acknowledgements are not project acceptance. `completed` means that task finished; publication states need actual evidence.
-
-## Documentation
-
-| Guide | Contents |
-| --- | --- |
-| [Installation](docs/installation.en.md) | Startup, agent integration, optional background services and migration |
-| [Appearance and reading](docs/appearance.en.md) | Language, light/dark appearance, embedded themes and light articles |
-| [Project archives](docs/project-archive.en.md) | Agents, prompt versions, deliverable snapshots and provenance |
-| [Models and reviewers](docs/providers.en.md) | Configuration, supported adapters and validation limits |
-| [Privacy and data](docs/privacy.en.md) | Local storage, selected outbound summaries and demo isolation |
-| [Contributing](CONTRIBUTING.md) | Development conventions and release checks |
-
-Before publishing, run `python3 scripts/audit_release.py` and `git diff --check`, and inspect the staged file list. The public repository excludes local databases, real project material, test artifacts and session logs.
-
-## Optional feature modules
-
-[Workhub Model](https://github.com/8eeth0ven/workhub-model) distributes independently downloadable feature modules. The first automotive opinion module includes a collector, a Codex Light dashboard and sanitized brief prompts. Installation copies source only; collection, workspace admission and scheduling are separate explicit actions. Live data stays local.
+[Installation and agent setup](docs/installation.en.md) · [GitHub snapshots and project tracking](docs/project-control.en.md) · [Model configuration](docs/providers.en.md) · [Data and privacy](docs/privacy.en.md) · [Optional modules](https://github.com/8eeth0ven/workhub-model)

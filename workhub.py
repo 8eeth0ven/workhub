@@ -20,6 +20,7 @@ import mimetypes
 import os
 from pathlib import Path
 import re
+import signal
 import sqlite3
 import sys
 import threading
@@ -30,6 +31,7 @@ from archives import ArchiveStore
 from learning import LearningStore
 from model_access import ModelAccess
 from module_catalog import module_catalog
+from module_installer import ModuleInstaller, ModuleInstallError
 from project_catalog import ProjectCatalog
 from project_control import ControlCenter
 
@@ -527,6 +529,9 @@ class WorkhubServer(ThreadingHTTPServer):
 
     def server_close(self):
         super().server_close()
+        installer = getattr(self.RequestHandlerClass, "module_installer", None)
+        if installer is not None:
+            installer.close()
         manager = getattr(self.RequestHandlerClass, "site_manager", None)
         if manager is not None:
             manager.close()
@@ -541,7 +546,7 @@ class WorkhubServer(ThreadingHTTPServer):
             control.close()
 
 
-def handler_for(store, manager=None, reviews=None, archives=None, learning=None, control=None):
+def handler_for(store, manager=None, reviews=None, archives=None, learning=None, control=None, installer=None):
     dashboard_store = DashboardStore(store) if store is not None else None
     manager = manager or (SiteManager(store) if store is not None else None)
     reviews = reviews or (AssessmentManager(dashboard_store) if store is not None else None)
@@ -552,6 +557,8 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None,
     model_access = ModelAccess(store, reviews) if store is not None else None
     previews = ArchivePreviews(archives) if archives is not None else None
     class Handler(BaseHTTPRequestHandler):
+        module_installer = installer
+        module_installer_lock = threading.Lock()
         control_center = control
         server_version = "AgentWorkhub/1"
         sys_version = ""
@@ -563,6 +570,17 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None,
         def log_message(self, fmt, *args):
             # Avoid logging raw request URLs (or terminal escape sequences).
             return
+
+        def get_module_installer(self):
+            if store is None:
+                raise ReviewError("演示模式不允许安装模块", 405)
+            cls = type(self)
+            with cls.module_installer_lock:
+                if cls.module_installer is None:
+                    host = self.server.server_address[0]
+                    host = "[::1]" if host == "::1" else "127.0.0.1"
+                    cls.module_installer = ModuleInstaller(workspace, "http://{}:{}".format(host, self.server.server_port))
+            return cls.module_installer
 
         def valid_host(self):
             values = self.headers.get_all("Host", [])
@@ -620,7 +638,8 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None,
             archive_kind = self.path.removeprefix("/api/archives/") if self.path.startswith("/api/archives/") else None
             learning_ack = self.path == "/api/learning/ack"
             model_action = self.path.removeprefix("/api/model-access/") if self.path.startswith("/api/model-access/") else None
-            if self.path != "/api/reviews" and not learning_ack and archive_kind not in ("session", "prompt", "artifact") and model_action not in ("save", "test") and workspace_action not in ("add", "remove", "remove-batch") and control_action not in ("catalog", "connect", "disconnect", "refresh", "plan", "discovery-save", "discovery-run", "remove-batch"):
+            module_install = self.path == "/api/modules/install"
+            if self.path != "/api/reviews" and not module_install and not learning_ack and archive_kind not in ("session", "prompt", "artifact") and model_action not in ("save", "test") and workspace_action not in ("add", "remove", "remove-batch") and control_action not in ("catalog", "connect", "disconnect", "refresh", "plan", "discovery-save", "discovery-run", "remove-batch"):
                 self.json_response(404, {"error": "接口不存在"})
                 return
             if self.headers.get("X-Workhub-Request") != "1":
@@ -641,6 +660,11 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None,
                 if len(raw) != length:
                     raise ReviewError("请求体不完整")
                 payload = json.loads(raw)
+                if module_install:
+                    if not isinstance(payload, dict) or set(payload) != {"id"}:
+                        raise ReviewError("模块安装参数须仅包含 id")
+                    self.json_response(202, self.get_module_installer().start(payload["id"]))
+                    return
                 if control_action:
                     if not isinstance(payload, dict):
                         raise ReviewError("中控请求须为 JSON 对象")
@@ -720,6 +744,8 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None,
                     raise ReviewError("项目未加入中控", 404)
                 result = reviews.submit(project_ids=[identifier] if identifier else None, all_projects=all_projects, answer=payload.get("answer"), force=force)
                 self.json_response(202, result)
+            except ModuleInstallError as error:
+                self.json_response(error.status, {"error": error.code, "message": str(error)})
             except ReviewError as error:
                 self.json_response(error.status, {"error": str(error)})
             except (ValueError, UnicodeError, TimeoutError):
@@ -790,7 +816,18 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None,
                 elif route == "/api/integrations":
                     self.json_response(200, integrations())
                 elif route == "/api/modules":
-                    self.json_response(200, module_catalog(workspace.sites() if workspace is not None else ()))
+                    installer = type(self).module_installer
+                    result = installer.catalog() if installer is not None else module_catalog(workspace.sites() if workspace is not None else ())
+                    result["readonly"] = store is None
+                    for item in result["modules"]:
+                        item.setdefault("installable", store is not None)
+                        item.setdefault("installation", None)
+                    self.json_response(200, result)
+                elif route == "/api/modules/install":
+                    query = parse_qs(request.query, keep_blank_values=True)
+                    if set(query) != {"id"} or len(query["id"]) != 1:
+                        raise ReviewError("请指定单个模块 id")
+                    self.json_response(200, self.get_module_installer().status(query["id"][0]))
                 elif route == "/api/sites":
                     self.json_response(200, {"sites": manager.sites(), "templates": template_catalog()})
                 elif route == "/api/learning":
@@ -849,6 +886,8 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None,
                     self.serve_file(ROOT / "templates", route[len("/templates/"):])
                 else:
                     self.serve_file(ROOT / "static", route)
+            except ModuleInstallError as error:
+                self.json_response(error.status, {"error": error.code, "message": str(error)})
             except ReviewError as error:
                 self.json_response(error.status, {"error": str(error)})
             except (ValueError, UnicodeError) as error:
@@ -1236,11 +1275,17 @@ def main(argv=None):
                     server_type = type("IPv6WorkhubServer", (WorkhubServer,), {"address_family": socket.AF_INET6})
                 with server_type((args.host, args.port), handler_for(store)) as server:
                     host = "[::1]" if address.version == 6 else args.host
+                    server.RequestHandlerClass.module_installer = ModuleInstaller(Workspace(store), "http://{}:{}".format(host, server.server_port))
                     print("Agent Workhub: http://{}:{}".format(host, server.server_port), flush=True)
+                    def stop_server(*_):
+                        raise KeyboardInterrupt
+                    previous_term = signal.signal(signal.SIGTERM, stop_server)
                     try:
                         server.serve_forever()
                     except KeyboardInterrupt:
                         pass
+                    finally:
+                        signal.signal(signal.SIGTERM, previous_term)
                 return 0
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0

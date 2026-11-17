@@ -28,11 +28,11 @@ _MODULES = (
         "download_url": REPOSITORY + "/releases/download/v0.1.0/auto-opinion-0.1.0.zip",
     },
     {
-        "id": "ai-opinion", "version": "0.1.0",
+        "id": "ai-opinion", "version": "0.1.1",
         "name": {"zh-CN": "AI 产品舆情监控", "en": "AI product opinion monitor"},
         "description": {"zh-CN": "跟踪 AI 产品、硬件与人物言论，合并重复并查看增量。",
                         "en": "Track AI products, hardware and public statements with deduplication and incremental briefs."},
-        "download_url": REPOSITORY + "/releases/download/ai-opinion-v0.1.0/ai-opinion-0.1.0.zip",
+        "download_url": REPOSITORY + "/releases/download/ai-opinion-v0.1.1/ai-opinion-0.1.1.zip",
     },
     {
         "id": "compute-search", "version": "0.1.0",
@@ -64,6 +64,24 @@ _MODULES = (
     },
 )
 MODULE_IDS = frozenset(item["id"] for item in _MODULES)
+
+# Pinned archive digests are verified release artifacts, never supplied by HTTP.
+_PACKAGE_SHA256 = {
+    "auto-opinion": "9fc18ae0fc1fc1f11b360cb59a5ad24c7d44db7536d5130cea62294f551d2d99",
+    "ai-opinion": "1d5612e1cc5089b4d9ca07bbc0705407b7fe7109ccbc6cf0fd3e35ff06fb27d4",
+    "compute-search": "d453a03487989be46dea699f7fc3a541121286c071818c82193f9c170b4a0108",
+    "coding-graph": "079f1373ddd4aebd86a0c7ab6f561d5ff7f4380be144b2e007e70be889dff461",
+    "english-slices": "aa43c8aa63fa1530953ff2c0f23b1a3efbba9737acbf372f2b4b6a9db8b89736",
+    "industry-atlas": "007849860a8979f1d8d2ac2416fd1067246d8567bb481a001d240b5236a24da7"
+}
+
+
+def trusted_module(module_id):
+    """Return server-owned installation metadata for a fixed catalog identity."""
+    if not isinstance(module_id, str) or module_id not in MODULE_IDS:
+        raise ValueError("unknown module")
+    item = next(item for item in _MODULES if item["id"] == module_id)
+    return dict(deepcopy(item), sha256=_PACKAGE_SHA256[module_id])
 
 
 def _unique_object(pairs):

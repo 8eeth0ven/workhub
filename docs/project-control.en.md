@@ -1,8 +1,16 @@
 # Project control and related-project discovery
 
-The project space opens **Project websites** first, followed by **Overview** and **Modules**. Navigation still has six destinations. Cards open full details with evidence, personal plans and references; returning preserves filters and scroll position. Changing views keeps the original iframe and its inputs mounted.
+The project space opens **Project websites** first, followed by **Overview**. **Modules** is a separate destination in the workspace sidebar. Cards open full details with evidence, personal plans and references; returning preserves filters and scroll position. Changing views keeps the original iframe and its inputs mounted.
 
-Each website has two separate buttons: its main area previews inside the workspace; **Full** fills the window. Switching views, returning or reloading never enters fullscreen automatically. Reloading starts with the chooser; switching views within the page preserves the existing frame and inputs. Modules lists six downloadable modules with preview/fullscreen actions for registered sites. A registered site is not proof that its service is running.
+Each website has two separate buttons: its main area previews inside the workspace; **Full** fills the window. Switching views, returning or reloading never enters fullscreen automatically. Reloading starts with the chooser; switching views within the page preserves the existing frame and inputs.
+
+## Install modules automatically
+
+Choose **Modules** in the sidebar, then **Install and connect**. The background job downloads a fixed public release, verifies its pinned SHA-256, safely extracts it, prepares the page and connects a local website. Progress and failures are shown with retry controls. Viewing, refreshing or changing language never installs a module.
+
+Existing source, data and personal configuration are preserved. A matching installation can be reused; build and service code comes only from the verified package. Static modules start with a real empty page; English starts or reuses a verified loopback service. Installation does not collect news, create schedules, call a model or change global agent rules. An existing service's lock is not removed and that service is not terminated.
+
+Completed jobs expose preview and fullscreen actions; registration alone does not establish availability. After restarting Workhub, an English service that needs restarting can be enabled on the same page. One job per module runs at a time. The API accepts a module ID, never an arbitrary download URL or command; demo mode refuses installation.
 
 ## Batch project organization
 

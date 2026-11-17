@@ -35,6 +35,7 @@
     <span class="nav-label"><span data-i18n="WORKSPACE">WORKSPACE</span></span>
     <nav class="nav-links">
       <button class="nav-item active" data-page="spaces"><span data-icon="layout"></span><span data-i18n="项目空间">项目空间</span><span class="nav-key">01</span></button>
+      <button class="nav-item" data-page="modules"><span data-icon="plug"></span><span data-i18n="模块">模块</span></button>
       <button class="nav-item" data-page="records"><span data-icon="activity"></span><span data-i18n="工作记录">工作记录</span><span class="nav-count" id="nav-project-count">—</span></button>
       <button class="nav-item" data-page="archives"><span data-icon="book"></span><span data-i18n="项目档案">项目档案</span></button>
       <button class="nav-item" data-page="templates"><span data-icon="layers"></span><span data-i18n="版式工坊">版式工坊</span></button>
@@ -51,9 +52,7 @@
       <div class="space-modebar" role="group" aria-label="项目空间视图" data-i18n-aria-label="项目空间视图">
         <button id="website-mode" type="button" aria-pressed="true" data-i18n="项目网页">项目网页</button>
         <button id="control-mode" type="button" aria-pressed="false" data-i18n="推进概览">推进概览</button>
-        <button id="modules-mode" type="button" aria-pressed="false" data-i18n="模块">模块</button>
       </div>
-      <section id="modules-panel" hidden aria-label="模块" data-i18n-aria-label="模块"></section>
       <section id="control-panel" class="project-control" aria-label="推进概览" data-i18n-aria-label="推进概览" hidden>
         <p id="control-feedback" class="control-feedback" role="status" hidden></p>
         <div id="control-list-view">
@@ -74,6 +73,9 @@
         <aside id="project-site-navigator" class="site-navigator" aria-label="项目网站列表" data-i18n-aria-label="项目网站列表"><div class="site-navigator-heading"><span><span data-i18n="项目与网站">项目与网站</span></span><div class="site-navigator-actions"><span id="site-count">—</span><button class="icon-button site-add-button" data-workspace-add aria-label="接入网站" title="接入网站" data-i18n-aria-label="添加已有项目" data-i18n-title="添加已有项目"><span data-icon="plus"></span></button></div></div><label class="search-field site-search"><span data-icon="search"></span><input id="site-search" type="search" placeholder="查找项目或网站…" aria-label="查找项目或网站" data-i18n-placeholder="查找项目或网站…" data-i18n-aria-label="查找项目或网站"></label><div id="site-list" class="site-list"><div class="site-list-empty"><span data-i18n="正在读取网站…">正在读取网站…</span></div></div><button class="new-site-button" id="go-templates"><span data-icon="plus"></span><span data-i18n="从版式创建新网站">从版式创建新网站</span></button></aside>
         <section class="site-canvas" aria-label="网站内容" data-i18n-aria-label="网站内容"><div class="site-toolbar"><div class="site-toolbar-leading"><button id="site-navigator-toggle" class="site-navigator-toggle" type="button" aria-controls="project-site-navigator" aria-expanded="true" aria-label="收起网站列表" title="收起网站列表" data-i18n-aria-label="收起网站列表" data-i18n-title="收起网站列表"><span class="panel-toggle-icon" aria-hidden="true"></span><span data-i18n="网站列表">网站列表</span></button><div class="site-toolbar-name"><span class="mini-dot gray" id="site-live-dot"></span><strong id="current-site-name"><span data-i18n="选择一个项目网站">选择一个项目网站</span></strong><span id="current-site-url"></span></div></div><div class="site-toolbar-actions"><button id="site-review-button" class="site-review-button" disabled><span data-i18n="项目评议 ↗">项目评议 ↗</span></button><button id="reload-site" class="icon-button" aria-label="刷新当前项目网站" disabled data-i18n-aria-label="刷新当前项目网站"><span data-icon="refresh"></span></button></div></div><div class="frame-notice" id="frame-notice" role="status" hidden></div><div id="site-empty" class="site-empty"><div class="portal-symbol"><span data-icon="layout"></span><span class="portal-symbol-small">↗</span></div><p id="site-empty-text" data-i18n="选择左侧网站预览，或使用全屏按钮铺满窗口。">选择左侧网站预览，或使用全屏按钮铺满窗口。</p><button class="button button-dark" id="empty-go-templates" data-workspace-add><span data-icon="layers"></span><span data-i18n="添加已有项目">添加已有项目</span></button><div class="portal-benefits"><span><span data-i18n="同页切换">同页切换</span></span><i></i><span><span data-i18n="保留项目独立性">保留项目独立性</span></span><i></i><span><span data-i18n="统一工作记录">统一工作记录</span></span></div></div><iframe id="site-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-downloads allow-popups" class="site-frame" title="当前项目网站" referrerpolicy="no-referrer" hidden data-i18n-title="当前项目网站"></iframe><div id="frame-help" class="frame-help" role="note" hidden></div></section>
       </div><div class="portal-footnote"><span><span class="mini-dot green"></span> <span data-i18n="网站在本机读取，项目内容保留在原目录">网站在本机读取，项目内容保留在原目录</span></span><span id="sites-sync"><span data-i18n="等待同步">等待同步</span></span></div>
+    </section>
+    <section id="modules-page" class="page-content" hidden>
+      <section id="modules-panel" aria-label="模块" data-i18n-aria-label="模块"></section>
     </section>
     <section id="templates-page" class="page-content portal-page" hidden>
 

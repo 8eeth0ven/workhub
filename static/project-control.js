@@ -87,12 +87,11 @@
     const data=await response.json();if(!response.ok)throw new Error(I.translateKnown(data.error||'读取失败，请重试。'));return data;
   }
   function setMode(next,{focus=true}={}){
-    mode=['website','modules'].includes(next)?next:'control';document.documentElement.dataset.workhubSpaceMode=mode;
-    panel.hidden=mode!=='control';$('site-workspace').hidden=mode!=='website';$('modules-panel').hidden=mode!=='modules';
+    mode=next==='website'?'website':'control';document.documentElement.dataset.workhubSpaceMode=mode;
+    panel.hidden=mode!=='control';$('site-workspace').hidden=mode!=='website';
     const foot=document.querySelector('#spaces-page > .portal-footnote');if(foot)foot.hidden=mode!=='website';
     $('control-mode').setAttribute('aria-pressed',String(mode==='control'));
     $('website-mode').setAttribute('aria-pressed',String(mode==='website'));
-    $('modules-mode').setAttribute('aria-pressed',String(mode==='modules'));
     if(focus||mode!=='website')window.WorkhubFocus?.exit({restoreScroll:false});
     if(focus&&mode==='website')window.WorkhubPanels?.showSites();
     if(mode==='control')load();
@@ -202,7 +201,6 @@
   $('control-select-clear').addEventListener('click',()=>{if(batchPending)return;selected.clear();render(true);$('control-edit').focus({preventScroll:true});});
   $('control-remove-selected').addEventListener('click',prepareRemoval);$('control-remove-cancel').addEventListener('click',cancelRemoval);$('control-remove-confirm').addEventListener('click',removeSelection);$('control-remove-dialog').addEventListener('cancel',event=>{event.preventDefault();cancelRemoval();});
   $('control-mode').addEventListener('click',()=>setMode('control'));$('website-mode').addEventListener('click',()=>setMode('website'));
-  $('modules-mode').addEventListener('click',()=>setMode('modules'));
   const filterChanged=()=>{if(batchPending)return;const count=pruneSelection();render(true);if(count)feedback(t('已取消 {count} 个不可见项目的选择。',{count}));};$('control-search').addEventListener('input',filterChanged);$('control-filter').addEventListener('change',filterChanged);
   $('control-add-github').addEventListener('click',()=>{
     const select=$('control-local-link'),chosen=select.value;select.replaceChildren(el('option',t('作为独立 GitHub 项目')));select.firstChild.value='';

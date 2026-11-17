@@ -18,6 +18,7 @@ import queue
 import re
 import shutil
 import socket
+import ssl
 import stat
 import subprocess
 import sys
@@ -48,6 +49,13 @@ MESSAGES = {'queued': '等待安装', 'downloading': '下载已核实版本', 'v
             'completed': '已接入项目空间', 'failed': '安装未完成', 'idle': ''}
 ERRORS = {'unknown_module': '未知模块', 'installer_closed': '工作台正在关闭，请稍后重试',
           'download_failed': '下载失败，请检查网络后重试', 'download_timeout': '下载超时，请稍后重试',
+          'download_network': '连接下载服务失败，请检查网络或代理',
+          'download_unavailable': '下载服务暂时不可用，请稍后重试',
+          'download_rate_limited': '下载服务请求过于频繁，请稍后重试',
+          'download_not_found': '安装包不存在，请检查模块版本',
+          'download_denied': '下载服务拒绝访问，请检查网络访问权限',
+          'download_tls': '下载连接证书验证失败，请检查系统网络设置',
+          'download_redirect': '下载地址跳转不符合安全要求，已停止',
           'archive_too_large': '安装包超过允许大小', 'checksum_mismatch': '安装包校验失败，未执行或安装',
           'invalid_archive': '安装包格式不符合发布清单', 'invalid_manifest': '模块清单无效',
           'existing_install_invalid': '已有同版本目录需要检查，文件未被覆盖',
@@ -237,13 +245,21 @@ def _github_url(value):
 class GitHubRedirects(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         if not _github_url(newurl):
-            raise ModuleInstallError('download_failed')
+            raise ModuleInstallError('download_redirect')
         count = getattr(req, '_workhub_redirects', 0)
         if count >= 5:
-            raise ModuleInstallError('download_failed')
+            raise ModuleInstallError('download_redirect')
+        deadline = getattr(req, '_workhub_deadline', None)
+        if deadline is not None:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise ModuleInstallError('download_timeout')
+            # urllib follows redirects using the original request's timeout.
+            req.timeout = min(20.0, remaining)
         result = super().redirect_request(req, fp, code, msg, headers, newurl)
         if result is not None:
             result._workhub_redirects = count + 1
+            result._workhub_deadline = deadline
         return result
 
 
@@ -252,44 +268,100 @@ class NoRedirects(HTTPRedirectHandler):
         raise ModuleInstallError('service_failed')
 
 
+def _download_error(error):
+    """Return a fixed error code and retry flag; never expose exception text."""
+    if isinstance(error, HTTPError):
+        status = error.code
+        error.close()
+        if status == 429:
+            return 'download_rate_limited', False
+        if status == 404:
+            return 'download_not_found', False
+        if status in (401, 403):
+            return 'download_denied', False
+        if status == 408 or 500 <= status <= 599:
+            return 'download_unavailable', True
+        return 'download_failed', False
+    reason = error.reason if isinstance(error, URLError) else error
+    if isinstance(reason, ssl.SSLError):
+        return 'download_tls', False
+    if isinstance(reason, (TimeoutError, socket.timeout)):
+        return 'download_timeout', True
+    if isinstance(reason, socket.gaierror):
+        return 'download_network', reason.errno == getattr(socket, 'EAI_AGAIN', None)
+    if isinstance(reason, (ConnectionError, HTTPException)):
+        return 'download_network', True
+    if isinstance(error, URLError):
+        return 'download_network', False
+    return 'download_failed', False
+
+
 def _network_download(url, destination, progress, cancelled):
     if not _github_url(url) or urlsplit(url).hostname != 'github.com':
         raise ModuleInstallError('download_failed')
-    request = Request(url, headers={'User-Agent': 'Workhub/module-installer', 'Accept': 'application/octet-stream'})
-    deadline = time.monotonic() + 60
-    try:
-        with build_opener(GitHubRedirects()).open(request, timeout=12) as response, destination.open('xb') as output:
-            if response.status != 200 or not _github_url(response.geturl()):
-                raise ModuleInstallError('download_failed')
-            length = response.headers.get('Content-Length', '')
-            total = int(length) if length.isdigit() else None
-            if total is not None and total > MAX_ARCHIVE:
-                raise ModuleInstallError('archive_too_large')
-            size = 0
-            while True:
-                if cancelled.is_set():
-                    raise ModuleInstallError('installer_closed')
-                remaining = deadline - time.monotonic()
-                if remaining <= 0:
-                    raise ModuleInstallError('download_timeout')
-                try:
-                    response.fp.raw._sock.settimeout(min(3, remaining))
-                except AttributeError:
-                    pass
-                chunk = response.read1(min(65536, MAX_ARCHIVE + 1 - size))
-                if not chunk:
-                    break
-                size += len(chunk)
-                if size > MAX_ARCHIVE:
+    deadline = time.monotonic() + 60.0
+    for attempt in range(2):
+        if cancelled.is_set():
+            raise ModuleInstallError('installer_closed')
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise ModuleInstallError('download_timeout')
+        request = Request(url, headers={'User-Agent': 'Workhub/module-installer', 'Accept': 'application/octet-stream'})
+        request._workhub_deadline = deadline
+        created_identity = None
+        try:
+            with build_opener(GitHubRedirects()).open(request, timeout=min(20.0, remaining)) as response:
+                if response.status != 200 or not _github_url(response.geturl()):
+                    raise ModuleInstallError('download_failed')
+                length = response.headers.get('Content-Length', '')
+                total = int(length) if length.isdigit() else None
+                if total is not None and total > MAX_ARCHIVE:
                     raise ModuleInstallError('archive_too_large')
-                output.write(chunk)
-                progress(size, total)
-    except ModuleInstallError:
-        raise
-    except (TimeoutError, socket.timeout):
-        raise ModuleInstallError('download_timeout') from None
-    except (HTTPError, URLError, HTTPException, OSError, ValueError):
-        raise ModuleInstallError('download_failed') from None
+                output = destination.open('xb')
+                with output:
+                    st = os.fstat(output.fileno())
+                    created_identity = (st.st_dev, st.st_ino)
+                    size = 0
+                    while True:
+                        if cancelled.is_set():
+                            raise ModuleInstallError('installer_closed')
+                        remaining = deadline - time.monotonic()
+                        if remaining <= 0:
+                            raise ModuleInstallError('download_timeout')
+                        try:
+                            response.fp.raw._sock.settimeout(min(10.0, remaining))
+                        except AttributeError:
+                            pass
+                        chunk = response.read1(min(65536, MAX_ARCHIVE + 1 - size))
+                        if not chunk:
+                            break
+                        size += len(chunk)
+                        if size > MAX_ARCHIVE:
+                            raise ModuleInstallError('archive_too_large')
+                        output.write(chunk)
+                        progress(size, total)
+                    if total is not None and size != total:
+                        raise HTTPException('incomplete response')
+                return
+        except ModuleInstallError as error:
+            code, retry = error.code, error.code == 'download_timeout'
+        except (HTTPError, URLError, HTTPException, OSError, ValueError) as error:
+            code, retry = _download_error(error)
+        if created_identity is not None:
+            # Remove only the temporary output created by this attempt.
+            try:
+                st = destination.lstat()
+                if (st.st_dev, st.st_ino) == created_identity:
+                    destination.unlink()
+                else:
+                    raise ModuleInstallError('storage_unsafe')
+            except FileNotFoundError:
+                pass
+        if not retry or attempt or time.monotonic() + 0.5 >= deadline:
+            raise ModuleInstallError(code) from None
+        if cancelled.wait(0.5):
+            raise ModuleInstallError('installer_closed')
+        progress(0, None)
 
 
 BUILD_BOOTSTRAP = r'''

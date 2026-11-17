@@ -1364,6 +1364,24 @@
   '已取消 {count} 个不可见项目的选择。':'Cleared {count} hidden selections.',
   '演示模式只读，无法修改项目。':'Demo mode is read-only. Projects cannot be changed.'
  });
+  Object.assign(dictionaries.en, {
+    '面试表达':'Interview narrative','面试思考':'Interview thinking','面试问题':'Interview questions',
+    '回答要点':'Answer points','追问':'Follow-ups','项目依据':'Project evidence','未提供项目依据':'No project evidence provided',
+    '暂无面试内容，需结合项目证据补充。':'No interview material yet; add it using project evidence.',
+    '设计决策与取舍':'Design decisions and trade-offs','选择':'Choice','替代方案':'Alternative','原因':'Reason',
+    '取舍':'Trade-off','可能失败的情况':'Failure mode','如何验证':'Validation','暂无设计决策记录。':'No design decisions recorded.',
+    '岗位与前沿需求':'Role and current requirements','未提供岗位来源，尚不能判断当前需求。':'No role sources provided; current requirements cannot be inferred.',
+    '来源与岗位信息按标注日期核对，单条招聘信息不代表整个市场。':'Check each source and its date; one job posting does not represent the whole market.',
+    '岗位':'Role','机构':'Organization','地区':'Region','核查日期':'Checked on','相关需求':'Requirements',
+    '与项目的联系':'Project relevance','范围与局限':'Limitations','查看原始来源':'Open original source','来源链接无效或不安全':'Source link is invalid or unsafe',
+    '英文术语':'English term','项目中':'In this project','容易混淆':'Distinction'
+  });
+ Object.assign(dictionaries.en, {"编辑": "Edit", "恢复": "Restore", "移除": "Remove", "编辑：{title}": "Edit: {title}", "恢复：{title}": "Restore: {title}", "移除：{title}": "Remove: {title}", "回收站为空或没有匹配项": "Trash is empty or has no matches", "已移入回收站：{title}": "Moved to trash: {title}", "撤销": "Undo", "将「{title}」移入回收站？之后可以恢复。": "Move {title} to trash? You can restore it later.", "卡片已更新，请刷新后重试。": "The card has changed. Refresh and try again.", "操作未完成，请重试。": "Action failed. Please try again.", "已恢复学习卡片": "Learning card restored", "回收站": "Trash", "返回学习卡片": "Back to cards", "编辑学习卡片": "Edit learning card", "保存会创建新版本，理解状态由你确认。": "Saving creates a new revision. You control its acknowledgement.", "标题": "Title", "概念": "Concept", "解释": "Explanation", "项目实现": "Project implementation", "术语": "Terms", "英文": "English", "移除术语": "Remove term", "添加术语": "Add term", "问题": "Question", "回答要点（每行一条）": "Answer points (one per line)", "追问（每行一条）": "Follow-ups (one per line)", "移除问题": "Remove question", "添加问题": "Add question", "取消": "Cancel", "保存": "Save", "卡片已在别处更新，草稿仍在。请复制内容后关闭并重新打开。": "This card changed elsewhere. Your draft remains here; copy it before reopening the latest version.", "保存失败，草稿仍在。": "Save failed. Your draft is still here.", "已保存新版本": "New revision saved"});
+ Object.assign(dictionaries.en, {
+  '添加回答要点':'Add answer point', '移除回答要点':'Remove answer point',
+  '添加追问':'Add follow-up', '移除追问':'Remove follow-up',
+  '有未保存的更改，确定放弃吗？':'Discard your unsaved changes?'
+ });
  Object.values(dictionaries).forEach(Object.freeze);Object.freeze(dictionaries);
  const normalize=value=>value==='en'||value==='en-US'||value==='en-GB'?'en':'zh-CN';
  let locale='zh-CN';try{locale=normalize(localStorage.getItem('workhub-language'));}catch{}

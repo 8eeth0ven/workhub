@@ -18,6 +18,8 @@ Cards open full details; returning keeps filters. Use **Edit projects** to selec
 
 **Project websites** opens first: the main area previews a site, while its separate **Full** button fills the window. **Modules** in the workspace sidebar lists six optional modules; **Install and connect** downloads, verifies and prepares a local entry automatically.
 
+**Learn as you build** connects terminology, implementation details, interview questions, and design trade-offs to project source files. Public job requirements, when available, include their sources and access dates. Edit cards from the list, move them to the recycle bin, and restore them; only you can mark a card as understood. Existing cards and their version history are retained.
+
 Work records live in a local SQLite database. Browsing needs no model key. When you request a project review, the configured API, model or CLI receives the selected summary and context.
 
 [Installation and agent setup](docs/installation.en.md) · [GitHub snapshots and project tracking](docs/project-control.en.md) · [Model configuration](docs/providers.en.md) · [Data and privacy](docs/privacy.en.md) · [Optional modules](https://github.com/8eeth0ven/workhub-model)

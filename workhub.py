@@ -637,9 +637,10 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None,
             control_action = self.path.removeprefix("/api/control/") if self.path.startswith("/api/control/") else None
             archive_kind = self.path.removeprefix("/api/archives/") if self.path.startswith("/api/archives/") else None
             learning_ack = self.path == "/api/learning/ack"
+            learning_mutation = re.fullmatch(r"/api/learning/([0-9a-f-]{36})/(edit|remove|restore)", self.path)
             model_action = self.path.removeprefix("/api/model-access/") if self.path.startswith("/api/model-access/") else None
             module_install = self.path == "/api/modules/install"
-            if self.path != "/api/reviews" and not module_install and not learning_ack and archive_kind not in ("session", "prompt", "artifact") and model_action not in ("save", "test") and workspace_action not in ("add", "remove", "remove-batch") and control_action not in ("catalog", "connect", "disconnect", "refresh", "plan", "discovery-save", "discovery-run", "remove-batch"):
+            if self.path != "/api/reviews" and not module_install and not learning_ack and not learning_mutation and archive_kind not in ("session", "prompt", "artifact") and model_action not in ("save", "test") and workspace_action not in ("add", "remove", "remove-batch") and control_action not in ("catalog", "connect", "disconnect", "refresh", "plan", "discovery-save", "discovery-run", "remove-batch"):
                 self.json_response(404, {"error": "接口不存在"})
                 return
             if self.headers.get("X-Workhub-Request") != "1":
@@ -652,7 +653,7 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None,
                 if self.headers.get("Transfer-Encoding"):
                     raise ReviewError("不支持分块请求体")
                 length = int(self.headers.get("Content-Length", "0"))
-                limit = 131072 if archive_kind else 16384
+                limit = 131072 if archive_kind or learning_mutation else 16384
                 if not 0 < length <= limit:
                     raise ReviewError("JSON 请求体超出允许范围", 413)
                 self.connection.settimeout(5)
@@ -715,6 +716,17 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None,
                 if model_action in ("save", "test"):
                     result = getattr(model_access, model_action)(payload)
                     self.json_response(200, result)
+                    return
+                if learning_mutation:
+                    card_id, action = learning_mutation.groups()
+                    required = {"project_id", "expected_revision", "card"} if action == "edit" else {"project_id", "expected_revision", "expected_lifecycle_version"}
+                    if not isinstance(payload, dict) or set(payload) != required:
+                        raise ReviewError("学习卡操作参数无效")
+                    if action == "edit":
+                        result = learning.edit(card_id, payload["expected_revision"], payload["project_id"], payload["card"])
+                    else:
+                        result = learning.set_removed(card_id, payload["expected_revision"], payload["project_id"], action == "remove", payload["expected_lifecycle_version"])
+                    self.json_response(200, {"card": result})
                     return
                 if learning_ack:
                     if not isinstance(payload, dict) or set(payload) != {"card_id", "revision", "understood"}:
@@ -832,8 +844,12 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None,
                     self.json_response(200, {"sites": manager.sites(), "templates": template_catalog()})
                 elif route == "/api/learning":
                     query = parse_qs(request.query)
-                    result = learning.list(query.get("project_id", [None])[0], query.get("q", [""])[0], query.get("status", [""])[0])
-                    result["global_stats"] = learning.list()["stats"] if query.get("project_id") or query.get("q") else result["stats"]
+                    removed_param = query.get("removed", ["0"])
+                    if len(removed_param) != 1 or removed_param[0] not in ("0", "1"):
+                        raise ReviewError("回收站参数无效")
+                    removed = removed_param[0] == "1"
+                    result = learning.list(query.get("project_id", [None])[0], query.get("q", [""])[0], query.get("status", [""])[0], removed=removed)
+                    result["global_stats"] = learning.list(removed=removed)["stats"] if query.get("project_id") or query.get("q") else result["stats"]
                     result["projects"] = [{"id": p["id"], "name": p["name"]} for p in workspace.projects()]
                     self.json_response(200, result)
                 elif route == "/api/learning/card":

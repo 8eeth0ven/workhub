@@ -18,6 +18,8 @@ python3 workhub.py serve --port 8787
 
 默认先显示“项目网页”：条目主体用于预览，独立“全屏”按钮用于铺满窗口。左侧“模块”集中展示六个可选模块，点击“安装并接入”即可自动下载、校验并准备本机入口。
 
+“边做边学”围绕项目源码整理术语、实现细节、面试问题与设计取舍；有公开岗位依据时也会标明来源和查阅日期。可在卡片列表快捷编辑、移入回收站并恢复，理解状态只由你本人勾选。旧卡保留原有内容和历史版本。
+
 工作记录存入本机 SQLite。浏览项目无需模型密钥。启动项目评议时，选定的摘要和补充背景会交给你配置的 API、模型或 CLI。
 
 [安装与 Agent 接入](docs/installation.md) · [GitHub 快照与项目推进](docs/project-control.md) · [模型设置](docs/providers.md) · [数据与隐私](docs/privacy.md) · [可选模块](https://github.com/8eeth0ven/workhub-model)

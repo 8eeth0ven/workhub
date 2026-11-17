@@ -4,8 +4,7 @@
   const workspaceKey = 'workhub-sidebar-collapsed';
   const sitesKey = 'workhub-site-navigator-collapsed';
   const root = document.documentElement;
-  try { root.dataset.workhubSpaceMode = localStorage.getItem('workhub-space-mode') || (localStorage.getItem('workhub-current-site') ? 'website' : 'control'); }
-  catch { root.dataset.workhubSpaceMode = 'control'; }
+  root.dataset.workhubSpaceMode = 'website';
 
   let collapsed = false;
   let sitesCollapsed = false;
@@ -16,6 +15,8 @@
     hasSitesPreference = saved !== null && saved !== undefined;
     sitesCollapsed = hasSitesPreference ? saved === 'true' : collapsed;
   } catch { sitesCollapsed = collapsed; }
+  // Project websites is the entry view; its chooser must be visible on entry.
+  sitesCollapsed = false;
   // Apply both saved states before paint, including the legacy outer-only case.
   root.classList.toggle('sidebar-collapsed', collapsed);
   root.classList.toggle('site-navigator-collapsed', sitesCollapsed);
@@ -54,6 +55,10 @@
       render();
       try { localStorage.setItem(sitesKey, String(sitesCollapsed)); } catch {}
     });
+    window.WorkhubPanels = {showSites: () => {
+      sitesCollapsed=false;hasSitesPreference=true;render();
+      try { localStorage.setItem(sitesKey,'false'); } catch {}
+    }};
     window.addEventListener('storage', event => {
       if (event.key === workspaceKey) {
         collapsed = event.newValue === 'true';

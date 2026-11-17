@@ -16,6 +16,8 @@ Open the address printed in the terminal, choose **Add existing project**, then 
 
 Cards open full details; returning keeps filters. Use **Edit projects** to select visible entries and remove them from the workspace in a batch. Local files, websites, work records and remote repositories remain intact.
 
+**Project websites** opens first: the main area previews a site, while its separate **Full** button fills the window. **Modules** lists six optional modules and their registered websites.
+
 Work records live in a local SQLite database. Browsing needs no model key. When you request a project review, the configured API, model or CLI receives the selected summary and context.
 
 [Installation and agent setup](docs/installation.en.md) · [GitHub snapshots and project tracking](docs/project-control.en.md) · [Model configuration](docs/providers.en.md) · [Data and privacy](docs/privacy.en.md) · [Optional modules](https://github.com/8eeth0ven/workhub-model)

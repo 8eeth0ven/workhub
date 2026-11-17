@@ -1,6 +1,8 @@
 # Project control and related-project discovery
 
-The existing project space has two views: **Overview** and **Project websites**. Navigation still has six destinations. Cards open full details with evidence, personal plans and references; returning preserves filters and scroll position. Changing views keeps the original iframe and its inputs mounted.
+The project space opens **Project websites** first, followed by **Overview** and **Modules**. Navigation still has six destinations. Cards open full details with evidence, personal plans and references; returning preserves filters and scroll position. Changing views keeps the original iframe and its inputs mounted.
+
+Each website has two separate buttons: its main area previews inside the workspace; **Full** fills the window. Switching views, returning or reloading never enters fullscreen automatically. Reloading starts with the chooser; switching views within the page preserves the existing frame and inputs. Modules lists six downloadable modules with preview/fullscreen actions for registered sites. A registered site is not proof that its service is running.
 
 ## Batch project organization
 

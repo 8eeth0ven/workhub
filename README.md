@@ -16,6 +16,8 @@ python3 workhub.py serve --port 8787
 
 卡片点开后展示完整详情，返回保留筛选。进入“编辑项目”可选择当前可见项目，批量从中控移除；本地文件、网站、工作记录和远端仓库保留。
 
+默认先显示“项目网页”：条目主体用于预览，独立“全屏”按钮用于铺满窗口。“模块”入口集中展示六个可选模块和已接入网站。
+
 工作记录存入本机 SQLite。浏览项目无需模型密钥。启动项目评议时，选定的摘要和补充背景会交给你配置的 API、模型或 CLI。
 
 [安装与 Agent 接入](docs/installation.md) · [GitHub 快照与项目推进](docs/project-control.md) · [模型设置](docs/providers.md) · [数据与隐私](docs/privacy.md) · [可选模块](https://github.com/8eeth0ven/workhub-model)

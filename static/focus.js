@@ -22,6 +22,7 @@
   }
 
   function render() {
+    button.hidden = root.dataset.workhubSpaceMode !== 'website' || !hasSelectedFrame();
     const label = active ? '恢复工作台界面' : '收起界面并铺满窗口';
     button.setAttribute('data-i18n-aria-label', label);
     button.setAttribute('data-i18n-title', label);
@@ -32,7 +33,7 @@
   }
 
   function enter(options = {}) {
-    if (document.documentElement.dataset.workhubSpaceMode === "control") return;
+    if (root.dataset.workhubSpaceMode !== 'website' || !hasSelectedFrame()) return;
     if (active) return;
     previousScroll = {x: window.scrollX || 0, y: window.scrollY || 0};
     active = true;
@@ -47,7 +48,7 @@
   }
 
   function exit(options = {}) {
-    if (!active) return;
+    if (!active) { render(); return; }
     active = false;
     root.classList.remove('workhub-focus-mode');
     render();
@@ -61,22 +62,22 @@
   button.addEventListener('click', toggle);
   window.addEventListener('workhub:page', event => {
     const page = event.detail?.page;
-    const changed = currentPage !== page;
     currentPage = page;
-    if (page !== 'spaces') exit({restoreScroll: false});
-    else if (changed && hasSelectedFrame()) enter({automatic: true});
+    exit({restoreScroll: false});
   });
   window.addEventListener('workhub:site', event => {
     const detail = event.detail || {};
     selected = {siteId: detail.siteId || null, source: detail.source || null};
+    render();
     if (!hasSelectedFrame()) {
       if (currentPage === 'spaces') exit({restoreScroll: false});
       return;
     }
-    // A user's expansion survives polling, reloads and language changes.
-    // Selecting even the current project is an explicit return to its canvas.
-    if (detail.reason === 'select' || detail.reason === 'restore') enter({automatic: true});
+    // Ordinary previews and restoration never hide the chooser. Fullscreen is
+    // requested explicitly after the website view and this selection are ready.
+    if (['preview', 'select', 'restore'].includes(detail.reason)) exit({restoreScroll: false});
   });
+  window.addEventListener('workhub:space-mode', render);
   window.addEventListener('keydown', event => { if (active && event.key === 'Escape') exit(); });
   if (i18n) i18n.onChange(render);
   window.WorkhubFocus = {

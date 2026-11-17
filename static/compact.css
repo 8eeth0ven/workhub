@@ -47,6 +47,12 @@ html:not(.workhub-focus-mode) #spaces-page:not([hidden]) { padding:6px 8px; gap:
 .site-item-info { gap:2px; }
 .site-item-info strong { font-size:14px; line-height:1.5; }
 .site-item-info>span { font-size:12px; line-height:1.5; }
+.site-item-row { display:grid; grid-template-columns:minmax(0,1fr) 44px; gap:3px; margin-bottom:4px; }
+.site-item-row .site-preview { min-width:0; width:100%; margin:0; min-height:48px; }
+.site-fullscreen { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; min-width:44px; min-height:44px; padding:5px 2px; border:1px solid var(--wh-border); border-radius:7px; background:var(--wh-surface); color:var(--wh-muted); cursor:pointer; font:inherit; font-size:10px; }
+.site-fullscreen svg { display:block; width:16px; height:16px; stroke-width:1.5; }
+.site-fullscreen:hover { background:var(--wh-accent-soft); color:var(--wh-ink); }
+.site-item-row button:focus-visible { outline:2px solid var(--wh-accent); outline-offset:1px; }
 .new-site-button { min-height:32px; padding:7px 8px; font-size:12px; }
 #spaces-page .site-toolbar { height:36px; flex:0 0 36px; padding:0 10px; gap:8px; }
 .site-toolbar-leading { gap:8px; }

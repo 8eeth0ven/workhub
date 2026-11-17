@@ -19,7 +19,7 @@
 .control-empty{font-size:13px;color:var(--wh-muted);padding:20px 8px}.control-owner-row{display:flex;align-items:end;gap:8px;margin:14px 0}.control-owner-row label{display:grid;gap:6px;flex:1;font-size:13px}.control-owner-row input{width:100%}.control-field{display:grid;gap:6px;font-size:13px;margin:12px 0}.control-field :is(input,select){width:100%}
 #control-catalog-note,#control-github-message{font-size:12px;line-height:1.7}#control-github-form>button{float:right}
 .project-control :is(button,a,input,select,textarea,summary):focus-visible,.space-modebar button:focus-visible{outline:2px solid var(--wh-focus);outline-offset:2px}
-html[data-workhub-space-mode=control] .focus-toggle{display:none}
+html:not([data-workhub-space-mode=website]) .focus-toggle{display:none}
 html.workhub-focus-mode .space-modebar{display:none}
 #control-panel[hidden],#site-workspace[hidden]{display:none!important}
 @media(max-width:1050px){.control-row>summary{grid-template-columns:minmax(120px,1fr) 100px minmax(120px,1fr)}.control-time{display:none}}

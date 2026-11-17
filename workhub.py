@@ -29,6 +29,7 @@ from assessments import AssessmentManager, ReviewError
 from archives import ArchiveStore
 from learning import LearningStore
 from model_access import ModelAccess
+from module_catalog import module_catalog
 from project_catalog import ProjectCatalog
 from project_control import ControlCenter
 
@@ -788,6 +789,8 @@ def handler_for(store, manager=None, reviews=None, archives=None, learning=None,
                     self.json_response(200, control.state())
                 elif route == "/api/integrations":
                     self.json_response(200, integrations())
+                elif route == "/api/modules":
+                    self.json_response(200, module_catalog(workspace.sites() if workspace is not None else ()))
                 elif route == "/api/sites":
                     self.json_response(200, {"sites": manager.sites(), "templates": template_catalog()})
                 elif route == "/api/learning":

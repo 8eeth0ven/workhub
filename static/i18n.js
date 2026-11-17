@@ -1341,6 +1341,9 @@
    '检索词含敏感信息，请移除后重试':'Remove sensitive information from search keywords and try again',
  });
  Object.assign(dictionaries.en,{
+  '模块':'Modules','预览 {name}':'Preview {name}','在工作台内预览':'Preview in workspace',
+  '全屏打开 {name}':'Open {name} fullscreen','全屏打开':'Open fullscreen','全屏':'Full',
+  '选择左侧网站预览，或使用全屏按钮铺满窗口。':'Choose a site to preview, or use its fullscreen button to fill the window.',
   '取消':'Cancel','编辑项目':'Edit projects','完成编辑':'Done editing','选择项目 {name}':'Select project {name}',
   '快照状态：{state}':'Snapshot status: {state}','快照读取':'Snapshot observed','项目记录更新':'Project record updated',
   '快照读取时间：{time}':'Snapshot observation time: {time}',

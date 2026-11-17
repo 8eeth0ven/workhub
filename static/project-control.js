@@ -87,14 +87,16 @@
     const data=await response.json();if(!response.ok)throw new Error(I.translateKnown(data.error||'读取失败，请重试。'));return data;
   }
   function setMode(next,{focus=true}={}){
-    mode=next==='website'?'website':'control';document.documentElement.dataset.workhubSpaceMode=mode;
-    panel.hidden=mode!=='control';$('site-workspace').hidden=mode==='control';
-    const foot=document.querySelector('#spaces-page > .portal-footnote');if(foot)foot.hidden=mode==='control';
+    mode=['website','modules'].includes(next)?next:'control';document.documentElement.dataset.workhubSpaceMode=mode;
+    panel.hidden=mode!=='control';$('site-workspace').hidden=mode!=='website';$('modules-panel').hidden=mode!=='modules';
+    const foot=document.querySelector('#spaces-page > .portal-footnote');if(foot)foot.hidden=mode!=='website';
     $('control-mode').setAttribute('aria-pressed',String(mode==='control'));
     $('website-mode').setAttribute('aria-pressed',String(mode==='website'));
-    try{localStorage.setItem('workhub-space-mode',mode);}catch{}
-    if(mode==='control'){window.WorkhubFocus?.exit({restoreScroll:false});load();}
-    else if(focus&&!$('site-frame').hidden)window.WorkhubFocus?.enter({automatic:true});
+    $('modules-mode').setAttribute('aria-pressed',String(mode==='modules'));
+    if(focus||mode!=='website')window.WorkhubFocus?.exit({restoreScroll:false});
+    if(focus&&mode==='website')window.WorkhubPanels?.showSites();
+    if(mode==='control')load();
+    window.dispatchEvent(new CustomEvent('workhub:space-mode',{detail:{mode}}));
   }
   function signal(row){
     if(row.refreshing)return t('正在刷新…');
@@ -200,6 +202,7 @@
   $('control-select-clear').addEventListener('click',()=>{if(batchPending)return;selected.clear();render(true);$('control-edit').focus({preventScroll:true});});
   $('control-remove-selected').addEventListener('click',prepareRemoval);$('control-remove-cancel').addEventListener('click',cancelRemoval);$('control-remove-confirm').addEventListener('click',removeSelection);$('control-remove-dialog').addEventListener('cancel',event=>{event.preventDefault();cancelRemoval();});
   $('control-mode').addEventListener('click',()=>setMode('control'));$('website-mode').addEventListener('click',()=>setMode('website'));
+  $('modules-mode').addEventListener('click',()=>setMode('modules'));
   const filterChanged=()=>{if(batchPending)return;const count=pruneSelection();render(true);if(count)feedback(t('已取消 {count} 个不可见项目的选择。',{count}));};$('control-search').addEventListener('input',filterChanged);$('control-filter').addEventListener('change',filterChanged);
   $('control-add-github').addEventListener('click',()=>{
     const select=$('control-local-link'),chosen=select.value;select.replaceChildren(el('option',t('作为独立 GitHub 项目')));select.firstChild.value='';
@@ -221,11 +224,10 @@
     catch(error){$('control-github-message').textContent=error.message;}finally{busy=false;$('control-connect-submit').disabled=false;}
   });
   window.addEventListener('workhub:state',event=>{if(event.detail?.is_demo){document.body.dataset.demo='true';editing=false;selected.clear();removeDraft=[];}renderSelection();if(!$('spaces-page').hidden&&mode==='control')load();});
-  window.addEventListener('workhub:page',event=>{if(event.detail.page==='spaces'&&mode==='control'){window.WorkhubFocus?.exit({restoreScroll:false});load();}});
-  window.addEventListener('workhub:site',event=>{if(event.detail.reason==='clear'&&mode==='website'){expanded=null;editing=false;selected.clear();setMode('control',{focus:false});}else if(event.detail.reason==='select'||event.detail.reason==='restore'&&mode==='website')setMode('website');});
+  window.addEventListener('workhub:page',event=>{if(event.detail.page==='spaces'){if(mode==='control'){window.WorkhubFocus?.exit({restoreScroll:false});load();}else if(mode==='website')window.WorkhubPanels?.showSites();}});
+  window.addEventListener('workhub:site',event=>{if(event.detail.reason==='clear'&&mode==='website'){expanded=null;editing=false;selected.clear();setMode('website',{focus:false});}else if(['select','preview','fullscreen'].includes(event.detail.reason)||event.detail.reason==='restore'&&mode==='website')setMode('website',{focus:false});});
   window.addEventListener('workhub:workspace-removed',event=>{const ids=new Set(event.detail?.ids||[]);for(const id of ids)selected.delete('local:'+id);if(expanded&&ids.has(expanded.slice(6))&&expanded.startsWith('local:'))expanded=null;load(true);});
   I.onChange(()=>{I.apply(panel);I.apply(dialog);I.apply($('control-remove-dialog'));I.apply(document.querySelector('.space-modebar'));render(true);});
-  let saved;try{saved=localStorage.getItem('workhub-space-mode');if(!saved&&localStorage.getItem('workhub-current-site'))saved='website';}catch{}
-  I.apply(panel);I.apply(dialog);I.apply(document.querySelector('.space-modebar'));setMode(saved||'control',{focus:false});
+  I.apply(panel);I.apply(dialog);I.apply(document.querySelector('.space-modebar'));setMode('website',{focus:false});
   setInterval(()=>{if(!document.hidden&&!$('spaces-page').hidden&&mode==='control'&&projects.some(row=>row.refreshing||row.discovery?.running))load();},1800);
 })();

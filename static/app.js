@@ -20,7 +20,8 @@ const ICONS = {
  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7v.5"/>',
  plug:'<path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0Zm6 9v4"/>',
  wifi:'<path d="M2 8a16 16 0 0 1 20 0M5 12a11 11 0 0 1 14 0M9 16a5 5 0 0 1 6 0M12 20v.1"/>',
- check:'<path d="m5 12 4 4L19 6"/>'
+ check:'<path d="m5 12 4 4L19 6"/>',
+ expand:'<path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5"/>'
 };
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -79,7 +80,7 @@ sync();syncIntegrations();setInterval(()=>{if(!document.hidden)sync();},5000);se
 // Sites retain their own files and runtime; the portal switches only this frame.
 let siteState={sites:[],templates:[]},sitesLoaded=false,siteFetchBusy=false,activeSiteId=null,activeSiteSource='',frameTimer=null,siteLoadFailed=false,sitesLastSync=null,sitesOnline=null,siteSelectionInitialized=false;
 const FRAME_SANDBOX='allow-scripts allow-same-origin allow-forms allow-downloads allow-popups';
-try{activeSiteId=localStorage.getItem('workhub-current-site');const requested=new URLSearchParams(location.search||'').get('page');const page=['spaces','records','learning','templates','reviews','archives'].includes(requested)?requested:localStorage.getItem('workhub-current-page');if(page)switchPage(page);}catch{}
+try{const requested=new URLSearchParams(location.search||'').get('page');const page=['spaces','records','learning','templates','reviews','archives'].includes(requested)?requested:localStorage.getItem('workhub-current-page');if(page)switchPage(page);}catch{}
 function safeFrameUrl(value){if(typeof value!=='string'||!value.trim())return null;try{const url=new URL(value,location.origin);return ['http:','https:'].includes(url.protocol)?url.href:null;}catch{return null;}}
 function renderSites(){
   if(!sitesLoaded)return;
@@ -89,6 +90,8 @@ function renderSites(){
   counter.title=t('{projects} 个项目 · {sites} 个网站',{projects:state.projects.length,sites:siteState.sites.length});
   counter.setAttribute('aria-label',counter.title);
   const list=$('#site-list');
+  const focused=list.contains(document.activeElement)?document.activeElement:null;
+  const focusedSite=focused?.dataset.siteId,focusedAction=focused?.dataset.siteAction;
   if(!groups.length){
     list.replaceChildren(element('div','site-list-empty',$('#site-search').value.trim()?t('没有匹配的项目或网站。'):t('还没有接入项目或网站。')));
     return;
@@ -108,18 +111,28 @@ function renderSites(){
       group.append(button);
     }
     sites.forEach(site=>{
-      const button=element('button',`site-item${String(site.id)===activeSiteId?' selected':''}`);
+      const row=element('div','site-item-row');
+      const button=element('button',`site-item site-preview${String(site.id)===activeSiteId?' selected':''}`);
+      button.dataset.siteId=String(site.id);button.dataset.siteAction='preview';
       button.type='button';button.setAttribute('aria-pressed',String(String(site.id)===activeSiteId));
+      button.setAttribute('aria-label',t('预览 {name}',{name:site.name||project.name||t('项目网站')}));
+      button.title=t('在工作台内预览');
       const symbol=element('span','site-item-icon');symbol.append(icon('folder'));
       const info=element('span','site-item-info');
       info.append(element('strong','',site.name||project.name||t('项目网站')),element('span','',site.description||({directory:t('本机项目网站'),url:t('已接入网站')}[site.kind])||t('项目网站')));
-      button.append(symbol,info,element('span','site-item-arrow','↗'));
-      button.addEventListener('click',()=>selectSite(String(site.id)));
-      group.append(button);
+      button.append(symbol,info);
+      button.addEventListener('click',()=>selectSite(String(site.id),{reason:'preview'}));
+      const fullscreen=element('button','site-fullscreen');fullscreen.type='button';
+      fullscreen.dataset.siteId=String(site.id);fullscreen.dataset.siteAction='fullscreen';
+      fullscreen.setAttribute('aria-label',t('全屏打开 {name}',{name:site.name||project.name||t('项目网站')}));
+      fullscreen.title=t('全屏打开');fullscreen.append(icon('expand'),element('span','',t('全屏')));
+      fullscreen.addEventListener('click',()=>selectSite(String(site.id),{reason:'fullscreen'}));
+      row.append(button,fullscreen);group.append(row);
     });
     return group;
   });
   list.replaceChildren(...nodes);
+  if(focusedSite)[...list.querySelectorAll('[data-site-id]')].find(node=>node.dataset.siteId===focusedSite&&node.dataset.siteAction===focusedAction)?.focus({preventScroll:true});
 }
 
 function siteSource(site){
@@ -167,6 +180,7 @@ function selectSite(id,{reason='select'}={}){
   }
   if(source!==activeSiteSource){activeSiteSource=source;loadSiteFrame();}
   updateFrameHelp(site);renderSites();announceSiteSelection(reason);
+  if(reason==='fullscreen')window.WorkhubFocus?.enter();
 }
 function loadSiteFrame(){
   clearTimeout(frameTimer);siteLoadFailed=false;
@@ -260,7 +274,12 @@ window.WorkhubDashboard = {
     await sync(); await syncSites();
   },
   projects: () => state.projects,
+  openSite: (id,{fullscreen=false}={}) => {
+    if(!siteState.sites.some(site=>String(site.id)===String(id)))return false;
+    switchPage('spaces');window.WorkhubPanels?.showSites();
+    selectSite(id,{reason:fullscreen?'fullscreen':'preview'});return true;
+  },
   openProject: id => { switchPage("records"); openProject(id); },
-  openProjectSite: id => { const site=siteState.sites.find(s=>String(s.project_id)===String(id)); switchPage("spaces"); if(site)selectSite(site.id); return Boolean(site); },
+  openProjectSite: id => { const site=siteState.sites.find(s=>String(s.project_id)===String(id)); switchPage("spaces"); window.WorkhubPanels?.showSites(); if(site)selectSite(site.id); return Boolean(site); },
 };
 window.addEventListener('workhub:workspace-updated',()=>window.WorkhubDashboard.refresh());

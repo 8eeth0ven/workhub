@@ -31,6 +31,11 @@ from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_ope
 import uuid
 import zipfile
 
+try:
+    import fcntl
+except ImportError:
+    fcntl = None
+
 from module_catalog import MODULE_IDS, MAX_MANIFEST_BYTES, _unique_object, module_catalog, trusted_module
 
 MAX_ARCHIVE = 8 * 1024 * 1024
@@ -140,6 +145,8 @@ def validate_manifest(value, meta):
     if not isinstance(entry, dict) or entry.get('build') != 'bin/build_data.py':
         raise ModuleInstallError('invalid_manifest')
     if meta['id'] == 'english-slices' and entry.get('serve') != 'bin/serve.py':
+        raise ModuleInstallError('invalid_manifest')
+    if meta['id'] == 'ai-opinion' and (entry.get('serve') != 'bin/server.py' or 'bin/server.py' not in files):
         raise ModuleInstallError('invalid_manifest')
     site = value.get('site')
     if not isinstance(site, dict) or site.get('entry') != 'site/index.html':
@@ -292,6 +299,14 @@ root=Path(sys.argv[1]);sys.path.insert(0,str(root/'bin'))
 sys.argv=[str(root/'bin/build_data.py'),*sys.argv[2:]]
 runpy.run_path(str(root/'bin/build_data.py'),run_name='__main__')
 '''
+AI_BOOTSTRAP = r'''
+import runpy,sys
+from pathlib import Path
+root=Path(sys.argv[1]);sys.path.insert(0,str(root/'bin'))
+sys.argv=[str(root/'bin/server.py'),*sys.argv[2:]]
+runpy.run_path(str(root/'bin/server.py'),run_name='__main__')
+'''
+
 ENGLISH_BOOTSTRAP = r'''
 import json,signal,sys
 from pathlib import Path
@@ -368,12 +383,13 @@ class ModuleInstaller:
 
     def _check_owned_service(self):
         with self._lock:
-            service = self._services.get('english-slices')
-            if service and service.get('process') and service['process'].poll() is not None:
-                if 'english-slices' in self._jobs and self._jobs['english-slices']['status'] == 'completed':
-                    self._set('english-slices', 'failed', 100, 'service_stopped')
-                self._services.pop('english-slices', None)
-                service['capsule'].cleanup()
+            for module_id in ('english-slices', 'ai-opinion'):
+                service = self._services.get(module_id)
+                if service and service.get('process') and service['process'].poll() is not None:
+                    if module_id in self._jobs and self._jobs[module_id]['status'] == 'completed':
+                        self._set(module_id, 'failed', 100, 'service_stopped')
+                    self._services.pop(module_id, None)
+                    service['capsule'].cleanup()
 
     def status(self, module_id):
         self._meta(module_id)
@@ -400,7 +416,7 @@ class ModuleInstaller:
                 if (not row['site_ids'] and row['installation'] is not None
                         and row['installation']['status'] == 'completed'):
                     row['installation'] = None  # Retain history in status(); never reconnect implicitly.
-                row['needs_service'] = row['id'] == 'english-slices' and row['id'] not in self._services
+                row['needs_service'] = row['id'] in {'english-slices', 'ai-opinion'} and row['id'] not in self._services
                 if row['needs_service'] and row['site_ids'] and row['installation'] is None:
                     row['installation'] = self._idle(row['id'])
         return result
@@ -518,6 +534,10 @@ class ModuleInstaller:
         root = re.search(r'<html\b[^>]*>', value, re.I)
         if root is None:
             raise ModuleInstallError('build_failed')
+        if module_id == 'ai-opinion' and 'data-workhub-parent-origin' in root.group(0).lower():
+            parent_attr = re.search(r"\bdata-workhub-parent-origin\s*=\s*([\"'])(.*?)\1", root.group(0), re.I)
+            if not parent_attr or html.unescape(parent_attr.group(2)) != self.parent_origin:
+                raise ModuleInstallError('build_failed')
         if 'data-workhub-parent-origin=' not in root.group(0):
             replacement = root.group(0)[:-1] + ' data-workhub-parent-origin="' + html.escape(self.parent_origin, quote=True) + '">'
             value = value[:root.start()] + replacement + value[root.end():]
@@ -616,6 +636,178 @@ class ModuleInstaller:
             if process.stdout:
                 process.stdout.close()
 
+    def _admitted_ai_target(self):
+        """Select only one already-admitted AI project directly under modules/."""
+        paths = set()
+        for site in self.workspace.sites()[:2000]:
+            raw = site.get('project_path')
+            if not isinstance(raw, str):
+                continue
+            path = Path(raw)
+            if path.parent != self.directory or not re.fullmatch(r'ai-opinion-[0-9]+(?:\.[0-9]+){2}', path.name):
+                continue
+            try:
+                _plain_directory(path)
+                manifest = _json(_regular_bytes(path / 'module.json', MAX_MANIFEST_BYTES, 'existing_install_invalid'))
+                if (not isinstance(manifest, dict) or manifest.get('id') != 'ai-opinion'
+                        or manifest.get('kind') != 'workhub-module' or manifest.get('schema_version') != 1):
+                    continue
+                data = path / 'data'
+                if data.exists() or data.is_symlink():
+                    _plain_directory(data)
+                _plain_directory(path / 'site')
+                paths.add(path)
+            except ModuleInstallError:
+                raise ModuleInstallError('existing_install_invalid') from None
+        if len(paths) > 1:
+            raise ModuleInstallError('existing_install_invalid')
+        return next(iter(paths), None)
+
+    def _probe_ai(self, origin, data):
+        origin = loopback_origin(origin)
+        payload = _json(self._local_get(origin, '/api/health', MAX_MANIFEST_BYTES), 'service_failed')
+        expected = hashlib.sha256(str(data.resolve()).encode('utf-8')).hexdigest()
+        if (not isinstance(payload, dict) or payload.get('module_id') != 'ai-opinion'
+                or payload.get('status') != 'ok' or payload.get('data_dir_sha256') != expected):
+            raise ModuleInstallError('service_failed')
+        if b'id="report-data"' not in self._local_get(origin, '/', MAX_FILE):
+            raise ModuleInstallError('service_failed')
+        return origin + '/'
+
+    @staticmethod
+    def _ai_data_locked(data):
+        """Check an existing lock without creating, deleting, or trusting its contents."""
+        path = data / '.ai-opinion-service.lock'
+        if not path.exists() and not path.is_symlink():
+            return False
+        try:
+            before = path.lstat()
+            if not stat.S_ISREG(before.st_mode):
+                raise ModuleInstallError('storage_unsafe')
+            fd = os.open(path, os.O_RDWR | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_NONBLOCK', 0))
+            try:
+                after = os.fstat(fd)
+                if not stat.S_ISREG(after.st_mode) or (before.st_dev, before.st_ino) != (after.st_dev, after.st_ino):
+                    raise ModuleInstallError('storage_unsafe')
+                if fcntl is None:
+                    return False
+                try:
+                    fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                except BlockingIOError:
+                    return True
+                else:
+                    fcntl.flock(fd, fcntl.LOCK_UN)
+                    return False
+            finally:
+                os.close(fd)
+        except ModuleInstallError:
+            raise
+        except OSError:
+            raise ModuleInstallError('storage_unsafe') from None
+
+    def _launch_ai(self, clean, target, capsule):
+        data = target / 'data'
+        if data.exists() or data.is_symlink():
+            _plain_directory(data)
+        if self._ai_data_locked(data):
+            raise ModuleInstallError('in_use')
+        try:
+            process = subprocess.Popen([sys.executable, '-I', '-S', '-B', '-u', '-c', AI_BOOTSTRAP, str(clean),
+                                       '--host', '127.0.0.1', '--port', '0', '--data-dir', str(data),
+                                       '--site-dir', str(clean / 'site'), '--config-dir', str(self.store.directory),
+                                       '--parent-origin', self.parent_origin], cwd=clean, env=_environment(),
+                                       stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        except OSError:
+            raise ModuleInstallError('service_failed') from None
+        output = queue.Queue(maxsize=1)
+        threading.Thread(target=lambda: output.put(process.stdout.readline(512)), daemon=True).start()
+        try:
+            first = _json(output.get(timeout=12), 'service_failed')
+            if first.get('error') == 'in_use':
+                raise ModuleInstallError('in_use')
+            port = first.get('port')
+            if first.get('module_id') != 'ai-opinion' or type(port) is not int or not 1 <= port <= 65535:
+                raise ModuleInstallError('service_failed')
+            origin = self._probe_ai('http://127.0.0.1:' + str(port), data)
+            if process.poll() is not None or self._closed.is_set():
+                raise ModuleInstallError('service_failed')
+            with self._lock:
+                if self._closed.is_set():
+                    raise ModuleInstallError('installer_closed')
+                self._services['ai-opinion'] = {'process': process, 'capsule': capsule, 'url': origin, 'target': target}
+            return origin
+        except (ModuleInstallError, queue.Empty, ValueError, AttributeError) as error:
+            self._stop_process(process)
+            if self._ai_data_locked(data):
+                raise ModuleInstallError('in_use') from None
+            if isinstance(error, ModuleInstallError):
+                raise
+            raise ModuleInstallError('service_failed') from None
+        finally:
+            if process.stdout:
+                process.stdout.close()
+
+    def _connect_existing_ai(self, target, meta, url):
+        """Convert exactly one existing AI registration in-place; preserve its ID and metadata."""
+        origin = loopback_origin(url)
+        sites = [s for s in self.workspace.sites() if s.get('project_path') == str(target)]
+        registered = [s for s in sites if (s.get('kind') == 'directory' and s.get('directory') == str(target / 'site'))]
+        receipt_path = target / '.workhub-module-service.json'
+        prior_raw = None
+        if receipt_path.exists() or receipt_path.is_symlink():
+            prior_raw = _regular_bytes(receipt_path, MAX_MANIFEST_BYTES)
+            prior = _json(prior_raw, 'storage_unsafe')
+            if (not isinstance(prior, dict) or prior.get('module_id') != 'ai-opinion'
+                    or prior.get('schema_version') != 1 or not re.fullmatch(r'[0-9a-f]{24}', prior.get('site_id', ''))):
+                raise ModuleInstallError('storage_unsafe')
+            previous_url = loopback_origin(prior.get('url')) + '/'
+            registered += [s for s in sites if s.get('id') == prior['site_id'] and s.get('kind') == 'url'
+                           and s.get('url', '').rstrip('/') + '/' == previous_url]
+        if len(registered) != 1:
+            raise ModuleInstallError('connect_failed')
+        row = registered[0]; site_id = row['id']
+        receipt = {'schema_version': 1, 'module_id': meta['id'], 'version': meta['version'],
+                   'sha256': meta['sha256'], 'site_id': site_id, 'url': origin + '/'}
+        encoded = json.dumps(receipt).encode('utf-8')
+        fd, name = tempfile.mkstemp(prefix='.module-service-', dir=target)
+        moved = False
+        try:
+            with os.fdopen(fd, 'wb') as output:
+                output.write(encoded)
+                output.flush()
+                os.fsync(output.fileno())
+            try:
+                with self.store.connection() as db:
+                    db.execute('BEGIN IMMEDIATE')
+                    exact = db.execute('SELECT s.kind,s.url,s.directory FROM sites s JOIN projects p ON p.id=s.project_id JOIN workspace_projects w ON w.project_id=p.id WHERE s.id=? AND p.path=?', (site_id,str(target))).fetchone()
+                    if exact is None or exact['kind'] != row['kind'] or exact['url'] != row['url'] or exact['directory'] != row['directory']:
+                        raise ModuleInstallError('connect_failed')
+                    db.execute("UPDATE sites SET kind='url',url=?,directory=NULL,updated_at=? WHERE id=?", (origin + '/',stamp(),site_id))
+                    os.replace(name,receipt_path)
+                    moved = True
+            except Exception:
+                # Restore only the receipt bytes this attempt wrote. Never remove
+                # or overwrite an unrelated concurrent change.
+                if moved:
+                    try:
+                        if _regular_bytes(receipt_path, MAX_MANIFEST_BYTES) == encoded:
+                            if prior_raw is None:
+                                receipt_path.unlink()
+                            else:
+                                prior_fd, prior_name = tempfile.mkstemp(prefix='.module-service-restore-', dir=target)
+                                try:
+                                    with os.fdopen(prior_fd, 'wb') as previous:
+                                        previous.write(prior_raw)
+                                    os.replace(prior_name, receipt_path)
+                                finally:
+                                    if os.path.exists(prior_name):os.unlink(prior_name)
+                    except (OSError, ModuleInstallError):
+                        pass
+                raise
+            return [site_id]
+        finally:
+            if os.path.exists(name):os.unlink(name)
+
     @staticmethod
     def _stop_process(process):
         if process.poll() is None:
@@ -706,14 +898,30 @@ class ModuleInstaller:
                 raise ModuleInstallError('checksum_mismatch')
             clean, manifest = unpack_archive(archive, work, meta)
             self._set(module_id, 'installing', 52)
-            target = self.directory / (module_id + '-' + meta['version'])
+            admitted_ai = self._admitted_ai_target() if module_id == 'ai-opinion' else None
+            target = admitted_ai or (self.directory / (module_id + '-' + meta['version']))
             existing = target.exists() or target.is_symlink()
             if existing:
-                self._validate_existing(target, manifest, meta)
+                if not admitted_ai:
+                    self._validate_existing(target, manifest, meta)
                 if module_id == 'english-slices':
                     self._previous_site(target, meta)
             self._set(module_id, 'building', 65)
-            if module_id == 'english-slices':
+            if module_id == 'ai-opinion':
+                self._run_builder(clean, target, module_id)
+                if not existing:
+                    shutil.copytree(clean, work / 'published')
+                    if target.exists() or target.is_symlink():
+                        raise ModuleInstallError('existing_install_invalid')
+                    os.rename(work / 'published', target)
+                with self._lock:
+                    service = self._services.get(module_id)
+                if service and service.get('target') == target and service.get('process') and service['process'].poll() is None:
+                    url = self._probe_ai(service['url'], target / 'data')
+                else:
+                    url = self._launch_ai(clean, target, capsule)
+                    keep_capsule = True
+            elif module_id == 'english-slices':
                 if not existing:
                     # Publish only verified source, then run a separate clean capsule.
                     self._run_builder(clean, target, module_id)
@@ -748,7 +956,7 @@ class ModuleInstaller:
                             output.write(page)
                 url = None
             self._set(module_id, 'connecting', 90)
-            ids = self._connect(target, meta, url)
+            ids = self._connect_existing_ai(target, meta, url) if module_id == 'ai-opinion' and admitted_ai else self._connect(target, meta, url)
             self._set(module_id, 'completed', 100, site_ids=ids)
         except ModuleInstallError as error:
             self._set(module_id, 'failed', 100, error.code)

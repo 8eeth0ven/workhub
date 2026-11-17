@@ -28,11 +28,11 @@ _MODULES = (
         "download_url": REPOSITORY + "/releases/download/v0.1.0/auto-opinion-0.1.0.zip",
     },
     {
-        "id": "ai-opinion", "version": "0.1.3",
+        "id": "ai-opinion", "version": "0.1.4",
         "name": {"zh-CN": "AI 产品舆情监控", "en": "AI product opinion monitor"},
         "description": {"zh-CN": "跟踪 AI 产品、硬件与人物言论，合并重复并查看增量。",
                         "en": "Track AI products, hardware and public statements with deduplication and incremental briefs."},
-        "download_url": REPOSITORY + "/releases/download/ai-opinion-v0.1.3/ai-opinion-0.1.3.zip",
+        "download_url": REPOSITORY + "/releases/download/ai-opinion-v0.1.4/ai-opinion-0.1.4.zip",
     },
     {
         "id": "compute-search", "version": "0.1.0",
@@ -68,7 +68,7 @@ MODULE_IDS = frozenset(item["id"] for item in _MODULES)
 # Pinned archive digests are verified release artifacts, never supplied by HTTP.
 _PACKAGE_SHA256 = {
     "auto-opinion": "9fc18ae0fc1fc1f11b360cb59a5ad24c7d44db7536d5130cea62294f551d2d99",
-    "ai-opinion": "29b48cd7945ace1c79b53637151e2c2590dabf74308666f35485e474fc875d52",
+    "ai-opinion": "69a915e3b30d8e0fc118b8d08857bd71b8744eadaa94f43287d118418da6acf3",
     "compute-search": "d453a03487989be46dea699f7fc3a541121286c071818c82193f9c170b4a0108",
     "coding-graph": "079f1373ddd4aebd86a0c7ab6f561d5ff7f4380be144b2e007e70be889dff461",
     "english-slices": "aa43c8aa63fa1530953ff2c0f23b1a3efbba9737acbf372f2b4b6a9db8b89736",
